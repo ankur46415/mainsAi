@@ -1,0 +1,2 @@
+C:/Users/ankur/AndroidStudioProjects/mains-main/android/app/.cxx/RelWithDebInfo/175q676h/x86/CMakeFiles/edit_cache.dir
+C:/Users/ankur/AndroidStudioProjects/mains-main/android/app/.cxx/RelWithDebInfo/175q676h/x86/CMakeFiles/rebuild_cache.dir

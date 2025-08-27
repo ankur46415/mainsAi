@@ -1,0 +1,175 @@
+import '../../../app_imports.dart';
+import 'package:http/http.dart' as http;
+
+class ProfileSetupController extends GetxController {
+  late SharedPreferences prefs;
+  String? authToken;
+  RxBool isLoading = false.obs;
+  @override
+  void onInit() async {
+    super.onInit();
+    prefs = await SharedPreferences.getInstance();
+    authToken = prefs.getString(Constants.authToken);
+  }
+
+  final currentStep = 0.obs;
+  final selectedCategories = <String>[].obs;
+  var otherExamInput = ''.obs;
+  final selectedExam = RxnString();
+  final selectedLanguage = RxnString();
+  final selectedGender = RxnString();
+  final selectedAge = RxnString();
+
+  final fullName = ''.obs;
+  final gender = ''.obs;
+  final nativeLanguage = ''.obs;
+  final exam = ''.obs;
+  final age = ''.obs;
+
+  final stepCompleted = List<bool>.filled(5, false).obs;
+
+  final formKeys = List.generate(5, (_) => GlobalKey<FormState>());
+
+  final List<String> examTypes = [
+    'UPSC',
+    'CA',
+    'CMA',
+    'CS',
+    'ACCA',
+    'CFA',
+    'FRM',
+    'NEET',
+    'JEE',
+    'GATE',
+    'CAT',
+    'GMAT',
+    'GRE',
+    'IELTS',
+    'TOEFL',
+    'NET/JRF',
+    'BPSC',
+    'UPPCS',
+    'NDA',
+    'SSC',
+    'Teacher',
+    'CLAT',
+    'Judiciary',
+  ];
+
+  final ageOptions = ['<15', '15-18', '19-25', '26-31', '32-40', '40+'];
+  final languageOptions = ['Hindi', 'English', 'Bengali', 'Tamil', 'Other'];
+  final genderOptions = ['Male', 'Female'];
+
+  bool isStepValid(int step) {
+    switch (step) {
+      case 0:
+        return fullName.value.trim().isNotEmpty;
+      case 1:
+        return selectedAge.value != null;
+      case 2:
+        return selectedCategories.isNotEmpty &&
+            (!selectedCategories.contains('Others') ||
+                otherExamInput.value.trim().isNotEmpty);
+      case 3:
+        return selectedGender.value != null;
+      case 4:
+        return selectedLanguage.value != null;
+      default:
+        return false;
+    }
+  }
+
+  void updateStepCompletion() {
+    stepCompleted[0] = fullName.isNotEmpty;
+    stepCompleted[1] = selectedAge.value != null;
+    stepCompleted[2] =
+        selectedCategories.isNotEmpty && selectedExam.value != null;
+    stepCompleted[3] = selectedGender.value != null;
+    stepCompleted[4] = selectedLanguage.value != null;
+    stepCompleted.refresh();
+  }
+
+  void nextStep() {
+    if (currentStep.value < 4) {
+      currentStep.value += 1;
+    } else {
+      updateStepCompletion();
+      sendProfileData();
+    }
+  }
+
+  void previousStep() {
+    if (currentStep.value > 0) currentStep.value -= 1;
+  }
+
+  StepState getStepState(int step) {
+    if (currentStep.value > step) return StepState.complete;
+    if (currentStep.value == step) return StepState.editing;
+    return StepState.indexed;
+  }
+
+  Future<void> sendProfileData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? authToken = prefs.getString(Constants.authToken);
+
+    const String url = ApiUrls.getProfile;
+
+    final Map<String, dynamic> data = {
+      "name": fullName.value,
+      "age": selectedAge.value ?? '',
+      "gender": selectedGender.value ?? '',
+      "exams":
+          selectedCategories
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList(),
+      "native_language": selectedLanguage.value ?? '',
+    };
+
+    print("📤 Sending Profile Data to API...");
+    print("➡️ URL: $url");
+    print("🧾 Payload: ${jsonEncode(data)}");
+
+    try {
+      showSmallLoadingDialog();
+      await callWebApi(
+        null,
+        url,
+        data,
+        onResponse: (response) {
+          print("🔄 Response Status Code: \\${response.statusCode}");
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            Get.offAllNamed('/splash');
+            print("✅ Profile data submitted successfully!");
+            print("📩 Response Body: \\${response.body}");
+          } else if (response.statusCode == 401 || response.statusCode == 403) {
+            print('🔐 Token expired or unauthorized. Logging out user...');
+            SharedPreferences.getInstance().then((prefs) async {
+              await prefs.clear();
+              Get.offAll(() => User_Login_option());
+            });
+          } else {
+            print("❌ Failed to submit profile data!");
+            print("📩 Error Response Body: \\${response.body}");
+          }
+        },
+        onError: () {
+          print("🚨 Exception occurred while sending profile data!");
+        },
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: false,
+      );
+    } finally {
+      if (Get.isDialogOpen ?? false) Get.back();
+      isLoading.value = false;
+    }
+  }
+}
+
+class ProfileSetupBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(ProfileSetupController());
+  }
+}
