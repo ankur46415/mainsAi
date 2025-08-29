@@ -20,32 +20,26 @@ class ObjectiveRestNameController extends GetxController {
       authToken = prefs.getString(Constants.authToken);
       super.onInit();
 
-      // Get arguments and handle both Map and AiTestItem cases
       final arguments = Get.arguments;
-     
 
       if (arguments is Map<String, dynamic>) {
         testId = arguments['testId'] ?? '';
-       
       } else if (arguments is AiTestItem) {
         testId = arguments.testId;
-        
       } else {
         testId = '';
-        
       }
 
-if (testId.isNotEmpty) {
-        // Add a small delay to ensure proper initialization
+      if (testId.isNotEmpty) {
         await Future.delayed(const Duration(milliseconds: 200));
         fetchResult();
       } else {
-if (!_isDisposing) hasError.value = true;
+        if (!_isDisposing) hasError.value = true;
         if (!_isDisposing) isLoading.value = false;
         if (!isClosed) update();
       }
     } catch (e) {
-if (!_isDisposing) hasError.value = true;
+      if (!_isDisposing) hasError.value = true;
       if (!_isDisposing) isLoading.value = false;
       if (!isClosed) update();
     }
@@ -54,12 +48,12 @@ if (!_isDisposing) hasError.value = true;
   @override
   void onClose() {
     _isDisposing = true;
-super.onClose();
+    super.onClose();
   }
 
   @override
   void onReady() {
-super.onReady();
+    super.onReady();
   }
 
   Future<void> fetchResult() async {
@@ -73,14 +67,14 @@ super.onReady();
       final authToken = prefs.getString(Constants.authToken);
 
       if (authToken == null) {
-if (!_isDisposing) hasError.value = true;
+        if (!_isDisposing) hasError.value = true;
         if (!_isDisposing) isLoading.value = false;
         if (!isClosed) update();
         return;
       }
 
       final url = Uri.parse(
-        'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI677117YN7N/$testId/results',
+        'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/$testId/results',
       );
       final response = await http.get(
         url,
@@ -90,34 +84,32 @@ if (!_isDisposing) hasError.value = true;
         },
       );
 
-// FULL RAW RESPONSE
+      // FULL RAW RESPONSE
 
       if (response.statusCode == 200) {
         final jsonMap = jsonDecode(response.body);
 
-// FULL DECODED JSON MAP
+        // FULL DECODED JSON MAP
 
         if (jsonMap['success'] == true) {
           try {
-
-
             if (_isDisposing) return;
             resultData.value = ObjectiveTestResult.fromJson(jsonMap['data']);
-if (!isClosed) update();
+            if (!isClosed) update();
           } catch (e, stackTrace) {
-if (!_isDisposing) hasError.value = true;
+            if (!_isDisposing) hasError.value = true;
             if (!isClosed) update();
           }
         } else {
-if (!_isDisposing) hasError.value = true;
+          if (!_isDisposing) hasError.value = true;
           if (!isClosed) update();
         }
       } else {
-if (!_isDisposing) hasError.value = true;
+        if (!_isDisposing) hasError.value = true;
         if (!isClosed) update();
       }
     } catch (e) {
-if (!_isDisposing) hasError.value = true;
+      if (!_isDisposing) hasError.value = true;
       if (!isClosed) update();
     } finally {
       if (!_isDisposing) isLoading.value = false;
