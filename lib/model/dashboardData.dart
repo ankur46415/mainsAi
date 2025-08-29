@@ -25,6 +25,7 @@ class Data {
   List<Trending>? trending;
   List<Recent>? recent;
   List<Categories>? categories;
+  List<Reels>? reels;
   int? totalBooks;
 
   Data({
@@ -33,6 +34,7 @@ class Data {
     this.recent,
     this.categories,
     this.totalBooks,
+    this.reels,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,12 @@ class Data {
     }
     if (json['recent'] != null) {
       recent = (json['recent'] as List).map((v) => Recent.fromJson(v)).toList();
+    }
+    if (json['reels'] != null) {
+      reels =
+          (json['reels'] as List)
+              .map((v) => Reels.fromJson(v))
+              .toList(); // Added reels parsing
     }
     if (json['categories'] != null) {
       categories =
@@ -65,6 +73,9 @@ class Data {
     }
     if (trending != null) {
       data['trending'] = trending!.map((v) => v.toJson()).toList();
+    }
+    if (reels != null) {
+      data['reels'] = reels!.map((v) => v.toJson()).toList();
     }
     if (recent != null) {
       data['recent'] = recent!.map((v) => v.toJson()).toList();
@@ -306,6 +317,88 @@ class Recent {
     data['exam_name'] = examName;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    return data;
+  }
+}
+
+class Reels {
+  String? reelId;
+  String? title;
+  String? description;
+  String? youtubeLink;
+  String? youtubeId;
+  String? videoKey;
+  String? videoUrl;
+  int? order;
+  Metrics? metrics;
+  String? createdAt;
+
+  Reels({
+    this.reelId,
+    this.title,
+    this.description,
+    this.youtubeLink,
+    this.youtubeId,
+    this.videoKey,
+    this.videoUrl,
+    this.order,
+    this.metrics,
+    this.createdAt,
+  });
+
+  Reels.fromJson(Map<String, dynamic> json) {
+    reelId = json['reel_id'];
+    title = json['title'];
+    description = json['description'];
+    youtubeLink = json['youtube_link'];
+    youtubeId = json['youtube_id'];
+    videoKey = json['video_key'];
+    videoUrl = json['video_url'];
+    order = json['order'];
+    metrics =
+        json['metrics'] != null ? Metrics.fromJson(json['metrics']) : null;
+    createdAt = json['created_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['reel_id'] = reelId;
+    data['title'] = title;
+    data['description'] = description;
+    data['youtube_link'] = youtubeLink;
+    data['youtube_id'] = youtubeId;
+    data['video_key'] = videoKey;
+    data['video_url'] = videoUrl;
+    data['order'] = order;
+    if (metrics != null) {
+      data['metrics'] = metrics!.toJson();
+    }
+    data['created_at'] = createdAt;
+    return data;
+  }
+}
+
+class Metrics {
+  int? views;
+  int? likes;
+  int? comments;
+  int? shares;
+
+  Metrics({this.views, this.likes, this.comments, this.shares});
+
+  Metrics.fromJson(Map<String, dynamic> json) {
+    views = json['views'];
+    likes = json['likes'];
+    comments = json['comments'];
+    shares = json['shares'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['views'] = views;
+    data['likes'] = likes;
+    data['comments'] = comments;
+    data['shares'] = shares;
     return data;
   }
 }

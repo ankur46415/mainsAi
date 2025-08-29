@@ -1,4 +1,5 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/my_kitabai_view/ai_test/ai_objective_test/full_obj_test_list.dart';
 
 class TestCategoriesObjectivePage extends StatefulWidget {
   const TestCategoriesObjectivePage({super.key});
@@ -19,7 +20,21 @@ class _TestCategoriesObjectivePageState
   @override
   void initState() {
     super.initState();
-    controller.fetchObjectiveTestHomeData(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await controller.fetchObjectiveTestHomeData(this);
+      final data = controller.aiTestHomeResponse.value?.data;
+      if (data != null && data.categories.isNotEmpty) {
+        for (var category in data.categories) {
+          final subcategories = category.subcategories;
+          if (subcategories.isNotEmpty) {
+            final firstSub = subcategories.first.name;
+            if (firstSub != null) {
+              tabController.setSelected(category.category, firstSub);
+            }
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -63,26 +78,20 @@ class _TestCategoriesObjectivePageState
             ),
           );
         }
+
         return ListView(
           padding: const EdgeInsets.all(16),
           children:
               data.categories.map((category) {
                 final subcategories = category.subcategories;
-
                 if (subcategories.isEmpty) return const SizedBox.shrink();
 
                 final subCatNames =
                     subcategories.map((e) => e.name ?? "").toSet().toList();
 
-                if (tabController.getSelected(category.category) == null &&
-                    subCatNames.isNotEmpty) {
-                  tabController.setSelected(
-                    category.category,
-                    subCatNames.first,
-                  );
-                }
                 final selectedSub =
-                    tabController.getSelected(category.category) ?? "";
+                    tabController.getSelected(category.category) ??
+                    subCatNames.first;
 
                 final selectedSubcategory = subcategories.firstWhereOrNull(
                   (s) => s.name == selectedSub,
@@ -107,9 +116,7 @@ class _TestCategoriesObjectivePageState
                         itemCount: subCatNames.length,
                         itemBuilder: (context, index) {
                           final subName = subCatNames[index];
-                          final isSelected =
-                              tabController.getSelected(category.category) ==
-                              subName;
+                          final isSelected = selectedSub == subName;
 
                           return GestureDetector(
                             onTap:
@@ -149,38 +156,125 @@ class _TestCategoriesObjectivePageState
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     if (selectedSubcategory?.tests.isNotEmpty == true)
-                      SizedBox(
-                        height: Get.width * 0.35,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: selectedSubcategory!.tests.length,
-                          padding: const EdgeInsets.only(bottom: 12),
-                          itemBuilder: (context, index) {
-                            final test = selectedSubcategory.tests[index];
-                            return Container(
-                              width: Get.width*0.28,
-                              margin: const EdgeInsets.only(right: 12),
-                              child: InkWell(
-                                onTap: () {
-                                  Get.toNamed(
-                                    AppRoutes.starttestpage,
-                                    arguments: test,
+                      Column(
+                        children: [
+                          SizedBox(
+                            height:
+                                Get.width *
+                                0.45 *
+                                (((selectedSubcategory?.tests.length ?? 0) / 3)
+                                    .ceil()),
+                            child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.only(bottom: 12),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    mainAxisSpacing: 12,
+                                    crossAxisSpacing: 12,
+                                    childAspectRatio: 0.7,
+                                  ),
+                              itemCount:
+                                  (selectedSubcategory?.tests.length ?? 0) > 5
+                                      ? 6
+                                      : (selectedSubcategory?.tests.length ??
+                                          0),
+                              itemBuilder: (context, index) {
+                                if (index == 5) {
+                                  final images =
+                                      (selectedSubcategory?.tests ?? const [])
+                                          .take(6)
+                                          .map(
+                                            (t) =>
+                                                t.imageUrl ??
+                                                'https://picsum.photos/300/200',
+                                          )
+                                          .toList();
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Get.to(
+                                        () => FullTestListObjPage(
+                                          tests:
+                                              selectedSubcategory?.tests ??
+                                              const [],
+                                          subcategoryName:
+                                              selectedSubcategory?.name ?? "",
+                                          categoryName: category.category,
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            child: GridView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              gridDelegate:
+                                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2,
+                                                    mainAxisSpacing: 2,
+                                                    crossAxisSpacing: 2,
+                                                    childAspectRatio: 1,
+                                                  ),
+                                              itemCount: images.length,
+                                              itemBuilder: (context, imgIndex) {
+                                                return Image.network(
+                                                  images[imgIndex],
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(
+                                                0.4,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: const Text(
+                                              "See More",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   );
-                                },
-                                child: _buildTestCard(
-                                  title: test.name,
-                                  subtitle: test.description,
-                                  label: selectedSubcategory.name ?? '',
-                                  startColor: Colors.indigo.shade600,
-                                  endColor: Colors.indigo.shade400,
-                                  imageUrl: test.imageUrl,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                                }
+                                final test = selectedSubcategory!.tests[index];
+                                return InkWell(
+                                  onTap: () {
+                                    Get.toNamed(
+                                      AppRoutes.starttestpage,
+                                      arguments: test,
+                                    );
+                                  },
+                                  child: _buildTestCard(
+                                    imageUrl: test.imageUrl,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       )
                     else
                       const Padding(
@@ -196,18 +290,11 @@ class _TestCategoriesObjectivePageState
     );
   }
 
-  Widget _buildTestCard({
-    required String title,
-    required String subtitle,
-    required String imageUrl,
-    required String label,
-    required Color startColor,
-    required Color endColor,
-  }) {
+  Widget _buildTestCard({required String? imageUrl}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Image.network(
-        imageUrl,
+        imageUrl ?? 'https://picsum.photos/200/300',
         height: double.infinity,
         width: double.infinity,
         fit: BoxFit.fill,
@@ -216,7 +303,7 @@ class _TestCategoriesObjectivePageState
               color: Colors.grey[300],
               alignment: Alignment.center,
               child: const Icon(
-                Icons.broken_image,
+                 Icons.menu_book_rounded,
                 size: 40,
                 color: Colors.grey,
               ),

@@ -253,7 +253,8 @@ class BriefOfQuestion extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           Text(
-            explanation ?? "The correct answer is '$correctAnswer' because... (detailed explanation would appear here)",
+            explanation ??
+                "The correct answer is '$correctAnswer' because... (detailed explanation would appear here)",
             style: TextStyle(
               fontSize: 15,
               color: Colors.grey[800],

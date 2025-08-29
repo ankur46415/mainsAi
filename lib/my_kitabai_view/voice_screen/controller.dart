@@ -284,7 +284,7 @@ class VoiceController extends GetxController {
     );
 
     final String url =
-        'https://aipbbackend-c5ed.onrender.com/api/mobile/public-chat/ask-fast/$questionId';
+        'https://aipbbackend-yxnh.onrender.com/api/mobile/public-chat/ask-fast/$questionId';
     debugPrint("🌐 [ragChatApi] URL: $url");
 
     final headers = {
@@ -905,7 +905,7 @@ class VoiceController extends GetxController {
                         Row(
                           children: [
                             Image.asset(
-                              'assets/images/book1.jpg',
+                              'assets/images/bookb.png',
                               height: Get.width * 0.16,
                             ),
                             SizedBox(width: Get.width * 0.02),
@@ -1119,39 +1119,32 @@ class VoiceController extends GetxController {
   }
 
   Future<void> getHybridAIResponse(String input) async {
-    if (input.trim().isEmpty) return;
-    debugPrint("[HybridAI] User input: $input");
+    if (input.trim().isEmpty) {
+      return;
+    }
+
     isLoading.value = true;
     showThinkingBubble.value = true;
+
     try {
       if (isRagChatAvailable == true) {
         final ragResponse = await ragChatApi(input);
+
         final aiText = ragResponse.answer ?? '';
+
         aiReply = aiText;
         addMessage({"sender": "ai", "message": aiText});
-        showThinkingBubble.value =
-            false; // Hide thinking as soon as response arrives
-        // Use the appropriate TTS based on mode
-        if (ttsMode.value == 'flutter') {
-          await callFlutterTts(aiText);
-        } else if (ttsMode.value == 'lmnt') {
-          await callLmntForTTS(aiText);
-        } else {
-          await callSarvamForTTS(aiText);
-        }
+        showThinkingBubble.value = false;
       } else {
         await getAIResponse(input);
-        showThinkingBubble.value =
-            false; // Hide thinking as soon as response arrives
+        showThinkingBubble.value = false;
       }
-    } catch (e) {
-      debugPrint('[HybridAI] RAG API failed, falling back to Gemini: $e');
+    } catch (e, stackTrace) {
       await getAIResponse(input);
       showThinkingBubble.value = false;
     } finally {
       isLoading.value = false;
       textController.clear();
-      debugPrint("[HybridAI] Finished processing input.");
     }
   }
 }

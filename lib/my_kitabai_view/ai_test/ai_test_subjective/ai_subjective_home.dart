@@ -1,8 +1,9 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/my_kitabai_view/ai_test/ai_test_subjective/controller.dart';
+import 'package:mains/my_kitabai_view/ai_test/ai_test_subjective/full_test_list/full_test_list.dart';
 
 class AiTestSubHome extends StatefulWidget {
-  const AiTestSubHome({super.key});
+  AiTestSubHome({super.key});
 
   @override
   State<AiTestSubHome> createState() => _AiTestSubHomeState();
@@ -15,11 +16,23 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
   );
 
   final TestTabController tabController = Get.put(TestTabController());
-
   @override
   void initState() {
     super.initState();
-    controller.fetchAiTestSubjective(this);
+    controller.fetchAiTestSubjective(this).then((_) {
+      final data = controller.aiTestSubjective.value?.data;
+      if (data != null && data.categories != null) {
+        for (var category in data.categories!) {
+          if (category.subcategories != null &&
+              category.subcategories!.isNotEmpty) {
+            final firstSub = category.subcategories!.first.name;
+            if (firstSub != null) {
+              tabController.setSelected(category.category!, firstSub);
+            }
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -53,7 +66,13 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
               children: [
                 Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                 const SizedBox(height: 16),
-
+                Text(
+                  'Error loading tests',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   controller.errorMessage.value,
@@ -203,39 +222,116 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                     const SizedBox(height: 16),
                     if (selectedSubcategory.tests != null &&
                         selectedSubcategory.tests!.isNotEmpty)
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.8,
-                            ),
-                        itemCount: selectedSubcategory.tests!.length,
-                        itemBuilder: (context, index) {
-                          final test = selectedSubcategory.tests![index];
+                      Column(
+                        children: [
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 0.8,
+                                ),
+                            itemCount:
+                                selectedSubcategory.tests!.length > 5
+                                    ? 6
+                                    : selectedSubcategory.tests!.length,
+                            itemBuilder: (context, index) {
+                              if (index == 5) {
+                                final images =
+                                    selectedSubcategory.tests!
+                                        .take(6)
+                                        .map(
+                                          (t) =>
+                                              t.imageUrl ??
+                                              'https://picsum.photos/300/200',
+                                        )
+                                        .toList();
 
-                          return GestureDetector(
-                            onTap: () {
-                              NavigationUtils.navigateToTestDetails(
-                                test,
-                                AppRoutes.subjectiveTestNamePage,
+                                return GestureDetector(
+                                  onTap: () {
+                                    Get.to(
+                                      () => FullTestListPage(
+                                        tests: selectedSubcategory.tests!,
+                                        subcategoryName:
+                                            selectedSubcategory.name ?? "",
+                                      ),
+                                    );
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child: GridView.builder(
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            gridDelegate:
+                                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 2,
+                                                ),
+                                            itemCount: images.length,
+                                            itemBuilder: (context, imgIndex) {
+                                              return Image.network(
+                                                images[imgIndex],
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.4),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: const Text(
+                                          "See More",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              final test = selectedSubcategory.tests![index];
+                              return GestureDetector(
+                                onTap: () {
+                                  NavigationUtils.navigateToTestDetails(
+                                    test,
+                                    AppRoutes.subjectiveTestNamePage,
+                                  );
+                                },
+                                child: _buildTestCard(
+                                  imageUrl:
+                                      test.imageUrl ??
+                                      'https://picsum.photos/300/200',
+                                ),
                               );
                             },
-                            child: _buildTestCard(
-                              title: test.name ?? 'Untitled',
-                              subtitle: test.description ?? '',
-                              label: selectedSubcategory.name ?? '',
-                              startColor: Colors.teal.shade700,
-                              endColor: Colors.teal.shade400,
-                              imageUrl:
-                                  test.imageUrl ??
-                                  'https://picsum.photos/300/200',
-                            ),
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       )
                     else
                       const Padding(
@@ -247,6 +343,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                           ),
                         ),
                       ),
+
                     const SizedBox(height: 20),
                   ],
                 );
@@ -256,14 +353,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
     );
   }
 
-  Widget _buildTestCard({
-    required String title,
-    required String subtitle,
-    required String imageUrl,
-    required String label,
-    required Color startColor,
-    required Color endColor,
-  }) {
+  Widget _buildTestCard({required String imageUrl}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: CachedNetworkImage(
@@ -274,7 +364,13 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
         placeholder:
             (context, url) => Container(
               color: Colors.grey[300],
-              child: const Center(child: CircularProgressIndicator()),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/bookb.png',
+                  fit: BoxFit.fill,
+                  color: Colors.grey,
+                ),
+              ),
             ),
         errorWidget:
             (context, url, error) => Container(
@@ -283,19 +379,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.broken_image,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Image not available',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  Image.asset("assets/images/bookb.png", color: Colors.grey),
                 ],
               ),
             ),

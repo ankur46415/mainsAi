@@ -34,7 +34,7 @@ class PaymentController extends GetxController {
     isLoading.value = true;
 
     const url =
-        'https://aipbbackend-c5ed.onrender.com/api/clients/CLI147189HIGB/mobile/credit/recharge-plans';
+        'https://aipbbackend-yxnh.onrender.com/api/clients/CLI147189HIGB/mobile/credit/recharge-plans';
     print("🌐 API URL: $url");
     print("🛡️ Authorization Token: $authToken");
 
@@ -84,7 +84,7 @@ class PaymentController extends GetxController {
   }
 
   final String backendUrl =
-      'https://aipbbackend-c5ed.onrender.com/api/paytm/initiate';
+      'https://aipbbackend-yxnh.onrender.com/api/paytm/initiate';
 
   Future<void> initiatePayment({
     required double amount,

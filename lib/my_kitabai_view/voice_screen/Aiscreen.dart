@@ -16,7 +16,7 @@ class VoiceScreen extends StatefulWidget {
     this.questionId,
     this.welcomeAiMessages,
     this.welcomeAiFAQsForChat,
-    this.isRagChatAvailable = true,
+    this.isRagChatAvailable,
   });
 
   @override
@@ -42,6 +42,7 @@ class _VoiceScreenState extends State<VoiceScreen>
   @override
   void initState() {
     super.initState();
+
     _initializeController();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final msg = widget.welcomeAiMessages;
@@ -200,7 +201,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Image.asset(
-                                      'assets/images/book1.jpg',
+                                      'assets/images/bookb.png',
                                       height: Get.width * 0.16,
                                       width: Get.width * 0.14,
                                       fit: BoxFit.cover,
@@ -1252,5 +1253,4 @@ class _VoiceScreenState extends State<VoiceScreen>
       ),
     );
   }
-
 }

@@ -26,7 +26,7 @@ class AnnotatedImagesPage extends StatelessWidget {
                 fit: BoxFit.contain,
                 errorBuilder:
                     (_, __, ___) => const Icon(
-                      Icons.broken_image,
+                       Icons.menu_book_rounded,
                       size: 80,
                       color: Colors.white,
                     ),

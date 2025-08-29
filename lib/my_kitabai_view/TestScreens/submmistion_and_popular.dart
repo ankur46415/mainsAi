@@ -317,7 +317,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (_, __, ___) =>
-                                    const Icon(Icons.broken_image, size: 80),
+                                    const Icon( Icons.menu_book_rounded, size: 80),
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return SizedBox(
@@ -518,7 +518,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (_, __, ___) => const Icon(
-                                      Icons.broken_image,
+                                       Icons.menu_book_rounded,
                                       size: 80,
                                     ),
                                 loadingBuilder: (context, child, progress) {
@@ -674,7 +674,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (_, __, ___) =>
-                                    Icon(Icons.broken_image, size: 80),
+                                    Icon( Icons.menu_book_rounded, size: 80),
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return SizedBox(
@@ -696,7 +696,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (_, __, ___) =>
-                                        Icon(Icons.broken_image, size: 80),
+                                        Icon( Icons.menu_book_rounded, size: 80),
                                 loadingBuilder: (context, child, progress) {
                                   if (progress == null) return child;
                                   return SizedBox(

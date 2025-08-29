@@ -1,13 +1,14 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/common/utils.dart';
-import 'package:http/http.dart' as http;
 
 class AiTestObjectiveController extends GetxController {
   final Rxn<AiTestHomeResponse> aiTestHomeResponse = Rxn<AiTestHomeResponse>();
   final RxBool isLoading = false.obs;
 
   Future<void> fetchObjectiveTestHomeData(TickerProvider ticker) async {
-    isLoading.value = true;
+    if (!isLoading.value) {
+      isLoading.value = true;
+    }
 
     try {
       final prefs = await SharedPreferences.getInstance();

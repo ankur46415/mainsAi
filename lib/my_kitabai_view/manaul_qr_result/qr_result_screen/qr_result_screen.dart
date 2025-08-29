@@ -290,7 +290,7 @@ class _QrResultScreenState extends State<QrResultScreen>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.asset(
-                              'assets/images/book2.jpg',
+                              'assets/images/bookb.png',
                               fit: BoxFit.cover,
                               // fit: ,
                             ),

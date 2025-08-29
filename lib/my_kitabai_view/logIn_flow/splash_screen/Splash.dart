@@ -55,7 +55,7 @@ class _SplashState extends State<Splash> {
 
               // App name
               Text(
-                'Mains',
+                'mAIns',
                 style: GoogleFonts.poppins(
                   fontSize: isSmallDevice ? 28 : 36,
                   fontWeight: FontWeight.bold,

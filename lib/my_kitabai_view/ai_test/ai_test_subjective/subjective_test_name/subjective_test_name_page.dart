@@ -26,7 +26,6 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
     });
   }
 
-
   void _initializeTestData() {
     try {
       final arguments = Get.arguments;
@@ -69,10 +68,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
     if (testData.description != null && testData.description!.isNotEmpty) {
       final textSpan = TextSpan(
         text: testData.description!,
-        style: GoogleFonts.poppins(
-          fontSize: 13,
-          color: Colors.white70,
-        ),
+        style: GoogleFonts.poppins(fontSize: 13, color: Colors.white70),
       );
 
       final tp = TextPainter(
@@ -87,7 +83,6 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -168,13 +163,15 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                             height: Get.width * 0.6,
                             width: double.infinity,
                             fit: BoxFit.fill,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            errorWidget: (context, url, error) => const Icon(
-                              Icons.broken_image,
-                              color: Colors.white,
-                            ),
+                            placeholder:
+                                (context, url) => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                            errorWidget:
+                                (context, url, error) => const Icon(
+                                   Icons.menu_book_rounded,
+                                  color: Colors.white,
+                                ),
                           ),
                         ),
                       const SizedBox(height: 12),
@@ -204,9 +201,10 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                             color: Colors.white70,
                           ),
                           maxLines: _isExpanded ? null : 3,
-                          overflow: _isExpanded
-                              ? TextOverflow.visible
-                              : TextOverflow.ellipsis,
+                          overflow:
+                              _isExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
                         ),
                         if (_isLongDescription)
                           GestureDetector(

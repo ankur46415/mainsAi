@@ -210,7 +210,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                           stackTrace,
                                                                         ) {
                                                                           return Icon(
-                                                                            Icons.broken_image,
+                                                                             Icons.menu_book_rounded,
                                                                             size:
                                                                                 80,
                                                                             color:

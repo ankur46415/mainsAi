@@ -100,7 +100,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                                         ),
                                     errorWidget:
                                         (context, url, error) => Image.asset(
-                                          'assets/images/book2.jpg',
+                                          'assets/images/bookb.png',
                                           fit: BoxFit.cover,
                                         ),
                                   ),
@@ -184,7 +184,19 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: Get.width * 0.02),
+          SizedBox(height: Get.width * 0.015),
+          Text(
+            bookData.chatAvailable == true
+                ? "Book is embedded"
+                : "Book is not embedded",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey,
+            ),
+          ),
+
           _buildRatingRow(bookData),
           const SizedBox(height: 8),
           const Divider(height: 1),
@@ -302,11 +314,14 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                       Get.delete<VoiceController>();
                     }
                     final aiGuidelines = controller.aiGuidelines.value;
+                    final bookData = controller.bookDetails.value!.data!;
 
                     Get.to(
                       () => VoiceScreen(
                         initialChatMode: true,
                         questionId: widget.bookId!,
+                        isRagChatAvailable: bookData.chatAvailable ?? false,
+
                         welcomeAiMessages: aiGuidelines?.message ?? "",
                         welcomeAiFAQsForChat:
                             aiGuidelines?.fAQs != null
@@ -335,11 +350,14 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                       Get.delete<VoiceController>();
                     }
                     final aiGuidelines = controller.aiGuidelines.value;
+                    final bookData = controller.bookDetails.value!.data!;
 
                     Get.to(
                       () => VoiceScreen(
                         initialChatMode: false,
                         questionId: widget.bookId!,
+                        isRagChatAvailable: bookData.chatAvailable ?? false,
+
                         welcomeAiMessages: aiGuidelines?.message ?? "",
                         welcomeAiFAQsForChat:
                             aiGuidelines?.fAQs != null

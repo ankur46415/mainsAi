@@ -1,6 +1,5 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/model/objective_previous_attempt.dart';
-import 'package:mains/common/api_services.dart';
 import 'package:http/http.dart' as http;
 
 class ResultAttemptController extends GetxController {
@@ -9,12 +8,64 @@ class ResultAttemptController extends GetxController {
 
   ResultAttemptController(this.attempt, this.testId);
 
-  String get score => attempt.score.toString();
+  double get totalMarksEarned => attempt?.totalMarksEarned?.toDouble() ?? 0.0;
+
+  // Display the final score including negative marking
+  String get score => finalMarksWithNegative.toStringAsFixed(2);
   int get correct => attempt.correctAnswers;
   int get incorrect => (attempt.totalQuestions - unattempted) - correct;
   int get unattempted => attempt.answers.values.where((v) => v == null).length;
 
+  // Computed marking with positives/negatives pulled from questions API when available
+  double get totalPossibleMarks {
+    if (questions.isEmpty) {
+      // fallback: assume 1 mark per question
+      return attempt.totalQuestions.toDouble();
+    }
+    return questions.fold<double>(0.0, (sum, q) {
+      final pm = (q['positiveMarks'] as num?)?.toDouble() ?? 1.0;
+      return sum + pm;
+    });
+  }
+
+  double get totalNegativeMarks {
+    if (questions.isEmpty) return 0.0;
+    double total = 0.0;
+    for (final q in questions) {
+      final qid = q['id'];
+      final userAns = attempt.answers[qid];
+      final correctAns = q['correctAnswer'];
+      if (userAns != null && userAns != correctAns) {
+        total += (q['negativeMarks'] as num?)?.toDouble() ?? 0.0;
+      }
+    }
+    return total;
+  }
+
+  double get finalMarksWithNegative {
+    if (questions.isEmpty) {
+      // fallback to API-provided total if available
+      return totalMarksEarned;
+    }
+    double total = 0.0;
+    for (final q in questions) {
+      final qid = q['id'];
+      final userAns = attempt.answers[qid];
+      final correctAns = q['correctAnswer'];
+      final pos = (q['positiveMarks'] as num?)?.toDouble() ?? 1.0;
+      final neg = (q['negativeMarks'] as num?)?.toDouble() ?? 0.0;
+      if (userAns == null) continue; // no marks change
+      if (userAns == correctAns) {
+        total += pos;
+      } else {
+        total -= neg;
+      }
+    }
+    return total;
+  }
+
   String get timeTaken => attempt.completionTime;
+
   String get submittedAt {
     final dt = DateTime.parse(attempt.submittedAt);
     return "${dt.day}/${dt.month}/${dt.year}";
@@ -22,6 +73,7 @@ class ResultAttemptController extends GetxController {
 
   RxBool showAllSolutions = false.obs;
   RxBool isLoadingQuestions = true.obs;
+
   List<Map<String, dynamic>> questions = [];
 
   @override
@@ -32,14 +84,12 @@ class ResultAttemptController extends GetxController {
 
   Future<void> fetchQuestions() async {
     try {
-      isLoadingQuestions.value = true;
+isLoadingQuestions.value = true;
 
-      // ✅ Get auth token
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
-
-      final url = Uri.parse('${ApiUrls.objectiveTestQnsBase}$testId');
-      final response = await http.get(
+final url = Uri.parse('${ApiUrls.objectiveTestQnsBase}$testId');
+final response = await http.get(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -47,40 +97,32 @@ class ResultAttemptController extends GetxController {
         },
       );
 
-      print('📥 Raw response status: ${response.statusCode}');
-      print('📥 Raw response body: ${response.body}');
-
-      if (response.statusCode == 200) {
+if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['questions'] != null) {
+if (data['success'] == true && data['questions'] != null) {
           final questionsData = data['questions'] as List;
+questions =
+              questionsData.map((q) {
+return {
+                  'id': q['_id'],
+                  'question': q['question'],
+                  'options': q['options'],
+                  'correctAnswer': q['correctAnswer'],
+                  'difficulty': q['difficulty'],
+                  'positiveMarks': q['positiveMarks'],
+                  'negativeMarks': q['negativeMarks'],
+                };
+              }).toList();
 
-          questions =
-              questionsData
-                  .map(
-                    (q) => {
-                      'id': q['_id'],
-                      'question': q['question'],
-                      'options': q['options'],
-                      'correctAnswer': q['correctAnswer'],
-                      'difficulty': q['difficulty'],
-                    },
-                  )
-                  .toList();
-
-          print('✅ Fetched ${questions.length} real questions');
-          print('✅ First question: ${questions.first['question']}');
+          
         } else {
-          print('❌ API response missing questions or success false');
-        }
+}
       } else {
-        print('❌ Server error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('❌ Exception while fetching questions: $e');
-    } finally {
+}
+    } catch (e, s) {
+} finally {
       isLoadingQuestions.value = false;
+      
     }
   }
 
@@ -89,30 +131,37 @@ class ResultAttemptController extends GetxController {
 
   List<Map<String, dynamic>> get _allSolutions {
     if (questions.isEmpty) {
-      // Fallback to numbered questions if real questions not loaded
+      // fallback when questions not loaded
       return List.generate(attempt.totalQuestions, (i) {
         return {
           "sn": i + 1,
           "index": i,
           "question": "Question ${i + 1}",
-          "result": i < attempt.correctAnswers ? "✓" : "✗",
+          "result": "-", // unattempted
         };
       });
     }
 
-    // Use real questions
     return List.generate(questions.length, (i) {
       final question = questions[i];
       final questionId = question['id'];
       final userAnswer = attempt.answers[questionId];
       final correctAnswer = question['correctAnswer'];
-      final isCorrect = userAnswer == correctAnswer;
+
+      String result;
+      if (userAnswer == null) {
+        result = "-"; // unattempted
+      } else if (userAnswer == correctAnswer) {
+        result = "✓"; // correct
+      } else {
+        result = "✗"; // wrong
+      }
 
       return {
         "sn": i + 1,
         "index": i,
         "question": question['question'],
-        "result": isCorrect ? "✓" : "✗",
+        "result": result,
         "userAnswer": userAnswer,
         "correctAnswer": correctAnswer,
         "options": question['options'],
@@ -120,29 +169,34 @@ class ResultAttemptController extends GetxController {
     });
   }
 
-  void toggleSolutions() {
-    showAllSolutions.value = !showAllSolutions.value;
-  }
+  void toggleSolutions() => showAllSolutions.value = !showAllSolutions.value;
 
   void goToQuestionDetail(int index) {
-    if (index < questions.length) {
-      final question = questions[index];
-      final questionId = question['id'];
-      final userAnswer = attempt.answers[questionId];
-      final correctAnswer = question['correctAnswer'];
+    if (index >= questions.length) return;
 
-      Get.to(
-        () => BriefOfQuestion(
-          question: question['question'],
-          selectedAnswer:
-              userAnswer != null
-                  ? question['options'][userAnswer]
-                  : "Not attempted",
-          correctAnswer: question['options'][correctAnswer],
-          options: List<String>.from(question['options']), // 👈 Fix here
-          explanation: "Detailed explanation here...",
-        ),
-      );
-    }
+    final question = questions[index];
+    final questionId = question['id'];
+    final userAnswer = attempt.answers[questionId];
+    final correctAnswer = question['correctAnswer'];
+
+    Get.to(
+      () => BriefOfQuestion(
+        question: question['question'],
+        selectedAnswer:
+            userAnswer != null
+                ? question['options'][userAnswer]
+                : "Not attempted",
+        correctAnswer: question['options'][correctAnswer],
+        options: List<String>.from(question['options']),
+        explanation: "Detailed explanation here...",
+      ),
+    );
+  }
+
+  /// Helper: get correct answer for a given questionId
+  int? getCorrectAnswer(String questionId) {
+    final q = questions.firstWhereOrNull((q) => q['id'] == questionId);
+    if (q != null) return q['correctAnswer'];
+    return null;
   }
 }

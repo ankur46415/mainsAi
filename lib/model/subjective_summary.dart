@@ -3,12 +3,14 @@ class SummarySubjective {
   TestStatus? testStatus;
   TestSubmissionSummary? testSubmissionSummary;
   Test? test;
+  int? testMaximumMarks;
 
   SummarySubjective({
     this.success,
     this.testStatus,
     this.testSubmissionSummary,
     this.test,
+    this.testMaximumMarks,
   });
 
   SummarySubjective.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,10 @@ class SummarySubjective {
             ? new TestSubmissionSummary.fromJson(json['TestSubmissionSummary'])
             : null;
     test = json['test'] != null ? new Test.fromJson(json['test']) : null;
+    testMaximumMarks =
+        json['testMaximumMarks'] is num
+            ? (json['testMaximumMarks'] as num).toInt()
+            : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +42,7 @@ class SummarySubjective {
     if (this.test != null) {
       data['test'] = this.test!.toJson();
     }
+    data['testMaximumMarks'] = this.testMaximumMarks;
     return data;
   }
 }
@@ -108,8 +115,20 @@ class TestSubmissionSummary {
         );
       });
     }
-    attemptedQuestionIds = json['attemptedQuestionIds'].cast<String>();
-    notAttemptedQuestionIds = json['notAttemptedQuestionIds'].cast<String>();
+    final attemptedIdsJson = json['attemptedQuestionIds'];
+    if (attemptedIdsJson is List) {
+      attemptedQuestionIds = attemptedIdsJson.map((e) => e.toString()).toList();
+    } else {
+      attemptedQuestionIds = null;
+    }
+
+    final notAttemptedIdsJson = json['notAttemptedQuestionIds'];
+    if (notAttemptedIdsJson is List) {
+      notAttemptedQuestionIds =
+          notAttemptedIdsJson.map((e) => e.toString()).toList();
+    } else {
+      notAttemptedQuestionIds = null;
+    }
     averageTimePerQuestion = json['averageTimePerQuestion'];
   }
 
@@ -132,34 +151,40 @@ class TestSubmissionSummary {
 
 class AttemptedQuestionsDetails {
   String? questionId;
+  String? question;
   int? attemptNumber;
   int? maximumMarks;
   String? submissionStatus;
   String? submittedAt;
   int? timeSpent;
   int? answerImages;
+  String? difficultyLevel;
   Evaluation? evaluation;
 
   AttemptedQuestionsDetails({
     this.questionId,
+    this.question,
     this.attemptNumber,
-    
+
     this.maximumMarks,
     this.submissionStatus,
     this.submittedAt,
     this.timeSpent,
     this.answerImages,
+    this.difficultyLevel,
     this.evaluation,
   });
 
   AttemptedQuestionsDetails.fromJson(Map<String, dynamic> json) {
     questionId = json['questionId'];
+    question = json['question'];
     attemptNumber = json['attemptNumber'];
     submissionStatus = json['submissionStatus'];
     maximumMarks = json['maximumMarks'];
-     submittedAt = json['submittedAt'];
+    submittedAt = json['submittedAt'];
     timeSpent = json['timeSpent'];
     answerImages = json['answerImages'];
+    difficultyLevel = json['difficultyLevel'];
     evaluation =
         json['evaluation'] != null
             ? new Evaluation.fromJson(json['evaluation'])
@@ -169,12 +194,14 @@ class AttemptedQuestionsDetails {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['questionId'] = this.questionId;
-     data['maximumMarks'] = this.maximumMarks;
+    data['question'] = this.question;
+    data['maximumMarks'] = this.maximumMarks;
     data['attemptNumber'] = this.attemptNumber;
     data['submissionStatus'] = this.submissionStatus;
     data['submittedAt'] = this.submittedAt;
     data['timeSpent'] = this.timeSpent;
     data['answerImages'] = this.answerImages;
+    data['difficultyLevel'] = this.difficultyLevel;
     if (this.evaluation != null) {
       data['evaluation'] = this.evaluation!.toJson();
     }
@@ -198,10 +225,16 @@ class Evaluation {
   });
 
   Evaluation.fromJson(Map<String, dynamic> json) {
-    relevancy = json['relevancy'];
-    score = json['score'];
+    relevancy =
+        json['relevancy'] is num ? (json['relevancy'] as num).toInt() : null;
+    score = json['score'] is num ? (json['score'] as num).toInt() : null;
     remark = json['remark'];
-    comments = json['comments'].cast<String>();
+    final commentsJson = json['comments'];
+    if (commentsJson is List) {
+      comments = commentsJson.map((e) => e.toString()).toList();
+    } else {
+      comments = null;
+    }
     analysis =
         json['analysis'] != null
             ? new Analysis.fromJson(json['analysis'])
@@ -241,13 +274,34 @@ class Analysis {
   });
 
   Analysis.fromJson(Map<String, dynamic> json) {
-    introduction = json['introduction'].cast<String>();
-    body = json['body'].cast<String>();
-    conclusion = json['conclusion'].cast<String>();
-    strengths = json['strengths'].cast<String>();
-    weaknesses = json['weaknesses'].cast<String>();
-    suggestions = json['suggestions'].cast<String>();
-    feedback = json['feedback'].cast<String>();
+    introduction =
+        json['introduction'] is List
+            ? (json['introduction'] as List).map((e) => e.toString()).toList()
+            : null;
+    body =
+        json['body'] is List
+            ? (json['body'] as List).map((e) => e.toString()).toList()
+            : null;
+    conclusion =
+        json['conclusion'] is List
+            ? (json['conclusion'] as List).map((e) => e.toString()).toList()
+            : null;
+    strengths =
+        json['strengths'] is List
+            ? (json['strengths'] as List).map((e) => e.toString()).toList()
+            : null;
+    weaknesses =
+        json['weaknesses'] is List
+            ? (json['weaknesses'] as List).map((e) => e.toString()).toList()
+            : null;
+    suggestions =
+        json['suggestions'] is List
+            ? (json['suggestions'] as List).map((e) => e.toString()).toList()
+            : null;
+    feedback =
+        json['feedback'] is List
+            ? (json['feedback'] as List).map((e) => e.toString()).toList()
+            : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -314,7 +368,10 @@ class Test {
     isHighlighted = json['isHighlighted'];
     isActive = json['isActive'];
     instructions = json['instructions'];
-    questions = json['questions'].cast<String>();
+    questions =
+        json['questions'] is List
+            ? (json['questions'] as List).map((e) => e.toString()).toList()
+            : null;
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];

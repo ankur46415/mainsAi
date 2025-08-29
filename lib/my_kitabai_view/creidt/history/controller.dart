@@ -31,7 +31,7 @@ class PaymentHistoryController extends GetxController {
       print("⏳ Loading payment history...");
 
       final url = Uri.parse(
-        "https://aipbbackend-c5ed.onrender.com/api/clients/CLI147189HIGB/mobile/credit/transactions",
+        "https://aipbbackend-yxnh.onrender.com/api/clients/CLI147189HIGB/mobile/credit/transactions",
       );
 
       print("🌐 GET Request URL: $url");

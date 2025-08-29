@@ -2,23 +2,35 @@ import 'package:mains/app_imports.dart';
 import 'package:mains/model/objective_previous_attempt.dart';
 import 'package:mains/my_kitabai_view/ai_test/start_test/attempts_result/controller.dart';
 
-class ResultOfAttemptTest extends StatelessWidget {
+class ResultOfAttemptTest extends StatefulWidget {
   final AttemptHistory attempt;
   final String testId;
+  final String maxMarks;
 
   const ResultOfAttemptTest({
     super.key,
     required this.attempt,
     required this.testId,
+    required this.maxMarks,
   });
 
   @override
+  State<ResultOfAttemptTest> createState() => _ResultOfAttemptTestState();
+}
+
+class _ResultOfAttemptTestState extends State<ResultOfAttemptTest> {
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ResultAttemptController(attempt, testId));
+    // Read max marks from navigation arguments
+    final args = Get.arguments;
+
+    final controller = Get.put(
+      ResultAttemptController(widget.attempt, widget.testId),
+    );
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: CustomAppBar(title: "Attempt ${attempt.attemptNumber}"),
+      appBar: CustomAppBar(title: "Attempt ${widget.attempt.attemptNumber}"),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -98,7 +110,7 @@ class ResultOfAttemptTest extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text("${controller.score}", style: _scoreStyle),
                 const SizedBox(height: 6),
-                Text("Out of 100%", style: _subLabelStyle),
+                Text("Out of ${widget.maxMarks}", style: _subLabelStyle),
               ],
             ),
           ),
@@ -167,6 +179,23 @@ class ResultOfAttemptTest extends StatelessWidget {
             controller.submittedAt,
             Icons.calendar_today,
           ),
+          //const Divider(height: 24),
+          // // New rows for marking with negatives
+          // _buildMarkRow(
+          //   "Total Negative Marks",
+          //   controller.totalNegativeMarks.toStringAsFixed(2),
+          //   Icons.remove_circle_outline,
+          // ),
+          // _buildMarkRow(
+          //   "Final Marks (with negatives)",
+          //   controller.finalMarksWithNegative.toStringAsFixed(2),
+          //   Icons.score,
+          // ),
+          // _buildMarkRow(
+          //   "Total Possible (with negatives)",
+          //   controller.totalPossibleMarks.toStringAsFixed(2),
+          //   Icons.star_border,
+          // ),
         ],
       ),
     );
@@ -272,28 +301,38 @@ class ResultOfAttemptTest extends StatelessWidget {
     Map<String, dynamic> q,
     ResultAttemptController controller,
   ) {
+    // Use "-" if result is null (unattempted)
+    final resultValue = q["result"] ?? "-";
+
+    // Determine color based on result
     final color =
-        q["result"] == "✓"
+        resultValue == "✓"
             ? Colors.green
-            : q["result"] == "✗"
+            : resultValue == "✗"
             ? Colors.red
-            : Colors.orange;
+            : Colors.orange; 
+
+    // Determine display text: show numeric if result is a number, else the symbol or "-"
+    final resultText =
+        num.tryParse(resultValue.toString()) != null
+            ? resultValue.toString()
+            : resultValue;
 
     return ListTile(
       onTap: () => controller.goToQuestionDetail(q["index"]),
       contentPadding: const EdgeInsets.symmetric(vertical: 4),
       leading: CircleAvatar(
-        backgroundColor: Colors.grey.shade300,
-        child: Text("${q['sn']}", style: _solutionNumber),
+         backgroundColor: color, 
+        child: Text("${q['sn'] ?? '-'}", style: _solutionNumber),
       ),
       title: Text(
-        q["question"],
+        q["question"] ?? "",
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: _solutionTitle,
       ),
       trailing: Text(
-        q["result"],
+        resultText,
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -306,22 +345,28 @@ class ResultOfAttemptTest extends StatelessWidget {
   // === Styles & Decorations ===
   TextStyle get _labelStyle =>
       GoogleFonts.poppins(color: Colors.white70, fontSize: 14);
+
   TextStyle get _scoreStyle => GoogleFonts.poppins(
     fontSize: 32,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
+
   TextStyle get _subLabelStyle =>
       GoogleFonts.poppins(color: Colors.white60, fontSize: 12);
 
   TextStyle get _sectionTitle =>
       GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600);
+
   TextStyle get _rowTitleStyle =>
       GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500);
+
   TextStyle get _rowValueStyle =>
       GoogleFonts.poppins(fontWeight: FontWeight.bold);
+
   TextStyle get _solutionNumber =>
       GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold);
+
   TextStyle get _solutionTitle =>
       GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600);
 

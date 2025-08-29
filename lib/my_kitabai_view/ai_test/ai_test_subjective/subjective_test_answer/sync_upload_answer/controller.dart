@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:mains/common/api_services.dart';
 import 'package:mains/common/api_urls.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mime/mime.dart';
@@ -61,17 +62,14 @@ class SyncUploadAnswerController extends GetxController {
 
   Future<void> _loadQuestionsFromDatabase() async {
     if (_database == null) {
-      print("❌ Database is null, cannot load questions");
       // Try to initialize database if it's null
       await _initDatabase();
       if (_database == null) {
-        print("❌ Database initialization failed");
         return;
       }
     }
 
     try {
-      print("🔄 Loading questions from database...");
       final List<Map<String, dynamic>> questionMaps = await _database!.rawQuery(
         '''
         SELECT 
@@ -99,23 +97,14 @@ class SyncUploadAnswerController extends GetxController {
         });
       }
 
-      print("📦 Loaded ${questions.length} questions from database:");
-      for (var question in questions) {
-        print(
-          "  ➤ ID: ${question['id']} | Text: ${question['text']} | Images: ${question['images']}",
-        );
-      }
-    } catch (e) {
-      print("❌ Error loading questions: $e");
-    }
+      // no-op
+    } catch (e) {}
   }
 
   // Public method to refresh data from database
   Future<void> refreshQuestionsFromDatabase() async {
-    print("🔄 Manually refreshing questions from database...");
     // Ensure database is initialized
     if (_database == null) {
-      print("🔄 Database is null, initializing...");
       await _initDatabase();
     }
     await _loadQuestionsFromDatabase();
@@ -124,7 +113,6 @@ class SyncUploadAnswerController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    print("🔄 SyncUploadAnswerController: onReady called");
     // Wait a bit for database to be initialized, then refresh data
     Future.delayed(const Duration(milliseconds: 500), () {
       refreshQuestionsFromDatabase();
@@ -140,10 +128,7 @@ class SyncUploadAnswerController extends GetxController {
         'question_text': questionText,
         'created_at': DateTime.now().toIso8601String(),
       }, conflictAlgorithm: ConflictAlgorithm.replace);
-      print("✅ Question saved to database.");
-    } catch (e) {
-      print("❌ Error saving question: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> saveQuestionImage(String questionId, String imagePath) async {
@@ -155,10 +140,7 @@ class SyncUploadAnswerController extends GetxController {
         'image_path': imagePath,
         'created_at': DateTime.now().toIso8601String(),
       });
-      print("✅ Image saved for question.");
-    } catch (e) {
-      print("❌ Error saving image: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> addImageToQuestion(String questionId, File imageFile) async {
@@ -169,13 +151,9 @@ class SyncUploadAnswerController extends GetxController {
       final savedPath = join(documentsDirectory.path, fileName);
 
       await imageFile.copy(savedPath);
-      print("📥 Copied image to: $savedPath");
-
       await saveQuestionImage(questionId, savedPath);
       await _loadQuestionsFromDatabase();
-    } catch (e) {
-      print("❌ Error adding image: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> deleteQuestion(String questionId) async {
@@ -195,10 +173,7 @@ class SyncUploadAnswerController extends GetxController {
         final file = File(path);
         if (await file.exists()) {
           await file.delete();
-          print("🗑️ Deleted image from file system: $path");
-        } else {
-          print("⚠️ File does not exist: $path");
-        }
+        } else {}
       }
 
       // 🗑️ 3. Delete DB records
@@ -215,10 +190,7 @@ class SyncUploadAnswerController extends GetxController {
       );
 
       await _loadQuestionsFromDatabase();
-      print("✅ Question and its image records deleted");
-    } catch (e) {
-      print("❌ Error deleting question: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> clearAllData() async {
@@ -228,30 +200,21 @@ class SyncUploadAnswerController extends GetxController {
       await _database!.delete('question_images');
       await _database!.delete('questions');
       await _loadQuestionsFromDatabase();
-    } catch (e) {
-      print("❌ Error clearing data: $e");
-    }
+    } catch (e) {}
   }
 
-    Future<void> saveQuestionsWithImages(
+  Future<void> saveQuestionsWithImages(
     List<Map<String, String>> questionsData,
     Map<String, RxList<Rx<File?>>> answerImages,
   ) async {
-    print("💾 Saving ${questionsData.length} questions with images:");
-    
     // Ensure database is initialized
     if (_database == null) {
-      print("🔄 Database is null, initializing before saving...");
       await _initDatabase();
     }
-    
+
     try {
       // Save all questions first
       for (var question in questionsData) {
-        print("📝 Saving question:");
-        print("  ID: ${question['id']}");
-        print("  Text: ${question['text']}");
-
         await saveQuestion(question['id']!, question['text']!);
       }
 
@@ -259,8 +222,6 @@ class SyncUploadAnswerController extends GetxController {
       for (var question in questionsData) {
         final imageList = answerImages[question['id']];
         if (imageList != null) {
-          print("📷 Processing images for question: ${question['id']}");
-
           for (var imageRx in imageList) {
             final imageFile = imageRx.value;
             if (imageFile != null) {
@@ -272,16 +233,8 @@ class SyncUploadAnswerController extends GetxController {
                 final savedPath = join(documentsDirectory.path, fileName);
 
                 await imageFile.copy(savedPath);
-                print("📥 Copied image to: $savedPath");
-
-                print("📷 Saving image to database:");
-                print("  For Question ID: ${question['id']}");
-                print("  Image Path: $savedPath");
-
                 await saveQuestionImage(question['id']!, savedPath);
-                print("✅ Image saved to database successfully");
               } catch (e) {
-                print("❌ Error saving image: $e");
                 throw e; // Re-throw to stop the process
               }
             }
@@ -290,11 +243,8 @@ class SyncUploadAnswerController extends GetxController {
       }
 
       // Reload database once at the end
-      print("🔄 Reloading database after all operations...");
       await _loadQuestionsFromDatabase();
-      print("✅ All questions and images saved successfully!");
     } catch (e) {
-      print("❌ Error in saveQuestionsWithImages: $e");
       throw e; // Re-throw to handle in the calling method
     }
   }
@@ -308,7 +258,6 @@ class SyncUploadAnswerController extends GetxController {
     final authToken = prefs.getString('authToken');
 
     if (authToken == null || authToken.isEmpty) {
-      print("❌ No auth token found");
       return {"success": false, "message": "No authentication token found"};
     }
 
@@ -316,7 +265,7 @@ class SyncUploadAnswerController extends GetxController {
       final dynamicTestId = testId ?? "";
 
       final url =
-          'https://aipbbackend-c5ed.onrender.com/api/clients/CLI147189HIGB/mobile/userAnswers/subjective-tests/$dynamicTestId/questions/$questionId/answers';
+          '${ApiUrls.subjectiveAnswersBase}/$dynamicTestId/questions/$questionId/answers';
 
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.headers.addAll({
@@ -365,17 +314,11 @@ class SyncUploadAnswerController extends GetxController {
     bool anyFailures = false;
 
     try {
-      print("🚀 Starting upload of ${questions.length} questions to API...");
-      int processedCount = 0;
-      
       for (var question in questions) {
         final questionId = question['id'] as String;
         final List<String> images = List<String>.from(question['images'] ?? []);
 
         if (images.isNotEmpty) {
-          processedCount++;
-          print("📤 Processing question $processedCount/${questions.length}: $questionId with ${images.length} images");
-          
           try {
             final result = await uploadQuestionToAPI(
               questionId,
@@ -384,14 +327,11 @@ class SyncUploadAnswerController extends GetxController {
             );
 
             if (result['success'] == true) {
-              print("✅ Question uploaded successfully: $questionId");
             } else {
               anyFailures = true;
               final errorMessage =
                   result['message'] ?? "Failed to upload question";
 
-              print("❌ Failed to upload question: $questionId => $errorMessage");
-              
               Get.snackbar(
                 'Upload Failed',
                 errorMessage,
@@ -403,7 +343,6 @@ class SyncUploadAnswerController extends GetxController {
             }
           } catch (e) {
             anyFailures = true;
-            print("🔥 Exception uploading question $questionId: $e");
             Get.snackbar(
               'Upload Error',
               'Failed to upload question: $e',
@@ -416,27 +355,20 @@ class SyncUploadAnswerController extends GetxController {
         } else {}
       }
 
-      print("🎉 All questions upload process completed");
-
       // Delete all questions from database after all uploads are done
-      print("🗑️ Deleting all questions from database...");
       final List<String> questionIdsToDelete = [];
       for (var question in questions) {
         final questionId = question['id'] as String;
         questionIdsToDelete.add(questionId);
       }
-      
+
       // Delete questions after collecting all IDs
       for (String questionId in questionIdsToDelete) {
         await deleteQuestion(questionId);
       }
-      print("✅ All questions deleted from database");
-
       if (testId != null && testId.isNotEmpty) {
         await submitSubjectiveTest(testId);
-      } else {
-        print("⚠️ testId is null or empty, cannot submit test.");
-      }
+      } else {}
 
       if (!anyFailures) {
         Get.snackbar(
@@ -446,7 +378,7 @@ class SyncUploadAnswerController extends GetxController {
           colorText: Colors.green[900],
           snackPosition: SnackPosition.BOTTOM,
         );
-        
+
         // Navigate back to bottom navigation bar at tab 3 (AI Test)
         await Future.delayed(const Duration(seconds: 2));
         Get.offAllNamed(AppRoutes.home, arguments: {'initialTab': 2});
@@ -461,7 +393,6 @@ class SyncUploadAnswerController extends GetxController {
         );
       }
     } catch (e) {
-      print("🔥 Exception during upload: $e");
     } finally {
       isLoading.value = false;
     }
@@ -471,31 +402,22 @@ class SyncUploadAnswerController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken') ?? '';
 
-    final url =
-        'https://aipbbackend-c5ed.onrender.com/api/subjectivetest/clients/CLI147189HIGB/tests/$testId/submit';
+    final url = '${ApiUrls.subjectiveTestSubmitBase}$testId/submit';
 
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
+      await callWebApi(
+        null,
+        url,
+        {},
+        token: authToken,
+        showLoader: false,
+        onResponse: (response) {
+          try {
+            json.decode(response.body);
+          } catch (e) {}
         },
+        onError: () {},
       );
-
-      print('📤 Request sent to: $url');
-      print('📦 Response status: ${response.statusCode}');
-      print('📨 Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print('✅ Test submitted successfully: $data');
-        // You can handle navigation or success message here
-      } else {
-        print('❌ Failed to submit test. Code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('❗ Exception while submitting test: $e');
-    }
+    } catch (e) {}
   }
 }

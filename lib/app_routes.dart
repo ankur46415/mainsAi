@@ -6,6 +6,8 @@ import 'package:mains/my_kitabai_view/evaluators/list_of_submissions.dart';
 import 'package:mains/my_kitabai_view/help/help_screen.dart';
 import 'package:mains/my_kitabai_view/manaul_qr_result/chapter_detailes.dart';
 import 'package:mains/my_kitabai_view/watch/video_page/play_video_controller.dart';
+import 'package:mains/my_kitabai_view/yt_reel/binding.dart';
+import 'package:mains/my_kitabai_view/yt_reel/yt_reel.dart';
 
 import 'my_kitabai_view/creidt/history/payment_history.dart';
 
@@ -49,8 +51,8 @@ class AppRoutes {
   static const String listOfSubmissions = '/listOfSubmissions';
   static const String mainNav = '/mainNav';
   static const String payHistory = '/payHistory';
+  static const String reels = '/reels';
 }
-
 
 final List<GetPage> appPages = [
   GetPage(name: AppRoutes.splash, page: () => Splash()),
@@ -140,7 +142,6 @@ final List<GetPage> appPages = [
   GetPage(name: AppRoutes.questionAnswer, page: () => Questionanswerpage()),
   GetPage(name: AppRoutes.starttestpage, page: () => ObjectiveTestName()),
   GetPage(name: AppRoutes.mainTestForAiTest, page: () => MainTestForAiTest()),
-  GetPage(name: AppRoutes.resultOfAitest, page: () => ResultOfAitest()),
   GetPage(name: AppRoutes.onjTestDescription, page: () => OnjTestDescription()),
   GetPage(name: AppRoutes.mainScanner, page: () => MainPageScanner()),
   GetPage(
@@ -173,5 +174,10 @@ final List<GetPage> appPages = [
       );
     },
     binding: PlayVideoBinding(),
+  ),
+  GetPage(
+    name: AppRoutes.reels,
+    page: () => ReelsView(),
+    binding: ReelsBinding(),
   ),
 ];

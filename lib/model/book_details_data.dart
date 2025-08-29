@@ -54,6 +54,8 @@ class BookDetails {
   List<Review>? reviews;
   List<IndexChapter>? index;
   AiGuidelines? aiGuidelines;
+  bool? bookEmbedded;
+  bool? chatAvailable;
 
   BookDetails({
     this.id,
@@ -85,6 +87,8 @@ class BookDetails {
     this.reviews,
     this.index,
     this.aiGuidelines,
+    this.bookEmbedded,
+    this.chatAvailable,
   });
 
   factory BookDetails.fromJson(Map<String, dynamic> json) {
@@ -115,6 +119,8 @@ class BookDetails {
       summary: json['summary'],
       subjectName: json['subject_name'],
 
+      bookEmbedded: json['bookEmbedded'],
+      chatAvailable: json['chatAvailable'],
       chapters:
           json['chapters'] != null
               ? List<Chapter>.from(
@@ -168,6 +174,8 @@ class BookDetails {
     data['summary'] = summary;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    data['bookEmbedded'] = bookEmbedded;
+    data['chatAvailable'] = chatAvailable;
     if (chapters != null) {
       data['chapters'] = chapters!.map((x) => x.toJson()).toList();
     }

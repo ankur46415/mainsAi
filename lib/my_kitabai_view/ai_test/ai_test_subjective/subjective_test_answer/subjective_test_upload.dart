@@ -116,9 +116,7 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                   : () async {
                     try {
                       controller.isSaving.value = true;
-                      print("🔄 Starting to save questions and images...");
-
-                      final syncController = Get.put(
+final syncController = Get.put(
                         SyncUploadAnswerController(),
                       );
 
@@ -141,8 +139,7 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                       await Future.delayed(const Duration(milliseconds: 1000));
                       Get.toNamed(AppRoutes.syncSubAnswer);
                     } catch (e) {
-                      print("❌ Error saving to database: $e");
-                      Get.snackbar(
+Get.snackbar(
                         "Error",
                         "Failed to save to database: $e",
                         snackPosition: SnackPosition.BOTTOM,

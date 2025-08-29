@@ -28,6 +28,7 @@ class WorkBookBOOKDetailes extends GetxController {
       final authToken = prefs.getString('authToken');
 
       if (authToken == null) {
+        print("❌ Authentication token is missing.");
         Get.snackbar('Auth Error', 'Authentication token is missing');
         isLoading.value = false;
         return;

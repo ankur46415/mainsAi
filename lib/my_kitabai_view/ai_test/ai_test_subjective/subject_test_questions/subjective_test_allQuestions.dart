@@ -19,9 +19,7 @@ class _SubjectiveTestAllquestionsState
     testId = Get.arguments;
     controller = Get.put(SubjectiveQuestionsController());
 
-    print('📌 Received testId: $testId');
-
-    controller.fetchQuestions(testId);
+controller.fetchQuestions(testId);
   }
 
   String formatDuration(int seconds) {
@@ -216,9 +214,7 @@ class _SubjectiveTestAllquestionsState
                 itemCount: controller.questions.length,
                 itemBuilder: (context, index) {
                   final question = controller.questions[index];
-                  print(
-                    "📝 Question $index: ID=${question.sId}, Text=${question.question}",
-                  );
+                  
                   return _buildQuestionCard(
                     id: question.sId ?? "",
                     text: question.question ?? "",

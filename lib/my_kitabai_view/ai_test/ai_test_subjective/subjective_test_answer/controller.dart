@@ -16,36 +16,24 @@ class SubTestAnswerUploadController extends GetxController {
     super.onInit();
 
     final arguments = Get.arguments;
-    print("🔍 Received arguments: $arguments");
-
-    if (arguments != null && arguments is Map) {
-      // New format with testId
+if (arguments != null && arguments is Map) {
       final questionsData = arguments['questions'] as List?;
       testId = arguments['testId'] as String?;
 
       if (questionsData != null) {
         questions.assignAll(questionsData.cast<Map<String, String>>());
-        print("✅ Using passed questions data: ${questions.length} questions");
-        print("🔍 TestId received: $testId");
-        for (var question in questions) {
-          print("📝 Question ID: ${question['id']}, Text: ${question['text']}");
-        }
+for (var question in questions) {
+}
       } else {
-        print("⚠️ No questions data received, using empty list");
-        questions.assignAll([]);
+questions.assignAll([]);
       }
     } else if (arguments != null && arguments is List) {
-      // Old format (backward compatibility)
       questions.assignAll(arguments.cast<Map<String, String>>());
-      print(
-        "✅ Using passed questions data (old format): ${questions.length} questions",
-      );
+      
       for (var question in questions) {
-        print("📝 Question ID: ${question['id']}, Text: ${question['text']}");
-      }
+}
     } else {
-      print("⚠️ No questions data received, using empty list");
-      questions.assignAll([]);
+questions.assignAll([]);
     }
 
     for (var q in questions) {
@@ -65,13 +53,10 @@ class SubTestAnswerUploadController extends GetxController {
         imageList.removeLast();
       }
     }
-    print("🧹 All images cleared from upload controller");
-  }
+}
 
   Future<void> pickImage(String questionId, int index) async {
-    print('🖼️ pickImage called for questionId: $questionId, index: $index');
-
-    await Get.bottomSheet(
+await Get.bottomSheet(
       Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -85,7 +70,6 @@ class SubTestAnswerUploadController extends GetxController {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar
               Container(
                 width: 40,
                 height: 4,
@@ -95,8 +79,6 @@ class SubTestAnswerUploadController extends GetxController {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-
-              // Title
               Text(
                 'Choose Answers',
                 style: GoogleFonts.poppins(
@@ -106,8 +88,6 @@ class SubTestAnswerUploadController extends GetxController {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -172,8 +152,7 @@ class SubTestAnswerUploadController extends GetxController {
         }
       }
     } catch (e) {
-      print('❌ Error picking from gallery: $e');
-      Get.snackbar(
+Get.snackbar(
         'Error',
         'Failed to pick image from gallery',
         snackPosition: SnackPosition.BOTTOM,
@@ -184,10 +163,8 @@ class SubTestAnswerUploadController extends GetxController {
   }
 
   Future<void> _pickFromCamera(String questionId, int index) async {
-    print('📸 Starting camera pick for questionId: $questionId, index: $index');
-    try {
-      print('📸 Opening camera...');
-      final picked = await picker.pickImage(source: ImageSource.camera);
+try {
+final picked = await picker.pickImage(source: ImageSource.camera);
       if (picked != null) {
         final file = File(picked.path);
         answerImages[questionId]![index].value = file;
@@ -197,8 +174,7 @@ class SubTestAnswerUploadController extends GetxController {
         }
       }
     } catch (e) {
-      print('❌ Error picking from camera: $e');
-      Get.snackbar(
+Get.snackbar(
         'Error',
         'Failed to take photo with camera',
         snackPosition: SnackPosition.BOTTOM,

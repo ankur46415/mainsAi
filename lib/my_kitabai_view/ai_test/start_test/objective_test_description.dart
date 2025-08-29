@@ -32,25 +32,19 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
       if (arguments is AiTestItem) {
         testData = arguments;
 
-        // Update controller with test data
         controller.setTestData(
           testData.testId,
           testData.name,
           testData.description,
           testData.estimatedTime,
-          "",
-          "",
-        );
-        print('📥 OnjTestDescription: Received test ID: ${testData.testId}');
-        print(
-          '📥 OnjTestDescription: Controller test ID: ${controller.getTestId()}',
+          "1",
+          "250",
         );
       } else {
         _handleError('Invalid test data format');
         return;
       }
 
-      // Validate required fields
       if (testData.testId.isEmpty) {
         _handleError('Test ID is missing');
         return;
@@ -123,7 +117,6 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Red header card
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -157,7 +150,10 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildMetaTile("Time", testData.estimatedTime),
+                              _buildMetaTile(
+                                "Time",
+                                "${testData.estimatedTime} min",
+                              ),
                               _buildMetaTile(
                                 "Questions",
                                 testData.totalQuestions.toString(),
@@ -171,10 +167,7 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
-                    // Description Section
                     Text(
                       "Test Instructions",
                       style: GoogleFonts.poppins(
@@ -211,8 +204,6 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                     ),
 
                     const SizedBox(height: 30),
-
-                    // Test Description
                     if (testData.description.isNotEmpty) ...[
                       Text(
                         "Test Description",
@@ -264,23 +255,16 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: GestureDetector(
           onTap: () {
+            if (testData.totalQuestions == 0) {
+              return;
+            }
+
             try {
-              // Get test ID from controller
               final testIdFromController = controller.getTestId();
               final testIdToUse =
                   testIdFromController.isNotEmpty
                       ? testIdFromController
                       : testData.testId;
-
-              print(
-                '🚀 OnjTestDescription: Starting test with ID: $testIdToUse',
-              );
-              print(
-                '🚀 OnjTestDescription: Controller test ID: $testIdFromController',
-              );
-              print(
-                '🚀 OnjTestDescription: TestData test ID: ${testData.testId}',
-              );
 
               Get.toNamed(
                 AppRoutes.mainTestForAiTest,
@@ -300,11 +284,18 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
             width: double.infinity,
             height: 60,
             decoration: BoxDecoration(
-              color: CustomColors.primaryColor,
+              color:
+                  testData.totalQuestions == 0
+                      ? Colors
+                          .grey // agar 0 questions ho to grey
+                      : CustomColors.primaryColor, // warna normal color
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: CustomColors.primaryColor.withOpacity(0.4),
+                  color: (testData.totalQuestions == 0
+                          ? Colors.grey
+                          : CustomColors.primaryColor)
+                      .withOpacity(0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -312,7 +303,9 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
             ),
             alignment: Alignment.center,
             child: Text(
-              "Start Test Now",
+              testData.totalQuestions == 0
+                  ? "No Questions Available"
+                  : "Start Test Now",
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,

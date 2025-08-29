@@ -263,7 +263,7 @@ class _AnnotationsPageState extends State<AnnotationsPage> {
                                               color: Colors.grey[300],
                                               child: Center(
                                                 child: Icon(
-                                                  Icons.broken_image,
+                                                   Icons.menu_book_rounded,
                                                   color: Colors.grey[600],
                                                   size: 48,
                                                 ),
@@ -293,7 +293,7 @@ class _AnnotationsPageState extends State<AnnotationsPage> {
                                               color: Colors.grey[300],
                                               child: Center(
                                                 child: Icon(
-                                                  Icons.broken_image,
+                                                   Icons.menu_book_rounded,
                                                   color: Colors.grey[600],
                                                   size: 48,
                                                 ),
@@ -427,7 +427,7 @@ class _AnnotationsPageState extends State<AnnotationsPage> {
                                       color: Colors.grey[300],
                                       child: Center(
                                         child: Icon(
-                                          Icons.broken_image,
+                                           Icons.menu_book_rounded,
                                           color: Colors.grey[600],
                                           size: 48,
                                         ),
@@ -444,7 +444,7 @@ class _AnnotationsPageState extends State<AnnotationsPage> {
                                       color: Colors.grey[300],
                                       child: Center(
                                         child: Icon(
-                                          Icons.broken_image,
+                                           Icons.menu_book_rounded,
                                           color: Colors.grey[600],
                                           size: 48,
                                         ),

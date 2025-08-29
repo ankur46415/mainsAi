@@ -1,4 +1,5 @@
 import 'package:mains/common/utils.dart';
+import 'package:mains/my_kitabai_view/home_screen/mini_yt_player.dart';
 import '../../app_imports.dart';
 import '../compelete_book/categorical_book_data.dart';
 
@@ -152,8 +153,10 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         alignment:
                                                             Alignment.center,
                                                         child: const Icon(
-                                                          Icons.broken_image,
+                                                          Icons
+                                                              .menu_book_rounded,
                                                           color: Colors.grey,
+                                                          size: 50,
                                                         ),
                                                       ),
                                                   placeholder:
@@ -229,7 +232,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                       alignment:
                                                           Alignment.center,
                                                       child: const Icon(
-                                                        Icons.broken_image,
+                                                        Icons.menu_book_rounded,
                                                         color: Colors.grey,
                                                         size: 40,
                                                       ),
@@ -242,72 +245,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                 ),
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.all(16),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.orange.shade300,
-                                    Colors.deepOrange.shade400,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.orange.withOpacity(0.4),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.local_offer,
-                                    color: Colors.white,
-                                    size: 32,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Special Offer!',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Get 50% off on premium courses!',
-                                          style: TextStyle(
-                                            color: Colors.white.withOpacity(
-                                              0.9,
-                                            ),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(0),
-                                child: Image.asset(
-                                  'assets/images/addpromo2.png',
-                                ),
-                              ),
-                            ),
+
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -706,49 +644,6 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                   );
                                 }),
                               ],
-                            ),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              child: Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.asset(
-                                      'assets/images/bot11.gif',
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 3,
-                                    right: 7,
-                                    child: Container(
-                                      color: Colors.white,
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(4.0),
-                                        child: Text(
-                                          'mains',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            shadows: [
-                                              Shadow(
-                                                offset: Offset(1, 1),
-                                                blurRadius: 3,
-                                                color: Colors.black54,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ],
                         ),

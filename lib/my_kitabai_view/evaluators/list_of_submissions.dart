@@ -373,7 +373,7 @@ class _ListOfSubmissionsState extends State<ListOfSubmissions> {
                 color: Colors.grey[300],
                 child: Center(
                   child: Icon(
-                    Icons.broken_image,
+                     Icons.menu_book_rounded,
                     color: Colors.grey[600],
                     size: 32,
                   ),
@@ -837,7 +837,7 @@ class _ListOfSubmissionsState extends State<ListOfSubmissions> {
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (_, __, ___) =>
-                                    Icon(Icons.broken_image, size: 80),
+                                    Icon( Icons.menu_book_rounded, size: 80),
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return SizedBox(
@@ -859,7 +859,7 @@ class _ListOfSubmissionsState extends State<ListOfSubmissions> {
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (_, __, ___) =>
-                                        Icon(Icons.broken_image, size: 80),
+                                        Icon( Icons.menu_book_rounded, size: 80),
                                 loadingBuilder: (context, child, progress) {
                                   if (progress == null) return child;
                                   return SizedBox(

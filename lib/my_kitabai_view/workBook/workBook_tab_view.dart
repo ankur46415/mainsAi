@@ -1,4 +1,5 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/my_kitabai_view/home_screen/mini_yt_player.dart';
 import 'package:mains/my_kitabai_view/workBook/work_bookController.dart';
 
 import '../home_screen/see_more_books.dart';
@@ -62,6 +63,8 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
           return RefreshIndicator(
             onRefresh: () async {
               await controller.fetchWorkbookData();
+              await controller.fetchHomePageAdds();
+              await controller.fetchPopularReels();
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -109,7 +112,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                               color: Colors.grey[200],
                                               alignment: Alignment.center,
                                               child: const Icon(
-                                                Icons.broken_image,
+                                                Icons.menu_book_rounded,
                                                 color: Colors.grey,
                                               ),
                                             ),
@@ -177,7 +180,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                         color: Colors.grey[200],
                                         alignment: Alignment.center,
                                         child: const Icon(
-                                          Icons.broken_image,
+                                          Icons.menu_book_rounded,
                                           color: Colors.grey,
                                           size: 40,
                                         ),
@@ -190,6 +193,98 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                       ),
                     ),
                   ),
+                  // TOP BANNER (location: 'top')
+                  Obx(() {
+                    final items = controller.adsByLocation['top'] ?? [];
+                    if (items.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    if (items.length == 1) {
+                      final ad = items.first;
+                      return SizedBox(
+                        height: 150,
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: _adImage(
+                            ad.imageUrl,
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: 150,
+                          ),
+                        ),
+                      );
+                    }
+                    return SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: PageView.builder(
+                        controller: PageController(viewportFraction: 1.0),
+                        physics: const PageScrollPhysics(),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final ad = items[index];
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _adImage(
+                              ad.imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 150,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
+                  _buildSectionTitle('Tips'),
+
+                  _buildTipsSection(),
+                  SizedBox(height: Get.width * 0.05),
+                  // MIDDLE BANNER (location: 'middle')
+                  Obx(() {
+                    final items = controller.adsByLocation['middle'] ?? [];
+                    if (items.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    if (items.length == 1) {
+                      final ad = items.first;
+                      return SizedBox(
+                        height: 150,
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: _adImage(
+                            ad.imageUrl,
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: 150,
+                          ),
+                        ),
+                      );
+                    }
+                    return SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: PageView.builder(
+                        controller: PageController(viewportFraction: 1.0),
+                        physics: const PageScrollPhysics(),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final ad = items[index];
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _adImage(
+                              ad.imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 150,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
                   ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(), //
@@ -290,76 +385,207 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                 ),
                               ),
                               Obx(() {
-                                final selected = controller.expandedCategories[mainCategory];
-                                final filteredBooks = workbooks
-                                    .where((b) => (b.subCategory ?? 'Other') == selected)
-                                    .toList();
+                                final selected =
+                                    controller.expandedCategories[mainCategory];
+                                final filteredBooks =
+                                    workbooks
+                                        .where(
+                                          (b) =>
+                                              (b.subCategory ?? 'Other') ==
+                                              selected,
+                                        )
+                                        .toList();
 
                                 if (filteredBooks.isEmpty) {
                                   return const Padding(
                                     padding: EdgeInsets.all(12),
-                                    child: Text("No books available in this subcategory"),
+                                    child: Text(
+                                      "No books available in this subcategory",
+                                    ),
                                   );
                                 }
 
                                 // Limit to 5 + 1 "See More" card
                                 final showMore = filteredBooks.length > 5;
-                                final displayBooks = showMore ? filteredBooks.take(5).toList() : filteredBooks;
+                                final displayBooks =
+                                    showMore
+                                        ? filteredBooks.take(5).toList()
+                                        : filteredBooks;
 
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   child: GridView.builder(
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemCount: showMore ? displayBooks.length + 1 : displayBooks.length,
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: 12,
-                                      childAspectRatio: 0.68,
-                                    ),
+                                    itemCount:
+                                        showMore
+                                            ? displayBooks.length + 1
+                                            : displayBooks.length,
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          mainAxisSpacing: 16,
+                                          crossAxisSpacing: 12,
+                                          childAspectRatio: 0.68,
+                                        ),
                                     itemBuilder: (context, index) {
-                                      if (showMore && index == displayBooks.length) {
+                                      if (showMore &&
+                                          index == displayBooks.length) {
                                         // Last card = See More
+                                        final bgImages =
+                                            displayBooks.take(4).toList();
                                         return InkWell(
                                           onTap: () {
-                                            Get.to(() => WorkBookCategoryPage(
-                                              mainCategory: mainCategory,
-                                              subCategory: selected!,
-                                              books: filteredBooks,
-                                            ));
+                                            Get.to(
+                                              () => WorkBookCategoryPage(
+                                                mainCategory: mainCategory,
+                                                subCategory: selected!,
+                                                books: filteredBooks,
+                                              ),
+                                            );
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: Colors.grey[300],
-                                              borderRadius: BorderRadius.circular(6),
-                                              border: Border.all(color: Colors.blue),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                "See More",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.blue[900],
-                                                ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: Colors.blue,
                                               ),
+                                            ),
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                // Background images in 2x2 grid
+                                                ...List.generate(bgImages.length, (
+                                                  i,
+                                                ) {
+                                                  return Positioned(
+                                                    left:
+                                                        (i % 2) *
+                                                        (Get.width * 0.15),
+                                                    top:
+                                                        (i ~/ 2) *
+                                                        (Get.width * 0.275),
+                                                    width: Get.width * 0.15,
+                                                    height: Get.width * 0.275,
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                      child:
+                                                          bgImages[i].coverImageUrl !=
+                                                                      null &&
+                                                                  bgImages[i]
+                                                                      .coverImageUrl!
+                                                                      .isNotEmpty
+                                                              ? CachedNetworkImage(
+                                                                imageUrl:
+                                                                    bgImages[i]
+                                                                        .coverImageUrl!,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                              )
+                                                              : Image.asset(
+                                                                "assets/images/nophoto.png",
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                              ),
+                                                    ),
+                                                  );
+                                                }),
+                                                // Overlay for darkening the background
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                  ),
+                                                ),
+                                                // Centered See More text
+                                                Center(
+                                                  child: Text(
+                                                    "See More",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         );
                                       }
 
                                       final book = displayBooks[index];
-                                      return _buildImageBox(book, height: Get.width * 0.55);
+                                      return _buildImageBox(
+                                        book,
+                                        height: Get.width * 0.55,
+                                      );
                                     },
                                   ),
                                 );
                               }),
-
                             ],
                           );
                         }).toList(),
                   ),
+                  // BOTTOM BANNER (location: 'bottom')
+                  Obx(() {
+                    final items = controller.adsByLocation['bottom'] ?? [];
+                    if (items.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    if (items.length == 1) {
+                      final ad = items.first;
+                      return SizedBox(
+                        height: 150,
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: _adImage(
+                            ad.imageUrl,
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: 150,
+                          ),
+                        ),
+                      );
+                    }
+                    return SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: PageView.builder(
+                        controller: PageController(viewportFraction: 1.0),
+                        physics: const PageScrollPhysics(),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final ad = items[index];
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _adImage(
+                              ad.imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 150,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -418,4 +644,103 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
       ),
     );
   }
+
+  Widget _buildTipsSection() {
+    return SizedBox(
+      height: 180,
+      child: Obx(() {
+        final reels = controller.reels;
+        if (reels.isEmpty) {
+          return const Center(child: Text('No reels'));
+        }
+
+        final displayReels = reels.length > 3 ? reels.sublist(0, 3) : reels;
+
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: displayReels.length,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          separatorBuilder: (context, index) => const SizedBox(width: 12),
+          itemBuilder: (context, index) {
+            final reel = displayReels[index];
+            String? thumbnailUrl;
+
+            if (reel.youtubeId != null && reel.youtubeId!.isNotEmpty) {
+              // 👇 YouTube thumbnail
+              thumbnailUrl =
+                  "https://img.youtube.com/vi/${reel.youtubeId}/hqdefault.jpg";
+            }
+            // } else if (reel.thumbnailUrl != null &&
+            //     reel.thumbnailUrl!.isNotEmpty) {
+            //   // 👇 Use API-provided thumbnail if available
+            //   thumbnailUrl = reel.thumbnailUrl;
+            // }
+
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed(AppRoutes.reels);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 120,
+                  height: 180,
+                  color: Colors.black12,
+                  child:
+                      thumbnailUrl != null
+                          ? Image.network(
+                            thumbnailUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image),
+                          )
+                          : const Icon(Icons.play_circle_fill, size: 48),
+                ),
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+}
+
+Widget _buildSectionTitle(String title) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+    child: Text(
+      title,
+      style: GoogleFonts.poppins(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Colors.blue[900],
+      ),
+    ),
+  );
+}
+
+Widget _adImage(
+  String? src, {
+  double? width,
+  double? height,
+  BoxFit fit = BoxFit.cover,
+}) {
+  if (src == null || src.isEmpty) return const SizedBox.shrink();
+  try {
+    if (src.startsWith('data:image')) {
+      final String base64Part = src.split(',').last;
+      final bytes = base64Decode(base64Part);
+      return Image.memory(bytes, width: width, height: height, fit: fit);
+    }
+    if (src.startsWith('http')) {
+      return CachedNetworkImage(
+        imageUrl: src,
+        width: width,
+        height: height,
+        fit: fit,
+      );
+    }
+  } catch (_) {}
+  return const SizedBox.shrink();
 }

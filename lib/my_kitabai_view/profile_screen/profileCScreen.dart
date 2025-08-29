@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/app_routes.dart';
 import 'package:mains/my_kitabai_view/auth_service/auth_service.dart';
+import 'package:mains/my_kitabai_view/creidt/controller.dart';
 import 'package:mains/my_kitabai_view/creidt/ui_card.dart';
 import 'package:mains/my_kitabai_view/profile_screen/profile_controller.dart';
 import 'package:lottie/lottie.dart';
@@ -19,16 +20,24 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   late ProfileController controller;
+  late CreditBalanceController creditController;
 
   @override
   void initState() {
     super.initState();
     controller = Get.put(ProfileController());
+    creditController = Get.put(CreditBalanceController());
+
+    // Call APIs on first load
+    controller.fetchUserProfile();
+    creditController.fetchCreditBalance();
   }
 
   @override
   void didPopNext() {
+    // Called when user comes back to ProfileScreen
     controller.fetchUserProfile();
+    creditController.fetchCreditBalance();
   }
 
   @override
@@ -38,7 +47,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
       appBar: _buildAppBar(),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: controller.fetchUserProfile,
+          onRefresh: () async {
+            await controller.fetchUserProfile();
+            creditController
+                .fetchCreditBalance(); // Call CreditCard API refresh
+          },
           child: Obx(() {
             final profile = controller.userProfile.value?.profile;
 

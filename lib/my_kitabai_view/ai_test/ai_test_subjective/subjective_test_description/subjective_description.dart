@@ -66,7 +66,7 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
                       children: [
                         _buildMetaTile(
                           "Time",
-                          "${testData.estimatedTime ?? ''} ",
+                          "${testData.estimatedTime ?? ''} Min",
                         ),
 
                         _buildMetaTile(
@@ -119,6 +119,7 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
                   ),
                 ),
               ),
+              SizedBox(height: Get.width * 0.2),
             ],
           ),
         ),
@@ -128,19 +129,27 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: GestureDetector(
           onTap:
-              () => Get.toNamed(
-                AppRoutes.subjectiveTestAllquestions,
-                arguments: testData.testId,
-              ),
+              (testData.userTestStatus?.totalQuestions ?? 0) > 0
+                  ? () => Get.toNamed(
+                    AppRoutes.subjectiveTestAllquestions,
+                    arguments: testData.testId,
+                  )
+                  : null, // disables tap if totalQuestions == 0
           child: Container(
             width: double.infinity,
             height: 60,
             decoration: BoxDecoration(
-              color: CustomColors.primaryColor,
+              color:
+                  (testData.userTestStatus?.totalQuestions ?? 0) > 0
+                      ? CustomColors.primaryColor
+                      : Colors.grey.shade400, // greyed out if 0
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: CustomColors.primaryColor.withOpacity(0.4),
+                  color: ((testData.userTestStatus?.totalQuestions ?? 0) > 0
+                          ? CustomColors.primaryColor
+                          : Colors.grey.shade400)
+                      .withOpacity(0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),

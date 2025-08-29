@@ -81,7 +81,7 @@ class SyncSubAnswer extends StatelessWidget {
                           return Container(
                             color: Colors.grey.shade200,
                             child: const Icon(
-                              Icons.broken_image,
+                               Icons.menu_book_rounded,
                               color: Colors.grey,
                             ),
                           );
@@ -249,7 +249,7 @@ class SyncSubAnswer extends StatelessWidget {
               .then((_) {})
               .catchError((error) {});
 
-          Get.offAllNamed(AppRoutes.home, arguments: {'tabIndex': 2});
+          Get.offAllNamed(AppRoutes.mainNav, arguments: {'tabIndex': 2});
         },
         icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white),
         label: const Text("Upload All", style: TextStyle(color: Colors.white)),

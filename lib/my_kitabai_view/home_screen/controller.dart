@@ -1,5 +1,6 @@
 import '../../app_imports.dart';
 import 'package:http/http.dart' as http;
+import 'package:mains/model/home_page_adds.dart' as adds_model;
 
 class HomeScreenController extends GetxController {
   late SharedPreferences prefs;
@@ -14,13 +15,16 @@ class HomeScreenController extends GetxController {
   RxBool isLoading = false.obs;
   RxString selectedCategory = 'All'.obs;
   RxString selectedSubCategory = ''.obs;
+  RxMap<String, List<adds_model.Data>> adsByLocation =
+      <String, List<adds_model.Data>>{}.obs;
   RxMap<String, String> expandedCategories = <String, String>{}.obs;
   bool forceRefresh = false;
   bool _isDashboardLoaded = false;
+  RxList<Reels> reels = <Reels>[].obs;
 
   RxMap<String, int> currentPage = <String, int>{}.obs;
   RxMap<String, bool> hasMore = <String, bool>{}.obs;
-
+  var homePageAdds = adds_model.HomePageAdds().obs;
   @override
   void onInit() async {
     super.onInit();
@@ -45,105 +49,168 @@ class HomeScreenController extends GetxController {
     }
   }
 
-Future<void> dashBoardData({bool forceRefresh = false}) async {
-  if (_isDashboardLoaded && !forceRefresh) return;
+  Future<void> fetchHomePageAdds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken'); // stored token
+    print("🔑 Auth Token: $authToken");
 
-  final prefs = await SharedPreferences.getInstance();
-  final authToken = prefs.getString('authToken');
-  if (authToken == null) return;
+    try {
+      isLoading.value = true;
+      print("📡 Fetching HomePageAdds...");
 
-  const String url = ApiUrls.getDashboard;
+      final url = ApiUrls.marketing; // 👈 using central API url
 
-  try {
-    isLoading.value = true;
+      print("🌍 Request URL: $url");
 
-    await callWebApiGet(
-      null,
-      '$url?page=1',
-      onResponse: (response) async {
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonMap = json.decode(response.body);
-          _isDashboardLoaded = true;
-          highlightedBooks.clear();
-          trendingBooks.clear();
-          recentBooks.clear();
-          categories.clear();
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $authToken",
+        },
+      );
 
-          final data = jsonMap['data'];
-          if (data != null) {
-            if (data['highlighted'] is List) {
-              highlightedBooks.addAll(
-                (data['highlighted'] as List)
-                    .map((item) => Highlighted.fromJson(item))
-                    .toList(),
-              );
-            }
-            if (data['trending'] is List) {
-              trendingBooks.addAll(
-                (data['trending'] as List)
-                    .map((item) => Trending.fromJson(item))
-                    .toList(),
-              );
-            }
-            if (data['recent'] is List) {
-              recentBooks.addAll(
-                (data['recent'] as List)
-                    .map((item) => Recent.fromJson(item))
-                    .toList(),
-              );
-            }
-            if (data['categories'] is List) {
-              categories.addAll(
-                (data['categories'] as List)
-                    .map((item) => Categories.fromJson(item))
-                    .toList(),
-              );
-            }
+      print("📨 Response Status for add: ${response.statusCode}");
+      print("📨 Response Body: ${response.body}");
 
-            totalBooks.value = data['totalBooks'] ?? 0;
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        homePageAdds.value = adds_model.HomePageAdds.fromJson(data);
+        print(
+          "✅ Data parsed successfully. Found: ${homePageAdds.value.data?.length ?? 0} ads",
+        );
+        _buildAdsByLocation();
+      } else {
+        Get.snackbar("Error", "Failed to load data: ${response.statusCode}");
+        print("❌ Failed with status code ${response.statusCode}");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong: $e");
+      print("🔥 Exception caught: $e");
+    } finally {
+      isLoading.value = false;
+      print("⏹️ Fetch finished");
+    }
+  }
 
-            for (var category in categories) {
-              for (var subCategory in category.subCategories ?? []) {
-                final key = '${category.category}_${subCategory.name}';
-                currentPage[key] = 1;
-                hasMore[key] = true;
+  void _buildAdsByLocation() {
+    adsByLocation.clear();
+    final list = homePageAdds.value.data ?? [];
+    for (final ad in list) {
+      final key = (ad.location ?? 'default').toLowerCase();
+      final existing = adsByLocation[key] ?? <adds_model.Data>[];
+      existing.add(ad);
+      adsByLocation[key] = existing;
+    }
+    adsByLocation.refresh();
+  }
+
+  Future<void> dashBoardData({bool forceRefresh = false}) async {
+    if (_isDashboardLoaded && !forceRefresh) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+    if (authToken == null) return;
+
+    const String url = ApiUrls.getDashboard;
+
+    try {
+      isLoading.value = true;
+
+      await callWebApiGet(
+        null,
+        '$url?page=1',
+        onResponse: (response) async {
+          if (response.statusCode == 200) {
+            final Map<String, dynamic> jsonMap = json.decode(response.body);
+            _isDashboardLoaded = true;
+            highlightedBooks.clear();
+            trendingBooks.clear();
+            recentBooks.clear();
+            categories.clear();
+            reels.clear();
+
+            final data = jsonMap['data'];
+            if (data != null) {
+              if (data['highlighted'] is List) {
+                highlightedBooks.addAll(
+                  (data['highlighted'] as List)
+                      .map((item) => Highlighted.fromJson(item))
+                      .toList(),
+                );
+              }
+              if (data['trending'] is List) {
+                trendingBooks.addAll(
+                  (data['trending'] as List)
+                      .map((item) => Trending.fromJson(item))
+                      .toList(),
+                );
+              }
+              if (data['recent'] is List) {
+                recentBooks.addAll(
+                  (data['recent'] as List)
+                      .map((item) => Recent.fromJson(item))
+                      .toList(),
+                );
+              }
+              if (data['categories'] is List) {
+                categories.addAll(
+                  (data['categories'] as List)
+                      .map((item) => Categories.fromJson(item))
+                      .toList(),
+                );
+              }
+              if (data['reels'] is List) {
+                reels.addAll(
+                  (data['reels'] as List)
+                      .map((item) => Reels.fromJson(item))
+                      .toList(),
+                );
+              }
+              totalBooks.value = data['totalBooks'] ?? 0;
+
+              for (var category in categories) {
+                for (var subCategory in category.subCategories ?? []) {
+                  final key = '${category.category}_${subCategory.name}';
+                  currentPage[key] = 1;
+                  hasMore[key] = true;
+                }
               }
             }
+          } else if (response.statusCode == 401) {
+            print("🔐 Token expired. Redirecting to login...");
+
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.clear();
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Get.offAll(() => User_Login_option());
+            });
+
+            return; // prevent further execution
+          } else {
+            print("⚠️ Unhandled status: ${response.statusCode}");
+            return;
           }
-        } else if (response.statusCode == 401) {
-          print("🔐 Token expired. Redirecting to login...");
-
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.clear();
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.offAll(() => User_Login_option());
-          });
-
-          return; // prevent further execution
-        } else {
-          print("⚠️ Unhandled status: ${response.statusCode}");
-          return;
-        }
-      },
-      onError: () {
-        // Do NOT throw here. Just log
-        print("❌ API call failed in onError.");
-        // Don't navigate here again — already handled above
-      },
-      token: authToken,
-      showLoader: false,
-      hideLoader: false,
-    );
-  } catch (e) {
-    isLoading.value = false;
-    print("❗ Exception caught: $e");
-    // Do not throw here — it crashes app before redirection
-  } finally {
-    isLoading.value = false;
-    initializeFirstSubcategories();
+        },
+        onError: () {
+          // Do NOT throw here. Just log
+          print("❌ API call failed in onError.");
+          // Don't navigate here again — already handled above
+        },
+        token: authToken,
+        showLoader: false,
+        hideLoader: false,
+      );
+    } catch (e) {
+      isLoading.value = false;
+      print("❗ Exception caught: $e");
+      // Do not throw here — it crashes app before redirection
+    } finally {
+      isLoading.value = false;
+      initializeFirstSubcategories();
+    }
   }
-}
 
   Future<void> loadMoreBooks(String category, String subCategory) async {
     final key = '${category}_$subCategory';

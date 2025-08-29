@@ -1,4 +1,3 @@
-// ✅ CONTROLLER FILE
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mains/common/shred_pref.dart';
@@ -13,10 +12,14 @@ class ResultOfAiTestController extends GetxController {
   final isLoading = true.obs;
   final testId = ''.obs;
 
-  Rx<ObjectiveTestResultCurrent?> testResult = Rx<ObjectiveTestResultCurrent?>(null);
+  Rx<ObjectiveTestResultCurrent?> testResult = Rx<ObjectiveTestResultCurrent?>(
+    null,
+  );
 
   List<Map<String, dynamic>> get visibleSolutions =>
-      showAllSolutions.value ? _formattedSolutions : _formattedSolutions.take(3).toList();
+      showAllSolutions.value
+          ? _formattedSolutions
+          : _formattedSolutions.take(3).toList();
 
   final _formattedSolutions = <Map<String, dynamic>>[].obs;
 
@@ -38,8 +41,7 @@ class ResultOfAiTestController extends GetxController {
         fetchResult(testId.value);
       }
     } catch (e) {
-      print('Error initializing result data: $e');
-    }
+}
   }
 
   Future<void> fetchResult(String testId) async {
@@ -49,7 +51,7 @@ class ResultOfAiTestController extends GetxController {
       final authToken = prefs.getString(Constants.authToken);
 
       final url =
-          'https://aipbbackend-c5ed.onrender.com/api/objectivetests/$testId/results';
+          'https://aipbbackend-yxnh.onrender.com/api/objectivetests/$testId/results';
 
       final response = await http.get(
         Uri.parse(url),
@@ -85,18 +87,17 @@ class ResultOfAiTestController extends GetxController {
           });
         }
       } else {
-        print('Failed to fetch result data: ${response.statusCode}');
-      }
+}
     } catch (e) {
-      print("Error fetching result: $e");
-    } finally {
+} finally {
       isLoading.value = false;
     }
   }
 
   int get totalScore => testResult.value?.attemptStats.latestScore ?? 0;
   int get maxScore => testResult.value?.questions.length ?? 100;
-  int get correctAnswers => testResult.value?.attemptHistory.last.correctAnswers ?? 0;
+  int get correctAnswers =>
+      testResult.value?.attemptHistory.last.correctAnswers ?? 0;
   int get incorrectAnswers =>
       (testResult.value?.attemptHistory.last.totalQuestions ?? 0) -
       (testResult.value?.attemptHistory.last.correctAnswers ?? 0);

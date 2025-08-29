@@ -36,7 +36,7 @@ class AiTestSubjectiveController extends GetxController {
         ticker,
         ApiUrls.subjectiveTestList,
         token: authToken,
-        showLoader: false, // ✅ Disable internal loader
+        showLoader: false, 
         hideLoader: false,
         onResponse: (response) {
           try {
@@ -85,7 +85,7 @@ class AiTestSubjectiveController extends GetxController {
       errorMessage.value = 'Unexpected error: $e';
       hasError.value = true;
     } finally {
-      isLoading.value = false; // ✅ You control loading in your UI
+      isLoading.value = false;
     }
   }
 

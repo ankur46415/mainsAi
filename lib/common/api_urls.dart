@@ -1,13 +1,15 @@
 class ApiUrls {
   static const String baseUrl = 'https://api.mobishaala.com/';
-  static const String baseUrl3 = 'https://aipbbackend-c5ed.onrender.com/';
-  static const String baseUrl4 = 'https://aipbbackend-c5ed.onrender.com';
+  static const String baseUrl3 = 'https://aipbbackend-yxnh.onrender.com/';
+  static const String baseUrl4 = 'https://aipbbackend-yxnh.onrender.com';
 
   static const String apiUrl = '${baseUrl}api/v1/';
-///CLI147189HIGB
+
+  ///https://aipbbackend-yxnh.onrender.com /assets/images/nophoto.png
   static const String apiUrl2 =
       '${baseUrl3}api/clients/CLI147189HIGB/mobile/auth/';
-
+  static const String subjectiveTestStart =
+      '${baseUrl4}/api/subjectivetest/clients/CLI147189HIGB/tests/';
   static const String apiUrl3 = '${baseUrl3}api/clients/CLI147189HIGB/mobile/';
   static const String apiUrl5 = '${baseUrl3}api/clients/CLI147189HIGB';
 
@@ -40,7 +42,8 @@ class ApiUrls {
 
   static const String appExpireConfigLlm =
       '${baseUrl3}api/config/clients/CLI147189HIGB/config/LLM/expire/685bba1ea5326be311a7ad04'; //gemini
-
+  static const String subjectiveTestSubmitBase =
+      '${baseUrl4}/api/subjectivetest/clients/CLI147189HIGB/tests/';
   static const String appExpireConfigTts =
       '${baseUrl3}api/config/clients/CLI147189HIGB/config/TTS/expire/685bba74a5326be311a7ad16'; //tts = servam
   static const String getAssetData = '${baseUrl3}api/qrcode/book-data/';
@@ -56,19 +59,23 @@ class ApiUrls {
 
   static const String subjectiveTestQns =
       '${baseUrl4}/api/subjectivetest-questions/clients/CLI147189HIGB/mobile/';
-
+  static const String marketing =
+      '${baseUrl3}api/clients/CLI147189HIGB/mobile/marketing/user';
   static const String objectiveTestQnsBase =
       '${baseUrl4}/api/objectivetest-questions/clients/CLI147189HIGB/mobile/';
-
+  static const String subjectiveAnswersBase =
+      '$baseUrl4/api/clients/CLI147189HIGB/mobile/userAnswers/subjective-tests';
   static const String objectiveTestSubmitBase =
-      'https://aipbbackend-c5ed.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
+      'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
 
   static const String objectiveTestStartBase =
-      'https://aipbbackend-c5ed.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
+      'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
+  static const String reelsPopular = '${baseUrl3}api/reels/popular';
 
   static const String dleteMyWorkBookLibrary =
       '$apiUrl5/mobile/myworkbooks/remove';
-
+  static const String reelsUser = '${apiUrl3}reels/user';
+  static const String reelsBase = '${apiUrl3}reels';
   static const String subjectiveTestList =
       '$baseUrl4/api/subjectivetest/clients/CLI147189HIGB/get-test';
   static const String objectiveTestList =

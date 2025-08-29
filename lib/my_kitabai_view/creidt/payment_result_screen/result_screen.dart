@@ -38,18 +38,14 @@ class PaymentResultScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                "Order ID: $orderId",
-                style: const TextStyle(fontSize: 16),
-              ),
-              Text(
-                "Amount: ₹$amount",
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text("Order ID: $orderId", style: const TextStyle(fontSize: 16)),
+              Text("Amount: ₹$amount", style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context); // You can also use pushNamed to go to a home screen
+                  Navigator.pop(
+                    context,
+                  ); // You can also use pushNamed to go to a home screen
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isSuccess ? Colors.green : Colors.red,
@@ -62,7 +58,7 @@ class PaymentResultScreen extends StatelessWidget {
                   "Continue",
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
-              )
+              ),
             ],
           ),
         ),
