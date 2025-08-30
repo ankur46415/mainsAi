@@ -1,9 +1,9 @@
 import 'app_imports.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'common/app_update_checker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
 
   if (kDebugMode) {
     debugPaintSizeEnabled = false;
@@ -48,6 +48,31 @@ void main() async {
   }
 }
 
+class AppWithUpdateChecker extends StatefulWidget {
+  final Widget child;
+
+  const AppWithUpdateChecker({super.key, required this.child});
+
+  @override
+  State<AppWithUpdateChecker> createState() => _AppWithUpdateCheckerState();
+}
+
+class _AppWithUpdateCheckerState extends State<AppWithUpdateChecker> {
+  @override
+  void initState() {
+    super.initState();
+    // Check for updates after a short delay
+    Future.delayed(const Duration(seconds: 2), () {
+      AppUpdateChecker.checkForUpdates(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
 class MyApp extends StatelessWidget {
   final Widget? initialScreen;
   const MyApp({super.key, this.initialScreen});
@@ -55,20 +80,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'mains',
+      title: 'mAIns',
       debugShowCheckedModeBanner: false,
       initialBinding: AppBindings(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: initialScreen,
+      home: AppWithUpdateChecker(child: initialScreen!),
       defaultTransition: Transition.fadeIn,
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaleFactor: 1.0,
-          ),
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
           child: child!,
         );
       },

@@ -12,7 +12,6 @@ import 'package:mains/my_kitabai_view/yt_reel/yt_reel.dart';
 import 'my_kitabai_view/creidt/history/payment_history.dart';
 
 class AppRoutes {
-  static const String splash = '/splash';
   static const String introScreen = '/intoScreen';
   static const String login = '/login';
   static const String home = '/';
@@ -55,7 +54,6 @@ class AppRoutes {
 }
 
 final List<GetPage> appPages = [
-  GetPage(name: AppRoutes.splash, page: () => Splash()),
   GetPage(name: AppRoutes.introScreen, page: () => IntroMainScreen()),
   GetPage(name: AppRoutes.login, page: () => User_Login_option()),
   GetPage(name: AppRoutes.helpScreen, page: () => HelpScreen()),

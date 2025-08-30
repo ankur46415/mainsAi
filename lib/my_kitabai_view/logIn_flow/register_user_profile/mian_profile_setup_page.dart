@@ -28,6 +28,11 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
+        leading: InkWell(
+          onTap: (){
+            Get.back();
+          },
+          child: Icon(Icons.arrow_back)),
         title: Text(
           "Complete Your Profile",
           style: GoogleFonts.poppins(

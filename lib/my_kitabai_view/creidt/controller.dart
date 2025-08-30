@@ -36,7 +36,7 @@ class CreditBalanceController extends GetxController {
       isLoading.value = true;
       print("Sending GET request to fetch credit balance...");
 
-      final url = "https://aipbbackend-yxnh.onrender.com/api/clients/CLI147189HIGB/mobile/credit/account";
+      final url = "https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/account";
       print("Request URL: $url");
 
       final response = await http.get(

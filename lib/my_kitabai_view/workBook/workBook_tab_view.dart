@@ -1,4 +1,5 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/common/custom_banner.dart';
 import 'package:mains/my_kitabai_view/home_screen/mini_yt_player.dart';
 import 'package:mains/my_kitabai_view/workBook/work_bookController.dart';
 
@@ -25,7 +26,10 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.only(
+          top: Get.width * 0.05,
+          bottom: Get.width * 0.04,
+        ),
         child: Obx(() {
           if (controller.isLoading.value) {
             return Padding(
@@ -196,394 +200,326 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                   // TOP BANNER (location: 'top')
                   Obx(() {
                     final items = controller.adsByLocation['top'] ?? [];
-                    if (items.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    if (items.length == 1) {
-                      final ad = items.first;
-                      return SizedBox(
-                        height: 150,
-                        width: double.infinity,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: _adImage(
-                            ad.imageUrl,
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: 150,
-                          ),
-                        ),
-                      );
-                    }
-                    return SizedBox(
+                    if (items.isEmpty) return const SizedBox.shrink();
+
+                    final urls =
+                        items
+                            .map((ad) => ad.imageUrl)
+                            .where((url) => url != null)
+                            .map((url) => url!)
+                            .toList();
+
+                    return AdsCarousel(
+                      imageUrls: urls,
                       height: 150,
-                      width: double.infinity,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 1.0),
-                        physics: const PageScrollPhysics(),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final ad = items[index];
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: _adImage(
-                              ad.imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 150,
-                            ),
-                          );
-                        },
-                      ),
+                      borderRadius: 12,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                     );
                   }),
                   _buildSectionTitle('Tips'),
 
                   _buildTipsSection(),
                   SizedBox(height: Get.width * 0.05),
-                  // MIDDLE BANNER (location: 'middle')
                   Obx(() {
                     final items = controller.adsByLocation['middle'] ?? [];
-                    if (items.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    if (items.length == 1) {
-                      final ad = items.first;
-                      return SizedBox(
-                        height: 150,
-                        width: double.infinity,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: _adImage(
-                            ad.imageUrl,
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: 150,
-                          ),
-                        ),
-                      );
-                    }
-                    return SizedBox(
+                    if (items.isEmpty) return const SizedBox.shrink();
+
+                    final urls =
+                        items
+                            .map((ad) => ad.imageUrl)
+                            .where((url) => url != null)
+                            .map((url) => url!)
+                            .toList();
+
+                    return AdsCarousel(
+                      imageUrls: urls,
                       height: 150,
-                      width: double.infinity,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 1.0),
-                        physics: const PageScrollPhysics(),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final ad = items[index];
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: _adImage(
-                              ad.imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 150,
-                            ),
-                          );
-                        },
-                      ),
+                      borderRadius: 12,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                     );
                   }),
-                  ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), //
-                    children:
-                        categoryMap.entries.map((entry) {
-                          final mainCategory = entry.key;
-                          final workbooks = entry.value;
-                          final subCategories =
-                              workbooks
-                                  .map((w) => w.subCategory ?? 'Other')
-                                  .toSet()
-                                  .toList();
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: Get.width * 0.05,
+                      right: Get.width * 0.05,
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(), //
+                      children:
+                          categoryMap.entries.map((entry) {
+                            final mainCategory = entry.key;
+                            final workbooks = entry.value;
+                            final subCategories =
+                                workbooks
+                                    .map((w) => w.subCategory ?? 'Other')
+                                    .toSet()
+                                    .toList();
 
-                          controller.expandedCategories.putIfAbsent(
-                            mainCategory,
-                            () => subCategories.first,
-                          );
+                            controller.expandedCategories.putIfAbsent(
+                              mainCategory,
+                              () => subCategories.first,
+                            );
 
-                          final selectedSub =
-                              controller.expandedCategories[mainCategory];
+                            final selectedSub =
+                                controller.expandedCategories[mainCategory];
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                child: Text(
-                                  mainCategory,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.blue[900],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: Get.width * 0.03,
-                                ),
-                                child: Container(
-                                  height: Get.width * 0.1,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    itemCount: subCategories.length,
-                                    itemBuilder: (context, subIndex) {
-                                      final subCategory =
-                                          subCategories[subIndex];
-                                      final isSelected =
-                                          controller
-                                              .expandedCategories[mainCategory] ==
-                                          subCategory;
-
-                                      return GestureDetector(
-                                        onTap:
-                                            () => controller.updateSelection(
-                                              mainCategory,
-                                              subCategory,
-                                            ),
-                                        child: Container(
-                                          margin: const EdgeInsets.only(
-                                            right: 12,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isSelected
-                                                    ? Colors.blue
-                                                    : Colors.grey.shade200,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              subCategory,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                color:
-                                                    isSelected
-                                                        ? Colors.white
-                                                        : Colors.grey.shade800,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Obx(() {
-                                final selected =
-                                    controller.expandedCategories[mainCategory];
-                                final filteredBooks =
-                                    workbooks
-                                        .where(
-                                          (b) =>
-                                              (b.subCategory ?? 'Other') ==
-                                              selected,
-                                        )
-                                        .toList();
-
-                                if (filteredBooks.isEmpty) {
-                                  return const Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Text(
-                                      "No books available in this subcategory",
-                                    ),
-                                  );
-                                }
-
-                                // Limit to 5 + 1 "See More" card
-                                final showMore = filteredBooks.length > 5;
-                                final displayBooks =
-                                    showMore
-                                        ? filteredBooks.take(5).toList()
-                                        : filteredBooks;
-
-                                return Padding(
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
                                   ),
-                                  child: GridView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount:
-                                        showMore
-                                            ? displayBooks.length + 1
-                                            : displayBooks.length,
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          mainAxisSpacing: 16,
-                                          crossAxisSpacing: 12,
-                                          childAspectRatio: 0.68,
-                                        ),
-                                    itemBuilder: (context, index) {
-                                      if (showMore &&
-                                          index == displayBooks.length) {
-                                        // Last card = See More
-                                        final bgImages =
-                                            displayBooks.take(4).toList();
-                                        return InkWell(
-                                          onTap: () {
-                                            Get.to(
-                                              () => WorkBookCategoryPage(
-                                                mainCategory: mainCategory,
-                                                subCategory: selected!,
-                                                books: filteredBooks,
+                                  child: Text(
+                                    mainCategory,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.blue[900],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: Get.width * 0.03,
+                                  ),
+                                  child: Container(
+                                    height: Get.width * 0.1,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      itemCount: subCategories.length,
+                                      itemBuilder: (context, subIndex) {
+                                        final subCategory =
+                                            subCategories[subIndex];
+                                        final isSelected =
+                                            controller
+                                                .expandedCategories[mainCategory] ==
+                                            subCategory;
+
+                                        return GestureDetector(
+                                          onTap:
+                                              () => controller.updateSelection(
+                                                mainCategory,
+                                                subCategory,
                                               ),
-                                            );
-                                          },
                                           child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[300],
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              border: Border.all(
-                                                color: Colors.blue,
-                                              ),
+                                            margin: const EdgeInsets.only(
+                                              right: 12,
                                             ),
-                                            child: Stack(
-                                              fit: StackFit.expand,
-                                              children: [
-                                                // Background images in 2x2 grid
-                                                ...List.generate(bgImages.length, (
-                                                  i,
-                                                ) {
-                                                  return Positioned(
-                                                    left:
-                                                        (i % 2) *
-                                                        (Get.width * 0.15),
-                                                    top:
-                                                        (i ~/ 2) *
-                                                        (Get.width * 0.275),
-                                                    width: Get.width * 0.15,
-                                                    height: Get.width * 0.275,
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                      child:
-                                                          bgImages[i].coverImageUrl !=
-                                                                      null &&
-                                                                  bgImages[i]
-                                                                      .coverImageUrl!
-                                                                      .isNotEmpty
-                                                              ? CachedNetworkImage(
-                                                                imageUrl:
-                                                                    bgImages[i]
-                                                                        .coverImageUrl!,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .cover,
-                                                              )
-                                                              : Image.asset(
-                                                                "assets/images/nophoto.png",
-                                                                fit:
-                                                                    BoxFit
-                                                                        .cover,
-                                                              ),
-                                                    ),
-                                                  );
-                                                }),
-                                                // Overlay for darkening the background
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black
-                                                        .withOpacity(0.3),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          6,
-                                                        ),
-                                                  ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  isSelected
+                                                      ? Colors.blue
+                                                      : Colors.grey.shade200,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                subCategory,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12,
+                                                  color:
+                                                      isSelected
+                                                          ? Colors.white
+                                                          : Colors
+                                                              .grey
+                                                              .shade800,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
-                                                // Centered See More text
-                                                Center(
-                                                  child: Text(
-                                                    "See More",
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                              ),
                                             ),
                                           ),
                                         );
-                                      }
-
-                                      final book = displayBooks[index];
-                                      return _buildImageBox(
-                                        book,
-                                        height: Get.width * 0.55,
-                                      );
-                                    },
+                                      },
+                                    ),
                                   ),
-                                );
-                              }),
-                            ],
-                          );
-                        }).toList(),
+                                ),
+                                Obx(() {
+                                  final selected =
+                                      controller
+                                          .expandedCategories[mainCategory];
+                                  final filteredBooks =
+                                      workbooks
+                                          .where(
+                                            (b) =>
+                                                (b.subCategory ?? 'Other') ==
+                                                selected,
+                                          )
+                                          .toList();
+
+                                  if (filteredBooks.isEmpty) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        "No books available in this subcategory",
+                                      ),
+                                    );
+                                  }
+
+                                  // Limit to 5 + 1 "See More" card
+                                  final showMore = filteredBooks.length > 5;
+                                  final displayBooks =
+                                      showMore
+                                          ? filteredBooks.take(5).toList()
+                                          : filteredBooks;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    child: GridView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount:
+                                          showMore
+                                              ? displayBooks.length + 1
+                                              : displayBooks.length,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3,
+                                            mainAxisSpacing: 16,
+                                            crossAxisSpacing: 12,
+                                            childAspectRatio: 0.68,
+                                          ),
+                                      itemBuilder: (context, index) {
+                                        if (showMore &&
+                                            index == displayBooks.length) {
+                                          // Last card = See More
+                                          final bgImages =
+                                              displayBooks.take(4).toList();
+                                          return InkWell(
+                                            onTap: () {
+                                              Get.to(
+                                                () => WorkBookCategoryPage(
+                                                  mainCategory: mainCategory,
+                                                  subCategory: selected!,
+                                                  books: filteredBooks,
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                border: Border.all(
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                children: [
+                                                  // Background images in 2x2 grid
+                                                  ...List.generate(bgImages.length, (
+                                                    i,
+                                                  ) {
+                                                    return Positioned(
+                                                      left:
+                                                          (i % 2) *
+                                                          (Get.width * 0.15),
+                                                      top:
+                                                          (i ~/ 2) *
+                                                          (Get.width * 0.275),
+                                                      width: Get.width * 0.15,
+                                                      height: Get.width * 0.275,
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                        child:
+                                                            bgImages[i].coverImageUrl !=
+                                                                        null &&
+                                                                    bgImages[i]
+                                                                        .coverImageUrl!
+                                                                        .isNotEmpty
+                                                                ? CachedNetworkImage(
+                                                                  imageUrl:
+                                                                      bgImages[i]
+                                                                          .coverImageUrl!,
+                                                                  fit:
+                                                                      BoxFit
+                                                                          .cover,
+                                                                )
+                                                                : Image.asset(
+                                                                  "assets/images/nophoto.png",
+                                                                  fit:
+                                                                      BoxFit
+                                                                          .cover,
+                                                                ),
+                                                      ),
+                                                    );
+                                                  }),
+                                                  // Overlay for darkening the background
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black
+                                                          .withOpacity(0.3),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  // Centered See More text
+                                                  Center(
+                                                    child: Text(
+                                                      "See More",
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }
+
+                                        final book = displayBooks[index];
+                                        return _buildImageBox(
+                                          book,
+                                          height: Get.width * 0.55,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }),
+                              ],
+                            );
+                          }).toList(),
+                    ),
                   ),
-                  // BOTTOM BANNER (location: 'bottom')
                   Obx(() {
                     final items = controller.adsByLocation['bottom'] ?? [];
-                    if (items.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    if (items.length == 1) {
-                      final ad = items.first;
-                      return SizedBox(
-                        height: 150,
-                        width: double.infinity,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: _adImage(
-                            ad.imageUrl,
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: 150,
-                          ),
-                        ),
-                      );
-                    }
-                    return SizedBox(
+                    if (items.isEmpty) return const SizedBox.shrink();
+
+                    final urls =
+                        items
+                            .map((ad) => ad.imageUrl)
+                            .where((url) => url != null)
+                            .map((url) => url!)
+                            .toList();
+
+                    return AdsCarousel(
+                      imageUrls: urls,
                       height: 150,
-                      width: double.infinity,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 1.0),
-                        physics: const PageScrollPhysics(),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final ad = items[index];
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: _adImage(
-                              ad.imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 150,
-                            ),
-                          );
-                        },
-                      ),
+                      borderRadius: 12,
+                      //padding: const EdgeInsets.symmetric(horizontal: 12),
                     );
                   }),
                 ],
@@ -718,29 +654,4 @@ Widget _buildSectionTitle(String title) {
       ),
     ),
   );
-}
-
-Widget _adImage(
-  String? src, {
-  double? width,
-  double? height,
-  BoxFit fit = BoxFit.cover,
-}) {
-  if (src == null || src.isEmpty) return const SizedBox.shrink();
-  try {
-    if (src.startsWith('data:image')) {
-      final String base64Part = src.split(',').last;
-      final bytes = base64Decode(base64Part);
-      return Image.memory(bytes, width: width, height: height, fit: fit);
-    }
-    if (src.startsWith('http')) {
-      return CachedNetworkImage(
-        imageUrl: src,
-        width: width,
-        height: height,
-        fit: fit,
-      );
-    }
-  } catch (_) {}
-  return const SizedBox.shrink();
 }

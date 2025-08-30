@@ -1,4 +1,5 @@
 import '../../../app_imports.dart';
+import '../../../common/decider.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileSetupController extends GetxController {
@@ -32,27 +33,17 @@ class ProfileSetupController extends GetxController {
 
   final List<String> examTypes = [
     'UPSC',
+    'JPSC',
+    'MPPCS',
+    'RAS',
+    'BPSC',
+    'UPPCS',
+    'Teacher',
     'CA',
     'CMA',
     'CS',
-    'ACCA',
-    'CFA',
-    'FRM',
-    'NEET',
-    'JEE',
-    'GATE',
-    'CAT',
-    'GMAT',
-    'GRE',
-    'IELTS',
-    'TOEFL',
     'NET/JRF',
-    'BPSC',
-    'UPPCS',
-    'NDA',
     'SSC',
-    'Teacher',
-    'CLAT',
     'Judiciary',
   ];
 
@@ -139,7 +130,7 @@ class ProfileSetupController extends GetxController {
         onResponse: (response) {
           print("🔄 Response Status Code: \\${response.statusCode}");
           if (response.statusCode == 200 || response.statusCode == 201) {
-            Get.offAllNamed('/splash');
+            Get.offAll(() => const Decider());
             print("✅ Profile data submitted successfully!");
             print("📩 Response Body: \\${response.body}");
           } else if (response.statusCode == 401 || response.statusCode == 403) {

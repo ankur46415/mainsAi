@@ -1,11 +1,11 @@
 class ApiUrls {
   static const String baseUrl = 'https://api.mobishaala.com/';
-  static const String baseUrl3 = 'https://aipbbackend-yxnh.onrender.com/';
-  static const String baseUrl4 = 'https://aipbbackend-yxnh.onrender.com';
+  static const String baseUrl3 = 'https://test.ailisher.com/';
+  static const String baseUrl4 = 'https://test.ailisher.com';
 
   static const String apiUrl = '${baseUrl}api/v1/';
 
-  ///https://aipbbackend-yxnh.onrender.com /assets/images/nophoto.png
+  ///https://test.ailisher.com
   static const String apiUrl2 =
       '${baseUrl3}api/clients/CLI147189HIGB/mobile/auth/';
   static const String subjectiveTestStart =
@@ -66,12 +66,11 @@ class ApiUrls {
   static const String subjectiveAnswersBase =
       '$baseUrl4/api/clients/CLI147189HIGB/mobile/userAnswers/subjective-tests';
   static const String objectiveTestSubmitBase =
-      'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
+      'https://test.ailisher.com/api/objectivetest/clients/CLI147189HIGB/';
 
   static const String objectiveTestStartBase =
-      'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/';
+      'https://test.ailisher.com/api/objectivetest/clients/CLI147189HIGB/';
   static const String reelsPopular = '${baseUrl3}api/reels/popular';
-
   static const String dleteMyWorkBookLibrary =
       '$apiUrl5/mobile/myworkbooks/remove';
   static const String reelsUser = '${apiUrl3}reels/user';

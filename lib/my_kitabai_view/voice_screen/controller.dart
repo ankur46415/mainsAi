@@ -284,7 +284,7 @@ class VoiceController extends GetxController {
     );
 
     final String url =
-        'https://aipbbackend-yxnh.onrender.com/api/mobile/public-chat/ask-fast/$questionId';
+        'https://test.ailisher.com/api/mobile/public-chat/ask-fast/$questionId';
     debugPrint("🌐 [ragChatApi] URL: $url");
 
     final headers = {

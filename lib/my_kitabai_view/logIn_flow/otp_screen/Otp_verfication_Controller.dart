@@ -1,4 +1,5 @@
 import '../../../common/utils.dart';
+import '../../../common/decider.dart';
 import '../../../app_imports.dart';
 
 class OtpVerificationController extends GetxController {
@@ -149,7 +150,7 @@ class OtpVerificationController extends GetxController {
             Utils.hideLoader();
 
             if (code == 1510) {
-              Get.offAllNamed('/splash');
+              Get.offAll(() => const Decider());
             } else if (code == 1511) {
               Get.offAll(() => ProfileSetupPage());
             } else {

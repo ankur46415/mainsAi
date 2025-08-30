@@ -74,7 +74,7 @@ class ObjectiveRestNameController extends GetxController {
       }
 
       final url = Uri.parse(
-        'https://aipbbackend-yxnh.onrender.com/api/objectivetest/clients/CLI147189HIGB/$testId/results',
+        'https://test.ailisher.com/api/objectivetest/clients/CLI147189HIGB/$testId/results',
       );
       final response = await http.get(
         url,

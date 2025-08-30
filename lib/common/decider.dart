@@ -33,13 +33,27 @@ class Decider extends StatelessWidget {
       future: _getInitialScreen(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Splash();
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurple,
+              ),
+            ),
+          );
         } else if (snapshot.hasError) {
           return Scaffold(
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         } else if (!snapshot.hasData || snapshot.data == null) {
-          return Splash();
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurple,
+              ),
+            ),
+          );
         } else {
           return snapshot.data!;
         }

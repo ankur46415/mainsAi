@@ -51,7 +51,7 @@ class ResultOfAiTestController extends GetxController {
       final authToken = prefs.getString(Constants.authToken);
 
       final url =
-          'https://aipbbackend-yxnh.onrender.com/api/objectivetests/$testId/results';
+          'https://test.ailisher.com/api/objectivetests/$testId/results';
 
       final response = await http.get(
         Uri.parse(url),

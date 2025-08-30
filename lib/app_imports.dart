@@ -6,7 +6,7 @@ export 'package:mains/my_kitabai_view/voice_screen/Aiscreen.dart';
 export 'package:mains/my_kitabai_view/book_detailes_page/booking_details_page/bookdetails_page.dart';
 export 'package:mains/my_kitabai_view/my_library/mybookScreen.dart';
 export 'package:mains/my_kitabai_view/profile_screen/profileCScreen.dart';
-export 'package:mains/my_kitabai_view/logIn_flow/splash_screen/Splash.dart';
+
 export 'package:mains/my_kitabai_view/logIn_flow/logIn_page_screen/User_Login_option.dart';
 export 'package:carousel_slider/carousel_slider.dart';
 export 'package:google_fonts/google_fonts.dart';
