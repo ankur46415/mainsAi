@@ -15,9 +15,8 @@ class _AiTestHomeState extends State<AiTestHome>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
-    _tabController.addListener(() {
-    });
+
+    _tabController.addListener(() {});
   }
 
   @override
@@ -47,7 +46,7 @@ class _AiTestHomeState extends State<AiTestHome>
             ),
             indicatorColor: Colors.red,
             indicatorWeight: 2,
-            tabs: const [Tab(text: "OBJECTIVE"), Tab(text: "SUBJECTIVE")],
+            tabs: const [Tab(text: "Mains"), Tab(text: "Prelims")],
           ),
         ),
       ),

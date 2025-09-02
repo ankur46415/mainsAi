@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:mains/my_kitabai_view/bottomBar/controller.dart';
 import 'package:mains/my_kitabai_view/book_detailes_page/booking_details_page/bookdetails_page.dart';
 import 'package:mains/my_kitabai_view/workBook/work_book_detailes/work_book_detailes_page.dart';
+import 'package:mains/my_kitabai_view/home_screen/custom_appBar/custom_appbar_controller.dart';
 import 'package:lottie/lottie.dart';
 import '../../common/colors.dart';
 import '../../model/book_model.dart';
@@ -26,18 +27,13 @@ class _MyLibraryViewState extends State<MyLibraryView>
   final ScrollController _scrollController = ScrollController();
   bool _isScrollingDown = false;
 
-  final List<String> tabTitles = [
-    "AI Books",
-    "AI WorkBook",
-    "AI Test",
-    "AI Courses",
-  ];
+  final List<String> tabTitles = ["AI Books", "AI WorkBook"];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-      length: 4,
+      length: 2,
       vsync: this,
       initialIndex: widget.initialTabIndex ?? 0,
     );
@@ -181,8 +177,6 @@ class _MyLibraryViewState extends State<MyLibraryView>
                       ],
                     ),
                   ),
-                  const Center(child: Text("Coming soon")),
-                  const Center(child: Text("Coming soon")),
                 ],
               ),
             ),
@@ -234,6 +228,70 @@ class _MyLibraryViewState extends State<MyLibraryView>
 
   Widget _buildCenteredMessage({
     required String imagePath,
+    required String message,
+    Color color = Colors.black54,
+    VoidCallback? onAddNow,
+  }) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(imagePath, height: 100),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: GoogleFonts.poppins(fontSize: 14, color: color),
+              textAlign: TextAlign.center,
+            ),
+            if (onAddNow != null) ...[
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                label: Text("Add Now"),
+                onPressed: () {
+                  Get.find<BottomNavController>().changeIndex(0);
+                  // Navigate to the 3rd tab (index 2) of the page at bottom nav index 0
+                  Future.delayed(Duration(milliseconds: 100), () {
+                    // Use TabControllerManager to control the tab within HomeScreenPage
+                    try {
+                      final tabControllerManager =
+                          Get.find<TabControllerManager>();
+                      if (tabControllerManager.isControllerValid) {
+                        tabControllerManager.animateTo(2);
+                      }
+                    } catch (e) {
+                      // If TabControllerManager is not available, just navigate to home
+                      print('TabControllerManager not available: $e');
+                    }
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CustomColors.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenteredMessage2({
+    required String imagePath,
+
     required String message,
     Color color = Colors.black54,
     VoidCallback? onAddNow,
@@ -469,7 +527,7 @@ class _MyLibraryViewState extends State<MyLibraryView>
       }
 
       if (controller.MyWorkBookLists.isEmpty) {
-        return _buildCenteredMessage(
+        return _buildCenteredMessage2(
           imagePath: "assets/images/loadingBooks.png",
           message: "No Workbooks Found",
           onAddNow: () => controller.getworkbooks(),

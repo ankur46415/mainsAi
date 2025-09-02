@@ -20,8 +20,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
 
     if (arguments != null && arguments is AiTestItem) {
       testData = arguments;
-    } else {
-}
+    } else {}
   }
 
   @override
@@ -72,7 +71,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
+                      Image.asset('assets/images/bg.jpg', fit: BoxFit.fill),
                       Container(color: Colors.black.withOpacity(0.3)),
                       Center(
                         child: Container(
@@ -387,17 +386,17 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
 
   Widget _buildImageWidget() {
     if (testData.imageUrl.isEmpty || !testData.imageUrl.startsWith('http')) {
-      return Image.asset('assets/images/bookb.png', fit: BoxFit.cover);
+      return Image.asset('assets/images/bookb.png', fit: BoxFit.fill);
     }
 
     return CachedNetworkImage(
       imageUrl: testData.imageUrl,
-      fit: BoxFit.cover,
+      fit: BoxFit.fill,
       placeholder:
           (context, url) => const Center(child: CircularProgressIndicator()),
       errorWidget:
           (context, url, error) =>
-              Image.asset('assets/images/bookb.png', fit: BoxFit.cover),
+              Image.asset('assets/images/bookb.png', fit: BoxFit.fill),
     );
   }
 

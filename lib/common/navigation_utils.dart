@@ -103,7 +103,6 @@ class NavigationUtils {
     await safeNavigate(route: route, arguments: testData);
   }
 
-  /// Show error dialog
   static void showErrorDialog(String title, String message) {
     Get.dialog(
       AlertDialog(
@@ -116,7 +115,6 @@ class NavigationUtils {
     );
   }
 
-  /// Show loading dialog
   static void showLoadingDialog(String message) {
     Get.dialog(
       AlertDialog(
@@ -132,7 +130,6 @@ class NavigationUtils {
     );
   }
 
-  /// Hide loading dialog
   static void hideLoadingDialog() {
     if (Get.isDialogOpen ?? false) {
       Get.back();
@@ -141,47 +138,34 @@ class NavigationUtils {
 
   static void navigateToHome() {
     try {
-      // Check if user is logged in
       final authService = Get.find<AuthService>();
       if (authService.isLoggedIn) {
-        // Navigate to home with proper tab index
         Get.offAll(() => MyHomePage());
 
-        // Set the bottom navigation to home tab (index 0)
         final bottomNavController = Get.find<BottomNavController>();
         bottomNavController.currentIndex.value = 0;
       } else {
-        // If not logged in, go to intro screen
         Get.offAll(() => IntroMainScreen());
       }
     } catch (e) {
       print('Navigation error: $e');
-      // Fallback navigation - try direct navigation
       Get.offAll(() => MyHomePage());
     }
   }
 
   static void navigateToHomeWithTab(int tabIndex) {
     try {
-      // Check if user is logged in
       final authService = Get.find<AuthService>();
       if (authService.isLoggedIn) {
-        // Navigate to home
         Get.offAll(() => MyHomePage());
 
-        // Set the bottom navigation to home tab (index 0)
         final bottomNavController = Get.find<BottomNavController>();
         bottomNavController.currentIndex.value = 0;
-
-        // Note: Tab index will be handled by the HomeScreenPage when it initializes
-        // You can pass tabIndex as arguments if needed
       } else {
-        // If not logged in, go to intro screen
         Get.offAll(() => IntroMainScreen());
       }
     } catch (e) {
       print('Navigation error: $e');
-      // Fallback navigation
       Get.offAll(() => MyHomePage());
     }
   }
