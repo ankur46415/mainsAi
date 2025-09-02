@@ -49,6 +49,7 @@ class WorkBookResponse {
 }
 
 class WorkBookHighlighted {
+  bool? isEnabled;
   String? sId;
   String? title;
   String? description;
@@ -99,6 +100,7 @@ class WorkBookHighlighted {
   String? id;
 
   WorkBookHighlighted({
+    this.isEnabled,
     this.sId,
     this.title,
     this.description,

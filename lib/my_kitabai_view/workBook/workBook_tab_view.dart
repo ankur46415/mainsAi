@@ -1,8 +1,6 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/common/custom_banner.dart';
-import 'package:mains/my_kitabai_view/home_screen/mini_yt_player.dart';
 import 'package:mains/my_kitabai_view/workBook/work_bookController.dart';
-
 import '../home_screen/see_more_books.dart';
 
 class WorkBookBookPage extends StatefulWidget {
@@ -75,6 +73,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: Get.width * 0.02),
                   Obx(
                     () =>
                         controller.highlightedBooks.isEmpty
