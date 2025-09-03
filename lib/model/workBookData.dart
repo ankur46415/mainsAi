@@ -152,6 +152,7 @@ class WorkBookHighlighted {
   });
 
   WorkBookHighlighted.fromJson(Map<String, dynamic> json) {
+    isEnabled = json['isEnabled'] as bool?;
     sId = json['_id'];
     title = json['title'];
     description = json['description'];
@@ -206,7 +207,7 @@ class WorkBookHighlighted {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-
+    data['isEnabled'] = isEnabled;
     data['_id'] = this.sId;
     data['title'] = this.title;
     data['description'] = this.description;
@@ -521,6 +522,7 @@ class WorkBookTrending {
 }
 
 class Workbooks {
+  bool? isEnabled;
   String? exam;
   String? paper;
   String? subject;
@@ -573,6 +575,7 @@ class Workbooks {
   String? userType;
 
   Workbooks({
+    this.isEnabled,
     this.exam,
     this.paper,
     this.subject,
@@ -627,6 +630,7 @@ class Workbooks {
 
   factory Workbooks.fromJson(Map<String, dynamic> json) {
     return Workbooks(
+      isEnabled: json['isEnabled'] as bool?,
       exam: json['exam'] as String?,
       paper: json['paper'] as String?,
       subject: json['subject'] as String?,
@@ -687,6 +691,7 @@ class Workbooks {
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    data['isEnabled'] = isEnabled;
     data['exam'] = exam;
     data['paper'] = paper;
     data['subject'] = subject;

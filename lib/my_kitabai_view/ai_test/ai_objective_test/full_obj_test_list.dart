@@ -14,11 +14,12 @@ class FullTestListObjPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final enabledTests = tests.where((test) => test.isEnabled == true).toList();
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: CustomAppBar(title: subcategoryName),
       body:
-          tests.isEmpty
+          enabledTests.isEmpty
               ? const Center(
                 child: Text(
                   "No tests available",
@@ -28,7 +29,7 @@ class FullTestListObjPage extends StatelessWidget {
               : Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: GridView.builder(
-                  itemCount: tests.length,
+                  itemCount: enabledTests.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 12,
@@ -36,7 +37,7 @@ class FullTestListObjPage extends StatelessWidget {
                     childAspectRatio: 0.8,
                   ),
                   itemBuilder: (context, index) {
-                    final test = tests[index];
+                    final test = enabledTests[index];
                     return GestureDetector(
                       onTap: () {
                         Get.toNamed(AppRoutes.starttestpage, arguments: test);

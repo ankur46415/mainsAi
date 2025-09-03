@@ -154,6 +154,10 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                 );
 
                 if (selectedSubcategory == null) return const SizedBox.shrink();
+                final enabledTests =
+                    (selectedSubcategory.tests ?? [])
+                        .where((t) => t.isEnabled == true)
+                        .toList();
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,8 +224,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (selectedSubcategory.tests != null &&
-                        selectedSubcategory.tests!.isNotEmpty)
+                    if (enabledTests.isNotEmpty)
                       Column(
                         children: [
                           GridView.builder(
@@ -235,13 +238,13 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                   childAspectRatio: 0.8,
                                 ),
                             itemCount:
-                                selectedSubcategory.tests!.length > 5
+                                enabledTests.length > 5
                                     ? 6
-                                    : selectedSubcategory.tests!.length,
+                                    : enabledTests.length,
                             itemBuilder: (context, index) {
                               if (index == 5) {
                                 final images =
-                                    selectedSubcategory.tests!
+                                    enabledTests
                                         .take(6)
                                         .map(
                                           (t) =>
@@ -254,7 +257,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                   onTap: () {
                                     Get.to(
                                       () => FullTestListPage(
-                                        tests: selectedSubcategory.tests!,
+                                        tests: enabledTests,
                                         subcategoryName:
                                             selectedSubcategory.name ?? "",
                                       ),
@@ -314,7 +317,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                   ),
                                 );
                               }
-                              final test = selectedSubcategory.tests![index];
+                              final test = enabledTests[index];
                               return GestureDetector(
                                 onTap: () {
                                   NavigationUtils.navigateToTestDetails(

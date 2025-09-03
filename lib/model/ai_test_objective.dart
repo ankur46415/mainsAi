@@ -20,9 +20,9 @@ class AiTestData {
   factory AiTestData.fromJson(Map<String, dynamic> json) {
     return AiTestData(
       categories:
-      (json['categories'] as List)
-          .map((e) => AiTestCategory.fromJson(e))
-          .toList(),
+          (json['categories'] as List)
+              .map((e) => AiTestCategory.fromJson(e))
+              .toList(),
     );
   }
 }
@@ -37,9 +37,9 @@ class AiTestCategory {
     return AiTestCategory(
       category: json['category'] ?? '',
       subcategories:
-      (json['subcategories'] as List)
-          .map((e) => AiTestSubCategory.fromJson(e))
-          .toList(),
+          (json['subcategories'] as List)
+              .map((e) => AiTestSubCategory.fromJson(e))
+              .toList(),
     );
   }
 }
@@ -60,7 +60,7 @@ class AiTestSubCategory {
       name: json['name'] ?? '',
       count: json['count'] ?? 0,
       tests:
-      (json['tests'] as List).map((e) => AiTestItem.fromJson(e)).toList(),
+          (json['tests'] as List).map((e) => AiTestItem.fromJson(e)).toList(),
     );
   }
 }
@@ -76,6 +76,7 @@ class AiTestItem {
   final String instructions;
   final int totalQuestions;
   final int testMaximumMarks;
+  final bool? isEnabled;
 
   AiTestItem({
     required this.testId,
@@ -88,6 +89,7 @@ class AiTestItem {
     required this.testMaximumMarks,
     required this.estimatedTime,
     required this.instructions,
+    this.isEnabled,
   });
 
   factory AiTestItem.fromJson(Map<String, dynamic> json) {
@@ -96,12 +98,35 @@ class AiTestItem {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       category: json['category'] ?? '',
-      totalQuestions: json['totalQuestions'] ?? '',
-      testMaximumMarks: json['testMaximumMarks'] ?? 0,
       subcategory: json['subcategory'] ?? '',
       imageUrl: json['image_url'] ?? '',
       estimatedTime: json['estimated_time'] ?? '',
       instructions: json['instructions'] ?? '',
+      totalQuestions:
+          json['totalQuestions'] is int
+              ? json['totalQuestions']
+              : int.tryParse(json['totalQuestions']?.toString() ?? '0') ?? 0,
+      testMaximumMarks:
+          json['testMaximumMarks'] is int
+              ? json['testMaximumMarks']
+              : int.tryParse(json['testMaximumMarks']?.toString() ?? '0') ?? 0,
+      isEnabled: json['isEnabled'] ?? false,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'test_id': testId,
+      'name': name,
+      'description': description,
+      'category': category,
+      'subcategory': subcategory,
+      'image_url': imageUrl,
+      'estimated_time': estimatedTime,
+      'instructions': instructions,
+      'totalQuestions': totalQuestions,
+      'testMaximumMarks': testMaximumMarks,
+      'isEnabled': isEnabled,
+    };
   }
 }

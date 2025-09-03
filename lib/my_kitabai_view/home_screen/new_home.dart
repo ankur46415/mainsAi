@@ -96,11 +96,20 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                             SizedBox(height: Get.width * 0.05),
                             Obx(
                               () =>
-                                  controller.highlightedBooks.isEmpty
+                                  controller.highlightedBooks
+                                          .where(
+                                            (book) => book.isEnabled == true,
+                                          )
+                                          .isEmpty
                                       ? const Center(child: Text("No data"))
                                       : CarouselSlider.builder(
                                         itemCount:
-                                            controller.highlightedBooks.length,
+                                            controller.highlightedBooks
+                                                .where(
+                                                  (book) =>
+                                                      book.isEnabled == true,
+                                                )
+                                                .length,
                                         options: CarouselOptions(
                                           autoPlay: true,
                                           enlargeCenterPage: true,
@@ -118,9 +127,15 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                           index,
                                           realIndex,
                                         ) {
+                                          final enabledHighlightedBooks =
+                                              controller.highlightedBooks
+                                                  .where(
+                                                    (book) =>
+                                                        book.isEnabled == true,
+                                                  )
+                                                  .toList();
                                           final book =
-                                              controller
-                                                  .highlightedBooks[index];
+                                              enabledHighlightedBooks[index];
                                           return InkWell(
                                             onTap: () {
                                               Get.to(
@@ -187,10 +202,20 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                   physics: const ClampingScrollPhysics(),
                                   scrollDirection: Axis.horizontal,
                                   padding: const EdgeInsets.all(16),
-                                  itemCount: controller.trendingBooks.length,
+                                  itemCount:
+                                      controller.trendingBooks
+                                          .where(
+                                            (book) => book.isEnabled == true,
+                                          )
+                                          .length,
                                   itemBuilder: (context, index) {
-                                    final book =
-                                        controller.trendingBooks[index];
+                                    final enabledTrendingBooks =
+                                        controller.trendingBooks
+                                            .where(
+                                              (book) => book.isEnabled == true,
+                                            )
+                                            .toList();
+                                    final book = enabledTrendingBooks[index];
                                     return InkWell(
                                       onTap: () {
                                         Get.to(
@@ -357,13 +382,20 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                             if (expandedSubCategory != null &&
                                                 expandedSubCategory
                                                     .isNotEmpty) {
-                                              final books = controller
-                                                  .getBooksForSubCategory(
-                                                    category.category ?? '',
-                                                    expandedSubCategory,
-                                                  );
-                                              if (books == null ||
-                                                  books.isEmpty) {
+                                              final books =
+                                                  (controller.getBooksForSubCategory(
+                                                            category.category ??
+                                                                '',
+                                                            expandedSubCategory,
+                                                          ) ??
+                                                          [])
+                                                      .where(
+                                                        (book) =>
+                                                            book.isEnabled ==
+                                                            true,
+                                                      )
+                                                      .toList();
+                                              if (books.isEmpty) {
                                                 return Padding(
                                                   padding: const EdgeInsets.all(
                                                     16,

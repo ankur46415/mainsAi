@@ -97,6 +97,7 @@ class Highlighted {
   String? image_url;
   bool? highlight;
   bool? trending;
+  bool? isEnabled;
   String? author;
   String? publisher;
   String? description;
@@ -115,6 +116,7 @@ class Highlighted {
     this.image_url,
     this.highlight,
     this.trending,
+    this.isEnabled,
     this.author,
     this.publisher,
     this.description,
@@ -134,6 +136,7 @@ class Highlighted {
     image_url = json['image_url'];
     highlight = json['highlight'];
     trending = json['trending'];
+    isEnabled = json['isEnabled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -154,6 +157,7 @@ class Highlighted {
     data['image_url'] = image_url;
     data['highlight'] = highlight;
     data['trending'] = trending;
+    data['isEnabled'] = isEnabled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -175,6 +179,7 @@ class Trending {
   String? image_url;
   bool? highlight;
   bool? trending;
+  bool? isEnabled;
   String? author;
   String? publisher;
   String? description;
@@ -193,6 +198,7 @@ class Trending {
     this.image_url,
     this.highlight,
     this.trending,
+    this.isEnabled,
     this.author,
     this.publisher,
     this.description,
@@ -212,6 +218,7 @@ class Trending {
     image_url = json['image_url'];
     highlight = json['highlight'];
     trending = json['trending'];
+    isEnabled = json['isEnabled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -232,6 +239,7 @@ class Trending {
     data['image_url'] = image_url;
     data['highlight'] = highlight;
     data['trending'] = trending;
+    data['isEnabled'] = isEnabled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -252,6 +260,7 @@ class Recent {
   String? image;
   bool? highlight;
   bool? trending;
+  bool? isEnabled;
   String? author;
   String? publisher;
   String? description;
@@ -269,6 +278,7 @@ class Recent {
     this.image,
     this.highlight,
     this.trending,
+    this.isEnabled,
     this.author,
     this.publisher,
     this.description,
@@ -287,6 +297,7 @@ class Recent {
     image = json['image'];
     highlight = json['highlight'];
     trending = json['trending'];
+    isEnabled = json['isEnabled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -309,6 +320,7 @@ class Recent {
     data['image'] = image;
     data['highlight'] = highlight;
     data['trending'] = trending;
+    data['isEnabled'] = isEnabled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -470,6 +482,7 @@ class Book {
   String? image_url;
   bool? highlight;
   bool? trending;
+  bool? isEnabled;
   String? author;
   String? publisher;
   String? description;
@@ -488,6 +501,7 @@ class Book {
     this.image_url,
     this.highlight,
     this.trending,
+    this.isEnabled,
     this.author,
     this.publisher,
     this.description,
@@ -507,6 +521,7 @@ class Book {
     image_url = json['image_url'];
     highlight = json['highlight'];
     trending = json['trending'];
+    isEnabled = json['isEnabled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -527,6 +542,7 @@ class Book {
     data['image_url'] = image_url;
     data['highlight'] = highlight;
     data['trending'] = trending;
+    data['isEnabled'] = isEnabled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;

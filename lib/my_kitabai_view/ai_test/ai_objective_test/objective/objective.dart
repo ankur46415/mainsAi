@@ -97,6 +97,12 @@ class _TestCategoriesObjectivePageState
                   (s) => s.name == selectedSub,
                 );
 
+                // Filter tests for enabled only
+                final enabledTests =
+                    (selectedSubcategory?.tests ?? [])
+                        .where((t) => t.isEnabled == true)
+                        .toList();
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,15 +162,14 @@ class _TestCategoriesObjectivePageState
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (selectedSubcategory?.tests.isNotEmpty == true)
+                    if (enabledTests.isNotEmpty)
                       Column(
                         children: [
                           SizedBox(
                             height:
                                 Get.width *
                                 0.45 *
-                                (((selectedSubcategory?.tests.length ?? 0) / 3)
-                                    .ceil()),
+                                ((enabledTests.length / 3).ceil()),
                             child: GridView.builder(
                               physics: const NeverScrollableScrollPhysics(),
                               padding: const EdgeInsets.only(bottom: 12),
@@ -176,14 +181,13 @@ class _TestCategoriesObjectivePageState
                                     childAspectRatio: 0.7,
                                   ),
                               itemCount:
-                                  (selectedSubcategory?.tests.length ?? 0) > 5
+                                  enabledTests.length > 5
                                       ? 6
-                                      : (selectedSubcategory?.tests.length ??
-                                          0),
+                                      : enabledTests.length,
                               itemBuilder: (context, index) {
                                 if (index == 5) {
                                   final images =
-                                      (selectedSubcategory?.tests ?? const [])
+                                      enabledTests
                                           .take(6)
                                           .map(
                                             (t) =>
@@ -196,9 +200,7 @@ class _TestCategoriesObjectivePageState
                                     onTap: () {
                                       Get.to(
                                         () => FullTestListObjPage(
-                                          tests:
-                                              selectedSubcategory?.tests ??
-                                              const [],
+                                          tests: enabledTests,
                                           subcategoryName:
                                               selectedSubcategory?.name ?? "",
                                           categoryName: category.category,
@@ -258,7 +260,7 @@ class _TestCategoriesObjectivePageState
                                     ),
                                   );
                                 }
-                                final test = selectedSubcategory!.tests[index];
+                                final test = enabledTests[index];
                                 return InkWell(
                                   onTap: () {
                                     Get.toNamed(
@@ -303,7 +305,7 @@ class _TestCategoriesObjectivePageState
               color: Colors.grey[300],
               alignment: Alignment.center,
               child: const Icon(
-                 Icons.menu_book_rounded,
+                Icons.menu_book_rounded,
                 size: 40,
                 color: Colors.grey,
               ),

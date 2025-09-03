@@ -101,6 +101,7 @@ class Subcategory {
 }
 
 class Test {
+  bool? isEnabled;
   String? testId;
   String? name;
   String? description;
@@ -118,6 +119,7 @@ class Test {
   String? updatedAt;
   UserTestStatus? userTestStatus;
   Test({
+    this.isEnabled,
     this.testId,
     this.name,
     this.description,
@@ -138,6 +140,7 @@ class Test {
 
   factory Test.fromJson(Map<String, dynamic> json) {
     return Test(
+      isEnabled: json['isEnabled'],
       testId: json['test_id'],
       name: json['name'],
       description: json['description'],
@@ -162,6 +165,7 @@ class Test {
 
   Map<String, dynamic> toJson() => {
     'test_id': testId,
+    'isEnabled': isEnabled,
     'name': name,
     'description': description,
     'category': category,
