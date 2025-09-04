@@ -70,7 +70,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
               const WorkBookBookPage(),
               AiTestHome(),
               Obx(() {
-                if (controller.isLoading.value) {
+                if (controller.isLoading.value || !controller.hasLoaded.value) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !(Get.isDialogOpen ?? false)) {
                       showLogoLoadingDialog();
@@ -95,7 +95,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                           children: [
                             SizedBox(height: Get.width * 0.05),
                             Obx(() {
-                              if (controller.isLoading.value) {
+                              if (controller.isLoading.value || !controller.hasLoaded.value) {
                                 return const Center(
                                   child: CircularProgressIndicator(),
                                 );
@@ -183,7 +183,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                             SizedBox(
                               height: 200,
                               child: Obx(() {
-                                if (controller.isLoading.value) {
+                                if (controller.isLoading.value || !controller.hasLoaded.value) {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );

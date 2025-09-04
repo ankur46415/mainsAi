@@ -2,7 +2,6 @@ import '../../model/getAllUploadedAnswers.dart';
 import '../upload_images/controller.dart';
 import '../../app_imports.dart';
 
-
 class MainTestScreen extends StatefulWidget {
   final int? initialTabIndex;
   final String? workBookId;
@@ -32,12 +31,11 @@ class _MainTestScreenState extends State<MainTestScreen>
     controller.getAllSubmittedAnswers();
     Get.put(UploadAnswersController());
     int tabLength = 3;
-    int initialTabIndex = 0;
-    controller.currentTabIndex.value = 0;
+    controller.currentTabIndex.value = widget.initialTabIndex ?? 0;
     _tabController = TabController(
       length: tabLength,
       vsync: this,
-      initialIndex: 0,
+      initialIndex: widget.initialTabIndex ?? 0,
     );
     _tabController.addListener(() {
       if (_tabController.index != controller.currentTabIndex.value) {
@@ -316,8 +314,10 @@ class _MainTestScreenState extends State<MainTestScreen>
                             height: 110,
                             fit: BoxFit.cover,
                             errorBuilder:
-                                (_, __, ___) =>
-                                    const Icon( Icons.menu_book_rounded, size: 80),
+                                (_, __, ___) => const Icon(
+                                  Icons.menu_book_rounded,
+                                  size: 80,
+                                ),
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return SizedBox(
@@ -518,7 +518,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (_, __, ___) => const Icon(
-                                       Icons.menu_book_rounded,
+                                      Icons.menu_book_rounded,
                                       size: 80,
                                     ),
                                 loadingBuilder: (context, child, progress) {
@@ -674,7 +674,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (_, __, ___) =>
-                                    Icon( Icons.menu_book_rounded, size: 80),
+                                    Icon(Icons.menu_book_rounded, size: 80),
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return SizedBox(
@@ -696,7 +696,7 @@ class _MainTestScreenState extends State<MainTestScreen>
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (_, __, ___) =>
-                                        Icon( Icons.menu_book_rounded, size: 80),
+                                        Icon(Icons.menu_book_rounded, size: 80),
                                 loadingBuilder: (context, child, progress) {
                                   if (progress == null) return child;
                                   return SizedBox(
@@ -1071,6 +1071,48 @@ class _MainTestScreenState extends State<MainTestScreen>
                     answer.reviewStatus != "review_completed",
               )
               .toList();
+    }
+
+    // Empty state when no submissions after filtering (match style of other tabs)
+    if (submissions.isEmpty) {
+      return Center(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.note_alt_outlined, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text(
+                widget.testId != null && widget.testId!.isNotEmpty
+                    ? "No test submissions found for this test."
+                    : widget.workBookId != null && widget.workBookId!.isNotEmpty
+                    ? "No test submissions found for this workbook."
+                    : "No test submissions found.",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.testId != null && widget.testId!.isNotEmpty
+                    ? "Students' test responses for this test will appear here once submitted."
+                    : widget.workBookId != null && widget.workBookId!.isNotEmpty
+                    ? "Students' test responses for this workbook will appear here once submitted."
+                    : "Students' test responses will appear here once submitted.",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Padding(

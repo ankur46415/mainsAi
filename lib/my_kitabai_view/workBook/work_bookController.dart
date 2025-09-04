@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:mains/model/home_page_adds.dart' as adds_model;
 import 'package:mains/model/reel_App.dart' as reel;
@@ -18,6 +17,7 @@ class WorkBookcontroller extends GetxController
   var reels = <reel.Data>[].obs;
 
   var isLoading = true.obs;
+  var hasLoaded = false.obs; // marks first fetch completion
   var workbooks = <Workbooks>[].obs;
   var homePageAdds = adds_model.HomePageAdds().obs;
   @override
@@ -90,7 +90,7 @@ class WorkBookcontroller extends GetxController
         showLoader: false,
         hideLoader: false,
       );
-    } catch (e, stack) {
+    } catch (e) {
       isLoading.value = false;
     }
   }
@@ -166,20 +166,24 @@ class WorkBookcontroller extends GetxController
                 ),
               );
             }
+            hasLoaded.value = true;
           } else {
             Get.snackbar('Error', 'Failed to load data');
+            hasLoaded.value = true;
           }
           isLoading.value = false;
         },
         onError: () {
           Get.snackbar('Error', 'Something went wrong');
+          hasLoaded.value = true;
           isLoading.value = false;
         },
         showLoader: false,
         hideLoader: false,
       );
-    } catch (e, stack) {
+    } catch (e) {
       Get.snackbar('Error', 'Something went wrong');
+      hasLoaded.value = true;
       isLoading.value = false;
       print(e);
     }

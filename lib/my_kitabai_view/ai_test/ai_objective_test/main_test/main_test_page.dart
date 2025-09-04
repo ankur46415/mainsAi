@@ -1,5 +1,7 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/my_kitabai_view/ai_test/ai_objective_test/main_test/my_dialog.dart';
 import 'main_test_controller.dart';
+
 class MainTestForAiTest extends StatefulWidget {
   const MainTestForAiTest({super.key});
 
@@ -71,53 +73,21 @@ class _MainTestForAiTestState extends State<MainTestForAiTest> {
   }
 
   Future<bool> _onWillPop() async {
-    final shouldExit = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(
-              "Exit Test?",
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            content: Text(
-              "Are you sure you want to leave this test? Your progress may be lost.",
-              style: GoogleFonts.poppins(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(
-                  "Cancel",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  Navigator.of(ctx).pop(true);
-                  final c = Get.find<MainTestForAiTestController>();
-                  await c.submitAnswersToApi();
-                },
-                child: Text(
-                  "Exit",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    final shouldExit = await showCustomWarningDialog(
+      context,
+      title: "Exit Test?",
+      message:
+          "Are you sure you want to leave this test? Your progress may be lost.",
+      isRed: true,
     );
-    return shouldExit ?? false;
+
+    if (shouldExit == true) {
+      final c = Get.find<MainTestForAiTestController>();
+      await c.submitAnswersToApi();
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -393,11 +363,21 @@ class _MainTestForAiTestState extends State<MainTestForAiTest> {
                                     controller.jumpToQuestion(actualIndex);
                                   },
                                   leading: Container(
-                                    width: 12,
-                                    height: 12,
+                                    width: 24,
+                                    height: 24,
                                     decoration: BoxDecoration(
                                       color: statusColor,
                                       shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${actualIndex + 1}',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   title: Text(
@@ -434,14 +414,6 @@ class _MainTestForAiTestState extends State<MainTestForAiTest> {
                                             color: statusColor,
                                             fontWeight: FontWeight.w600,
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '${actualIndex + 1}',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
                                         ),
                                       ),
                                     ],

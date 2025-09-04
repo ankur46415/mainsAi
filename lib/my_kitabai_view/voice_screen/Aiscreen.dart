@@ -825,7 +825,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                   color: Colors.red,
                 ),
                 onPressed: () {
-                  controller.toggleChatMode(); // Toggle chat/voice mode
+                  controller.toggleChatMode();
                 },
               ),
             ),

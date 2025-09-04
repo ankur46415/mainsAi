@@ -167,14 +167,37 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
       ),
       child: Column(
         children: [
-          Text(
-            bookData.title ?? 'No Title',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                bookData.title ?? 'No Title',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (bookData.chatAvailable != null) ...[
+                const SizedBox(width: 6),
+                if (bookData.chatAvailable)
+                  Image.asset(
+                    "assets/images/quality.png",
+                    width: 16,
+                    height: 16,
+                    fit: BoxFit.contain,
+                  )
+                else
+                  Image.asset(
+                    "assets/images/verify.png",
+                    width: 16,
+                    height: 16,
+                    fit: BoxFit.contain,
+                  ),
+              ],
+            ],
           ),
+
           SizedBox(height: Get.width * 0.01),
           Text(
             '${bookData.subjectName ?? ''} | ${bookData.paperName ?? ''}, ${bookData.examName ?? ''}',
@@ -185,18 +208,6 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
             ),
           ),
           SizedBox(height: Get.width * 0.015),
-          Text(
-            bookData.chatAvailable == true
-                ? "Book is embedded"
-                : "Book is not embedded",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey,
-            ),
-          ),
-
           _buildRatingRow(bookData),
           const SizedBox(height: 8),
           const Divider(height: 1),

@@ -52,10 +52,31 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
             );
           }
 
+          if (!controller.hasLoaded.value || controller.isLoading.value) {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 100),
+              child: Center(
+                child: SizedBox(
+                  height: 200,
+                  width: 200,
+                  child: Lottie.asset(
+                    'assets/lottie/book_loading.json',
+                    fit: BoxFit.contain,
+                    delegates: LottieDelegates(
+                      values: [
+                        ValueDelegate.color(const ['**'], value: Colors.red),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
           if (controller.workbooks
               .where((wb) => wb.isEnabled == true)
               .isEmpty) {
-            return const Center(child: Text('No data found.'));
+            return const Center(child: Text('No data founds.'));
           }
 
           final Map<String, List<Workbooks>> categoryMap = {};
@@ -173,7 +194,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(5),
-
                                 child: CachedNetworkImage(
                                   imageUrl: book.coverImageUrl ?? '',
                                   fit: BoxFit.fill,
@@ -265,9 +285,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                               mainCategory,
                               () => subCategories.first,
                             );
-
-                            final selectedSub =
-                                controller.expandedCategories[mainCategory];
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

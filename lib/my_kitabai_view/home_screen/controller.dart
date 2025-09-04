@@ -13,6 +13,7 @@ class HomeScreenController extends GetxController {
   RxList<Categories> categories = <Categories>[].obs;
   RxInt totalBooks = 0.obs;
   RxBool isLoading = false.obs;
+  RxBool hasLoaded = false.obs; // first successful dashboard load completed
   RxString selectedCategory = 'All'.obs;
   RxString selectedSubCategory = ''.obs;
   RxMap<String, List<adds_model.Data>> adsByLocation =
@@ -31,6 +32,9 @@ class HomeScreenController extends GetxController {
     try {
       await _initializePreferences();
       if (!_isDashboardLoaded) {
+        // Ensure the very first frame after landing shows a loader
+        // instead of briefly flashing "No data" before the API starts.
+        isLoading.value = true;
         Future.microtask(() async {
           await dashBoardData();
           initializeFirstSubcategories();
@@ -177,6 +181,8 @@ class HomeScreenController extends GetxController {
                 }
               }
             }
+            // Mark as successfully loaded after parsing
+            hasLoaded.value = true;
           } else if (response.statusCode == 401) {
             print("🔐 Token expired. Redirecting to login...");
 
