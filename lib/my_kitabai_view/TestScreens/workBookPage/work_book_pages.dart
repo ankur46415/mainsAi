@@ -1,4 +1,5 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/model/getAllUploadedAnswers.dart';
 import 'package:mains/my_kitabai_view/upload_images/controller.dart';
 
 class WorkBookPagesForTest extends StatelessWidget {
@@ -115,142 +116,120 @@ class WorkBookPagesForTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    try {
-      // Use Get.find instead of Get.put to avoid multiple instances
-      MainTestScreenController controller;
-      try {
-        controller = Get.find<MainTestScreenController>();
-      } catch (e) {
-        controller = Get.put(MainTestScreenController(), permanent: true);
-      }
+    final MainTestScreenController controller = Get.put(
+      MainTestScreenController(),
+    );
+    final Color primaryRed = Colors.red[700]!;
 
-      // Ensure data is loaded when the widget is built
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (controller.testAnswersList.isEmpty && !controller.isLoading.value) {
-          controller.getAllSubmittedAnswers();
-        }
-      });
-
-      final Color primaryRed = Colors.red[700]!;
-
-      return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          backgroundColor: Colors.grey[50],
-          appBar: AppBar(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            title: Text(
-              'Result',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: true,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
-            bottom: TabBar(
-              unselectedLabelColor: Colors.white,
-              indicatorColor: Colors.white,
-              labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-              tabs: [
-                Tab(
-                  child: Text(
-                    'WorkBook',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
-              ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          title: Text(
+            'Result',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ),
-          body: TabBarView(
-            children: [
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: primaryRed),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading WorkBooks...',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          bottom: TabBar(
+            unselectedLabelColor: Colors.white,
+            indicatorColor: Colors.white,
+            labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+            tabs: [
+              Tab(
+                child: Text('WorkBook', style: TextStyle(color: Colors.white)),
+              ),
+              Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            Obx(() {
+              final uploadController = Get.find<UploadAnswersController>();
 
-                if (controller.workBookList.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.book_outlined,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No WorkBooks Found',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'You haven\'t added any workbooks yet.',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            print(
-                              '🔄 WorkBookPagesForTest: Retry loading data',
-                            );
-                            controller.getAllSubmittedAnswers();
-                          },
-                          child: Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+              if (controller.isLoading.value) {
+                return Center(
+                  child: CircularProgressIndicator(color: primaryRed),
+                );
+              }
 
-                return ListView.separated(
+              if (controller.workBookList.isEmpty) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await controller.getAllSubmittedAnswers();
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 200),
+                          child: Text(
+                            'No Workbooks Found',
+                            style: GoogleFonts.poppins(color: Colors.grey[600]),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final uniqueWorkbooks =
+                  controller.workBookList
+                      .fold<Map<String, Workbook>>({}, (map, workbook) {
+                        map[workbook.sId ?? ''] = workbook;
+                        return map;
+                      })
+                      .values
+                      .toList();
+
+              final totalCount =
+                  uniqueWorkbooks.length +
+                  (uploadController.isUploadingToServer.value ? 1 : 0);
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await controller.getAllSubmittedAnswers();
+                },
+                child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemCount: controller.workBookList.length,
+                  itemCount: totalCount,
                   itemBuilder: (context, index) {
-                    final workbook = controller.workBookList[index];
+                    if (uploadController.isUploadingToServer.value &&
+                        index == 0) {
+                      return _buildUploadProgressCard(uploadController);
+                    }
+
+                    final realIndex =
+                        uploadController.isUploadingToServer.value
+                            ? index - 1
+                            : index;
+                    final workbook = uniqueWorkbooks[realIndex];
+
                     final questionCount =
                         controller.testAnswersList
                             .where(
                               (answer) =>
                                   answer.bookWorkbookInfo?.workbook?.sId ==
-                                      workbook.sId &&
-                                  answer.submissionType == "workbook",
+                                  workbook.sId,
                             )
                             .length;
 
@@ -275,45 +254,36 @@ class WorkBookPagesForTest extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            // Cover Image
-                            Container(
-                              width: 60,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child:
-                                  workbook.coverImageUrl != null &&
-                                          workbook.coverImageUrl!.isNotEmpty
-                                      ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: CachedNetworkImage(
-                                          imageUrl: workbook.coverImageUrl!,
-                                          fit: BoxFit.cover,
-                                          placeholder:
-                                              (context, url) => Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      color: primaryRed,
-                                                    ),
-                                              ),
-                                          errorWidget:
-                                              (context, url, error) => Icon(
-                                                Icons.book,
-                                                color: Colors.grey[400],
-                                                size: 30,
-                                              ),
+                            Hero(
+                              tag: workbook.sId ?? 'book-$realIndex',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: workbook.coverImageUrl ?? '',
+                                  height: 120,
+                                  width: 100,
+                                  fit: BoxFit.fill,
+                                  placeholder:
+                                      (_, __) => Container(
+                                        color: Colors.grey[200],
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: primaryRed,
+                                          ),
                                         ),
-                                      )
-                                      : Icon(
-                                        Icons.book,
-                                        color: Colors.grey[400],
-                                        size: 30,
                                       ),
+                                  errorWidget:
+                                      (_, __, ___) => Container(
+                                        color: Colors.grey[200],
+                                        child: Icon(
+                                          Icons.book,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,136 +293,92 @@ class WorkBookPagesForTest extends StatelessWidget {
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                      color: Colors.grey[800],
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    workbook.author ?? 'Unknown Author',
+                                    workbook.description ??
+                                        'No description available.',
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[600],
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 8),
-                                  Row(
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 6,
                                     children: [
-                                      Icon(
-                                        Icons.question_answer,
-                                        size: 16,
+                                      _buildInfoChip(
+                                        icon: Icons.assignment_outlined,
+                                        text: '$questionCount Submissions',
                                         color: primaryRed,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$questionCount questions answered',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.grey[400],
-                              size: 16,
-                            ),
                           ],
                         ),
                       ),
                     );
                   },
+                ),
+              );
+            }),
+
+            Obx(() {
+              if (controller.isLoading.value) {
+                return Center(
+                  child: CircularProgressIndicator(color: primaryRed),
                 );
-              }),
-              // Second Tab: Test
-              Obx(() {
-                print('🔄 WorkBookPagesForTest: Building Test tab');
-                // ✅ Deduplicate subjective tests by test ID
-                final Map<String, dynamic> filteredTestsMap = {};
+              }
 
-                for (var answer in controller.testAnswersList) {
-                  if (answer.submissionType == "subjective_test" &&
-                      answer.testInfo != null) {
-                    final test = answer.testInfo!;
-                    filteredTestsMap[test.id.toString()] =
-                        test; // Keeps only one entry per test ID
-                  }
+              final Map<String, dynamic> filteredTestsMap = {};
+
+              for (var answer in controller.testAnswersList) {
+                if (answer.submissionType == "subjective_test" &&
+                    answer.testInfo != null) {
+                  final test = answer.testInfo!;
+                  filteredTestsMap[test.id.toString()] = test;
                 }
+              }
 
-                final filteredTests = filteredTestsMap.values.toList();
+              final filteredTests = filteredTestsMap.values.toList();
 
-                print(
-                  'Filtered Subjective Tests (Unique): ${filteredTests.length}',
+              if (filteredTests.isEmpty) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await controller.getAllSubmittedAnswers();
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 200),
+                          child: Text(
+                            'No Subjective Tests Available',
+                            style: GoogleFonts.poppins(color: Colors.grey[600]),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
+              }
 
-                if (controller.isLoading.value) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: primaryRed),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading Tests...',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (filteredTests.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.quiz_outlined,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No Tests Found',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'You haven\'t taken any tests yet.',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            print(
-                              '🔄 WorkBookPagesForTest: Retry loading data',
-                            );
-                            controller.getAllSubmittedAnswers();
-                          },
-                          child: Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ListView.separated(
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await controller.getAllSubmittedAnswers();
+                },
+                child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemCount: filteredTests.length,
@@ -486,21 +412,36 @@ class WorkBookPagesForTest extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            // Test Icon
-                            Container(
-                              width: 60,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: primaryRed.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.quiz,
-                                color: primaryRed,
-                                size: 30,
+                            Hero(
+                              tag: test.id ?? 'test-$index',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: test.imageUrl ?? '',
+                                  height: 120,
+                                  width: 100,
+                                  fit: BoxFit.fill,
+                                  placeholder:
+                                      (_, __) => Container(
+                                        color: Colors.grey[200],
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: primaryRed,
+                                          ),
+                                        ),
+                                      ),
+                                  errorWidget:
+                                      (_, __, ___) => Container(
+                                        color: Colors.grey[200],
+                                        child: Icon(
+                                          Icons.book,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,107 +451,71 @@ class WorkBookPagesForTest extends StatelessWidget {
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                      color: Colors.grey[800],
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    test.category ?? 'Unknown Category',
+                                    test.description ??
+                                        'No description available.',
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[600],
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 8),
-                                  Row(
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 6,
                                     children: [
-                                      Icon(
-                                        Icons.question_answer,
-                                        size: 16,
+                                      _buildInfoChip(
+                                        icon: Icons.person_outline,
+                                        text: test.category ?? 'Unknown',
                                         color: primaryRed,
                                       ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$questionCount questions answered',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
+                                      _buildInfoChip(
+                                        icon: Icons.assignment_outlined,
+                                        text: '$questionCount Submissions',
+                                        color: primaryRed,
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.grey[400],
-                              size: 16,
-                            ),
                           ],
                         ),
                       ),
                     );
                   },
-                );
-              }),
-            ],
-          ),
+                ),
+              );
+            }),
+          ],
         ),
-      );
-    } catch (e) {
-      print('❌ WorkBookPagesForTest: Error building widget: $e');
-      return Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          title: Text(
-            'Result',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: CustomColors.primaryColor, width: 2),
+          ),
+          child: ClipOval(
+            child: FloatingActionButton(
+              onPressed: () {
+                Get.toNamed(AppRoutes.mainScanner);
+              },
+              backgroundColor: Colors.white,
+              elevation: 0,
+              child: Icon(Icons.qr_code_scanner_outlined),
             ),
           ),
-          centerTitle: true,
-          backgroundColor: CustomColors.primaryColor,
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-              const SizedBox(height: 16),
-              Text(
-                'Something went wrong',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Please try again',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  print('🔄 WorkBookPagesForTest: Retry after error');
-                  Get.forceAppUpdate();
-                },
-                child: Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      ),
+    );
   }
 
   Widget _buildInfoChip({

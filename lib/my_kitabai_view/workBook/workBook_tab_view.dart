@@ -52,12 +52,16 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
             );
           }
 
-          if (controller.workbooks.where((wb) => wb.isEnabled == true).isEmpty) {
+          if (controller.workbooks
+              .where((wb) => wb.isEnabled == true)
+              .isEmpty) {
             return const Center(child: Text('No data found.'));
           }
 
           final Map<String, List<Workbooks>> categoryMap = {};
-          for (final wb in controller.workbooks.where((wb) => wb.isEnabled == true)) {
+          for (final wb in controller.workbooks.where(
+            (wb) => wb.isEnabled == true,
+          )) {
             final mainCat = wb.mainCategory ?? 'Other';
             categoryMap.putIfAbsent(mainCat, () => <Workbooks>[]).add(wb);
           }
@@ -74,35 +78,46 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: Get.width * 0.02),
-                  Obx(
-                    () {
-                      final enabledHighlightedBooks = controller.highlightedBooks.where((wb) => wb.isEnabled == true).toList();
-                      return enabledHighlightedBooks.isEmpty
-                          ? const Center(child: Text("No data"))
-                          : CarouselSlider.builder(
-                              itemCount: enabledHighlightedBooks.length,
-                              options: CarouselOptions(
-                                autoPlay: true,
-                                enlargeCenterPage: true,
-                                aspectRatio: 16 / 14,
-                                viewportFraction: 0.7,
-                                autoPlayInterval: const Duration(seconds: 3),
-                                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                                pauseAutoPlayOnTouch: true,
-                              ),
-                              itemBuilder: (context, index, realIndex) {
-                                final book = enabledHighlightedBooks[index];
-                                return InkWell(
-                                  onTap: () => Get.to(() => WorkBookDetailesPage(bookId: book.sId)),
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: CachedNetworkImage(
-                                        imageUrl: book.coverImageUrl ?? '',
-                                        fit: BoxFit.fill,
-                                        width: double.infinity,
-                                        errorWidget: (context, url, error) => Container(
+                  Obx(() {
+                    final enabledHighlightedBooks =
+                        controller.highlightedBooks
+                            .where((wb) => wb.isEnabled == true)
+                            .toList();
+                    return enabledHighlightedBooks.isEmpty
+                        ? const Center(child: Text("No data"))
+                        : CarouselSlider.builder(
+                          itemCount: enabledHighlightedBooks.length,
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            enlargeCenterPage: true,
+                            aspectRatio: 16 / 14,
+                            viewportFraction: 0.7,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            autoPlayAnimationDuration: const Duration(
+                              milliseconds: 800,
+                            ),
+                            pauseAutoPlayOnTouch: true,
+                          ),
+                          itemBuilder: (context, index, realIndex) {
+                            final book = enabledHighlightedBooks[index];
+                            return InkWell(
+                              onTap:
+                                  () => Get.to(
+                                    () =>
+                                        WorkBookDetailesPage(bookId: book.sId),
+                                  ),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: book.coverImageUrl ?? '',
+                                    fit: BoxFit.fill,
+                                    width: double.infinity,
+                                    errorWidget:
+                                        (context, url, error) => Container(
                                           color: Colors.grey[200],
                                           alignment: Alignment.center,
                                           child: const Icon(
@@ -110,19 +125,19 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             color: Colors.grey,
                                           ),
                                         ),
-                                        placeholder: (context, url) => Center(
+                                    placeholder:
+                                        (context, url) => Center(
                                           child: Image.asset(
                                             "assets/images/mains-logo.png",
                                           ),
                                         ),
-                                      ),
-                                    ),
                                   ),
-                                );
-                              },
+                                ),
+                              ),
                             );
-                    },
-                  ),
+                          },
+                        );
+                  }),
                   Padding(
                     padding: const EdgeInsets.only(top: 16, left: 16),
                     child: Text(

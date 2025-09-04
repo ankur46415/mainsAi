@@ -94,98 +94,83 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: Get.width * 0.05),
-                            Obx(
-                              () =>
+                            Obx(() {
+                              if (controller.isLoading.value) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              final enabledHighlightedBooks =
                                   controller.highlightedBooks
-                                          .where(
-                                            (book) => book.isEnabled == true,
-                                          )
-                                          .isEmpty
-                                      ? const Center(child: Text("No data"))
-                                      : CarouselSlider.builder(
-                                        itemCount:
-                                            controller.highlightedBooks
-                                                .where(
-                                                  (book) =>
-                                                      book.isEnabled == true,
-                                                )
-                                                .length,
-                                        options: CarouselOptions(
-                                          autoPlay: true,
-                                          enlargeCenterPage: true,
-                                          aspectRatio: 16 / 14,
-                                          viewportFraction: 0.7,
-                                          autoPlayInterval: const Duration(
-                                            seconds: 3,
-                                          ),
-                                          autoPlayAnimationDuration:
-                                              const Duration(milliseconds: 800),
-                                          pauseAutoPlayOnTouch: true,
-                                        ),
-                                        itemBuilder: (
-                                          context,
-                                          index,
-                                          realIndex,
-                                        ) {
-                                          final enabledHighlightedBooks =
-                                              controller.highlightedBooks
-                                                  .where(
-                                                    (book) =>
-                                                        book.isEnabled == true,
-                                                  )
-                                                  .toList();
-                                          final book =
-                                              enabledHighlightedBooks[index];
-                                          return InkWell(
-                                            onTap: () {
-                                              Get.to(
-                                                () => BookDetailsPage(
-                                                  bookId: book.bookId ?? '',
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 3,
-                                                  ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: CachedNetworkImage(
-                                                  imageUrl:
-                                                      book.image_url ?? '',
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                  errorWidget:
-                                                      (
-                                                        context,
-                                                        url,
-                                                        error,
-                                                      ) => Container(
-                                                        color: Colors.grey[200],
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: const Icon(
-                                                          Icons
-                                                              .menu_book_rounded,
-                                                          color: Colors.grey,
-                                                          size: 50,
-                                                        ),
-                                                      ),
-                                                  placeholder:
-                                                      (context, url) => Center(
-                                                        child: Image.asset(
-                                                          "assets/images/mains-logo.png",
-                                                        ),
-                                                      ),
-                                                ),
-                                              ),
+                                      .where((book) => book.isEnabled == true)
+                                      .toList();
+                              return enabledHighlightedBooks.isEmpty
+                                  ? const Center(child: Text("No data"))
+                                  : CarouselSlider.builder(
+                                    itemCount: enabledHighlightedBooks.length,
+                                    options: CarouselOptions(
+                                      autoPlay: true,
+                                      enlargeCenterPage: true,
+                                      aspectRatio: 16 / 14,
+                                      viewportFraction: 0.7,
+                                      autoPlayInterval: const Duration(
+                                        seconds: 3,
+                                      ),
+                                      autoPlayAnimationDuration: const Duration(
+                                        milliseconds: 800,
+                                      ),
+                                      pauseAutoPlayOnTouch: true,
+                                    ),
+                                    itemBuilder: (context, index, realIndex) {
+                                      final book =
+                                          enabledHighlightedBooks[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          Get.to(
+                                            () => BookDetailsPage(
+                                              bookId: book.bookId ?? '',
                                             ),
                                           );
                                         },
-                                      ),
-                            ),
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 3,
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            child: CachedNetworkImage(
+                                              imageUrl: book.image_url ?? '',
+                                              fit: BoxFit.fill,
+                                              width: double.infinity,
+                                              errorWidget:
+                                                  (
+                                                    context,
+                                                    url,
+                                                    error,
+                                                  ) => Container(
+                                                    color: Colors.grey[200],
+                                                    alignment: Alignment.center,
+                                                    child: const Icon(
+                                                      Icons.menu_book_rounded,
+                                                      color: Colors.grey,
+                                                      size: 50,
+                                                    ),
+                                                  ),
+                                              placeholder:
+                                                  (context, url) => Center(
+                                                    child: Image.asset(
+                                                      "assets/images/mains-logo.png",
+                                                    ),
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                            }),
                             Padding(
                               padding: const EdgeInsets.only(top: 16, left: 16),
                               child: Utils.primaryText(
@@ -197,24 +182,22 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                             ),
                             SizedBox(
                               height: 200,
-                              child: Obx(
-                                () => ListView.builder(
+                              child: Obx(() {
+                                if (controller.isLoading.value) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                final enabledTrendingBooks =
+                                    controller.trendingBooks
+                                        .where((book) => book.isEnabled == true)
+                                        .toList();
+                                return ListView.builder(
                                   physics: const ClampingScrollPhysics(),
                                   scrollDirection: Axis.horizontal,
                                   padding: const EdgeInsets.all(16),
-                                  itemCount:
-                                      controller.trendingBooks
-                                          .where(
-                                            (book) => book.isEnabled == true,
-                                          )
-                                          .length,
+                                  itemCount: enabledTrendingBooks.length,
                                   itemBuilder: (context, index) {
-                                    final enabledTrendingBooks =
-                                        controller.trendingBooks
-                                            .where(
-                                              (book) => book.isEnabled == true,
-                                            )
-                                            .toList();
                                     final book = enabledTrendingBooks[index];
                                     return InkWell(
                                       onTap: () {
@@ -266,8 +249,8 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                       ),
                                     );
                                   },
-                                ),
-                              ),
+                                );
+                              }),
                             ),
 
                             Column(

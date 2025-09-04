@@ -46,7 +46,7 @@ class _AiTestHomeState extends State<AiTestHome>
             ),
             indicatorColor: Colors.red,
             indicatorWeight: 2,
-            tabs: const [Tab(text: "Mains"), Tab(text: "Prelims")],
+            tabs: const [Tab(text: "Prelims"), Tab(text: "Mains")],
           ),
         ),
       ),

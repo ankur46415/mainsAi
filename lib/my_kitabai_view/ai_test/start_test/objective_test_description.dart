@@ -168,6 +168,42 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                       ),
                     ),
                     const SizedBox(height: 30),
+                    if (testData.description.isNotEmpty) ...[
+                      Text(
+                        "Test Description",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          testData.description,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                    ],
+
                     Text(
                       "Test Instructions",
                       style: GoogleFonts.poppins(
@@ -204,41 +240,6 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                     ),
 
                     const SizedBox(height: 30),
-                    if (testData.description.isNotEmpty) ...[
-                      Text(
-                        "Test Description",
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.red.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          testData.description,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                    ],
 
                     const SizedBox(
                       height: 100,
