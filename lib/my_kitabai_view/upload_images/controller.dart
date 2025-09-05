@@ -1,11 +1,9 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:image/image.dart' as img;
-import 'package:path/path.dart' as path;
-
-import '../TestScreens/controller.dart';
 
 class UploadAnswersController extends GetxController {
   late SharedPreferences prefs;
@@ -20,6 +18,9 @@ class UploadAnswersController extends GetxController {
   final RxString uploadStatus = ''.obs;
   final RxInt uploadProgress = 0.obs;
   final RxInt totalImages = 0.obs;
+
+  // Add timer to clear status after success/failure
+  Timer? _statusClearTimer;
 
   void setQuestionId(String? raw) {
     if (raw == null) {
@@ -39,8 +40,8 @@ class UploadAnswersController extends GetxController {
     ever(isUploadingToServer, (bool isUploading) {
       if (!isUploading) {
         Future.delayed(const Duration(milliseconds: 500), () {
-          if (Get.isDialogOpen ??
-              false && uploadStatus.value != 'Upload limit reached') {
+          if ((Get.isDialogOpen ?? false) &&
+              uploadStatus.value != 'Upload limit reached') {
             print('Closing dialog due to upload completion');
             Get.back();
           } else if (uploadStatus.value == 'Upload limit reached') {
@@ -54,11 +55,9 @@ class UploadAnswersController extends GetxController {
   }
 
   final ImagePicker _picker = ImagePicker();
-  bool _showingLimitDialog = false;
 
   void showLimitReachedDialog() {
     print('showLimitReachedDialog called');
-    _showingLimitDialog = true;
 
     if (Get.isDialogOpen ?? false) {
       print('Closing existing dialog before showing limit dialog');
@@ -111,7 +110,6 @@ class UploadAnswersController extends GetxController {
                     ),
                     onPressed: () {
                       print('Limit dialog OK button pressed');
-                      _showingLimitDialog = false;
                       Get.back();
                       Get.back();
                     },
@@ -148,25 +146,26 @@ class UploadAnswersController extends GetxController {
       );
 
       if (image != null) {
-        final file = File(image.path);
-        if (await file.exists()) {
-          final fileSize = await file.length();
-          if (fileSize > 0) {
-            if (fileSize > 10 * 1024 * 1024) {
-              Get.snackbar(
-                'Warning',
-                'Image file is too large. Please try again.',
-              );
-              return;
-            }
-
-            capturedImages.add(file);
-          } else {
-            Get.snackbar('Error', 'Failed to capture image');
-          }
-        } else {
-          Get.snackbar('Error', 'Failed to save image');
+        // Always materialize XFile to a temp file to avoid content:// issues
+        final bytes = await image.readAsBytes();
+        if (bytes.isEmpty) {
+          Get.snackbar('Error', 'Failed to capture image');
+          return;
         }
+        final tempDir = await getTemporaryDirectory();
+        final tempPath =
+            '${tempDir.path}/picked_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final tempFile = File(tempPath);
+        await tempFile.writeAsBytes(bytes, flush: true);
+
+        final fileSize = await tempFile.length();
+        if (fileSize > 10 * 1024 * 1024) {
+          Get.snackbar('Warning', 'Image file is too large. Please try again.');
+          await tempFile.delete().catchError((_) {});
+          return;
+        }
+
+        capturedImages.add(tempFile);
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to capture image: ${e.toString()}');
@@ -186,24 +185,25 @@ class UploadAnswersController extends GetxController {
         imageQuality: 85,
       );
       if (image != null) {
-        final file = File(image.path);
-        if (await file.exists()) {
-          final fileSize = await file.length();
-          if (fileSize > 0) {
-            if (fileSize > 10 * 1024 * 1024) {
-              Get.snackbar(
-                'Warning',
-                'Image file is too large. Please try again.',
-              );
-              return;
-            }
-            capturedImages.add(file);
-          } else {
-            Get.snackbar('Error', 'Failed to select image');
-          }
-        } else {
-          Get.snackbar('Error', 'Failed to save image');
+        // Always copy to a real file in cache (handles content:// URIs)
+        final bytes = await image.readAsBytes();
+        if (bytes.isEmpty) {
+          Get.snackbar('Error', 'Failed to select image');
+          return;
         }
+        final tempDir = await getTemporaryDirectory();
+        final tempPath =
+            '${tempDir.path}/picked_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final tempFile = File(tempPath);
+        await tempFile.writeAsBytes(bytes, flush: true);
+
+        final fileSize = await tempFile.length();
+        if (fileSize > 10 * 1024 * 1024) {
+          Get.snackbar('Warning', 'Image file is too large. Please try again.');
+          await tempFile.delete().catchError((_) {});
+          return;
+        }
+        capturedImages.add(tempFile);
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to select image: ${e.toString()}');
@@ -312,7 +312,9 @@ class UploadAnswersController extends GetxController {
         return;
       }
 
-      totalImages.value = capturedImages.length;
+      // Store the total count at the beginning to prevent issues during processing
+      final totalImagesCount = capturedImages.length;
+      totalImages.value = totalImagesCount;
       uploadStatus.value = 'Starting upload...';
 
       final uri = Uri.parse(
@@ -323,16 +325,15 @@ class UploadAnswersController extends GetxController {
             ..headers.addAll({
               'Authorization': 'Bearer $authToken',
               'Accept': 'application/json',
-              'Content-Type': 'multipart/form-data',
+              // Do NOT set Content-Type here; http will set proper multipart boundary
             })
             ..fields['reviewStatus'] = 'pending';
 
       List<File> tempFiles = [];
 
-      for (var i = 0; i < capturedImages.length; i++) {
+      for (var i = 0; i < totalImagesCount; i++) {
         try {
-          uploadStatus.value =
-              'Processing image ${i + 1} of ${capturedImages.length}';
+          uploadStatus.value = 'Processing image ${i + 1} of $totalImagesCount';
           final file = capturedImages[i];
 
           if (!await file.exists()) {
@@ -361,7 +362,17 @@ class UploadAnswersController extends GetxController {
           print('Error processing image ${i + 1}: $e');
         }
 
-        uploadProgress.value = ((i + 1) / capturedImages.length * 100).round();
+        // Safe progress calculation using stored total count
+        if (totalImagesCount > 0) {
+          final progress = (i + 1) / totalImagesCount * 100;
+          if (progress.isFinite && !progress.isNaN) {
+            uploadProgress.value = progress.round();
+          } else {
+            uploadProgress.value = 0;
+          }
+        } else {
+          uploadProgress.value = 0;
+        }
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
@@ -473,6 +484,8 @@ class UploadAnswersController extends GetxController {
             Future.delayed(const Duration(milliseconds: 2000), () {
               if (Get.isDialogOpen ?? false) Get.back(closeOverlays: true);
             });
+            // Clear status after 5 seconds
+            _clearStatusAfterDelay();
             break;
           default:
             uploadStatus.value = 'Upload failed';
@@ -485,6 +498,8 @@ class UploadAnswersController extends GetxController {
             } catch (_) {}
             showSnack('Error', message);
             if (Get.isDialogOpen ?? false) Get.back();
+            // Clear status after 5 seconds for error cases too
+            _clearStatusAfterDelay();
             break;
         }
       }
@@ -498,6 +513,8 @@ class UploadAnswersController extends GetxController {
       print('🪵 Stack trace: $stackTrace');
       if (Get.isDialogOpen ?? false) Get.back();
       capturedImages.clear();
+      // Clear status after 5 seconds for exception cases too
+      _clearStatusAfterDelay();
     } finally {
       isUploadingToServer.value = false;
       print('✅ Upload process completed');
@@ -526,6 +543,15 @@ class UploadAnswersController extends GetxController {
     }
   }
 
+  void _clearStatusAfterDelay() {
+    _statusClearTimer?.cancel();
+    _statusClearTimer = Timer(const Duration(seconds: 5), () {
+      uploadStatus.value = '';
+      uploadProgress.value = 0;
+      print('Cleared upload status after delay');
+    });
+  }
+
   // Method to clear all temporary files in the temp directory
   Future<void> clearAllTempFiles() async {
     try {
@@ -533,7 +559,7 @@ class UploadAnswersController extends GetxController {
       final files = tempDir.listSync();
 
       for (final file in files) {
-        if (file is File && file.path.contains('compressed_')) {
+        if (file is File && (file.path.contains('compressed_'))) {
           try {
             if (file.existsSync()) {
               file.deleteSync();
@@ -552,16 +578,15 @@ class UploadAnswersController extends GetxController {
   @override
   void onClose() {
     try {
-      // Close HTTP client
+      _statusClearTimer?.cancel();
+
+      if (isUploadingToServer.value) {
+        super.onClose();
+        return;
+      }
       _client.close();
-
-      // Clear captured images
       capturedImages.clear();
-
-      // Clear temporary files
       clearAllTempFiles();
-
-      // Reset all reactive variables
       isUploadingToServer.value = false;
       uploadStatus.value = '';
       uploadProgress.value = 0;

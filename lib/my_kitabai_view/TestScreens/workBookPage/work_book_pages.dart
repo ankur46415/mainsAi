@@ -162,7 +162,6 @@ class WorkBookPagesForTest extends StatelessWidget {
           children: [
             Obx(() {
               final uploadController = Get.find<UploadAnswersController>();
-
               if (controller.isLoading.value) {
                 return Center(
                   child: CircularProgressIndicator(color: primaryRed),
@@ -200,9 +199,21 @@ class WorkBookPagesForTest extends StatelessWidget {
                       .values
                       .toList();
 
+              final shouldShowProgressCard =
+                  uploadController.isUploadingToServer.value ||
+                  (uploadController.uploadStatus.value.isNotEmpty &&
+                      (uploadController.uploadStatus.value
+                              .toLowerCase()
+                              .contains('success') ||
+                          uploadController.uploadStatus.value
+                              .toLowerCase()
+                              .contains('fail') ||
+                          uploadController.uploadStatus.value
+                              .toLowerCase()
+                              .contains('error')));
+
               final totalCount =
-                  uniqueWorkbooks.length +
-                  (uploadController.isUploadingToServer.value ? 1 : 0);
+                  uniqueWorkbooks.length + (shouldShowProgressCard ? 1 : 0);
 
               return RefreshIndicator(
                 onRefresh: () async {
@@ -213,15 +224,12 @@ class WorkBookPagesForTest extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemCount: totalCount,
                   itemBuilder: (context, index) {
-                    if (uploadController.isUploadingToServer.value &&
-                        index == 0) {
+                    if (shouldShowProgressCard && index == 0) {
                       return _buildUploadProgressCard(uploadController);
                     }
 
                     final realIndex =
-                        uploadController.isUploadingToServer.value
-                            ? index - 1
-                            : index;
+                        shouldShowProgressCard ? index - 1 : index;
                     final workbook = uniqueWorkbooks[realIndex];
 
                     final questionCount =
