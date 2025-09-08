@@ -13,6 +13,7 @@ class UploadAnswers extends StatefulWidget {
 
 class _UploadAnswersState extends State<UploadAnswers> {
   late final UploadAnswersController controller;
+  bool _isQuestionExpanded = false;
 
   @override
   void initState() {
@@ -82,14 +83,39 @@ class _UploadAnswersState extends State<UploadAnswers> {
 
               Text(
                 widget.questionsText.toString(),
-
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                maxLines: _isQuestionExpanded ? null : 3,
+                overflow:
+                    _isQuestionExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.4,
                   color: Colors.grey.shade800,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isQuestionExpanded = !_isQuestionExpanded;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+
+                  child: Text(
+                    _isQuestionExpanded ? 'See less' : 'See more',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.blue.shade600,
+                    ),
+                  ),
                 ),
               ),
             ],
