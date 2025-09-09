@@ -46,6 +46,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Required for ImageCropper (UCrop) on Android -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/UcropAppTheme" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

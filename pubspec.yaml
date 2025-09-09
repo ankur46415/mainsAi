@@ -3,7 +3,7 @@ description: "A new Flutter project."
 publish_to: 'none' 
 
 
-version: 1.0.1+8
+version: 1.0.1+9
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
@@ -29,7 +29,8 @@ dependencies:
   package_info_plus:
   pinput:
   flutter_tts: ^3.8.5
-  gif: 
+  gif: ^2.3.0
+  image_cropper: ^9.1.0
   flutter_image_compress:
   syncfusion_flutter_charts:
   photo_view:

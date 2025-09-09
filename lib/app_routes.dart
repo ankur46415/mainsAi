@@ -122,10 +122,7 @@ final List<GetPage> appPages = [
   ),
   GetPage(
     name: AppRoutes.assetResult,
-    page: () {
-      final args = Get.arguments as Map<String, dynamic>;
-      return AssetReslut();
-    },
+    page: () => AssetReslut(),
   ),
   GetPage(
     name: AppRoutes.subjectiveSetDetail,

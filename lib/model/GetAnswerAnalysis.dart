@@ -43,6 +43,7 @@ class Data {
 
 class Answer {
   String? sId;
+  HindiEvaluation? hindiEvaluation;
   String? questionId;
   int? attemptNumber;
   String? submissionStatus;
@@ -76,6 +77,7 @@ class Answer {
     this.feedback,
     this.reviewedBy,
     this.annotatedImages,
+    this.hindiEvaluation,
   });
 
   Answer.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,10 @@ class Answer {
     evaluation =
         json['evaluation'] != null
             ? Evaluation.fromJson(json['evaluation'])
+            : null;
+    hindiEvaluation =
+        json['hindiEvaluation'] != null
+            ? HindiEvaluation.fromJson(json['hindiEvaluation'])
             : null;
     feedback =
         json['feedback'] != null ? Feedback.fromJson(json['feedback']) : null;
@@ -126,6 +132,8 @@ class Answer {
     if (submission != null) data['submission'] = submission!.toJson();
     if (evaluation != null) data['evaluation'] = evaluation!.toJson();
     if (feedback != null) data['feedback'] = feedback!.toJson();
+    if (hindiEvaluation != null)
+      data['hindiEvaluation'] = hindiEvaluation!.toJson();
     data['reviewedBy'] = reviewedBy;
     if (annotatedImages != null) {
       data['annotations'] = annotatedImages!.map((x) => x.toJson()).toList();
@@ -582,6 +590,100 @@ class AnnotatedImage {
     data['downloadUrl'] = downloadUrl;
     data['uploadedAt'] = uploadedAt;
     data['_id'] = id;
+    return data;
+  }
+}
+
+class HindiEvaluation {
+  int? relevancy;
+  int? score;
+  String? remark;
+  List<String>? comments;
+  HindiAnalysis? analysis;
+
+  HindiEvaluation({
+    this.relevancy,
+    this.score,
+    this.remark,
+    this.comments,
+    this.analysis,
+  });
+
+  HindiEvaluation.fromJson(Map<String, dynamic> json) {
+    relevancy = json['relevancy'];
+    score = json['score'];
+    remark = json['remark'];
+    comments =
+        json['comments'] != null ? List<String>.from(json['comments']) : null;
+    analysis =
+        json['analysis'] != null
+            ? HindiAnalysis.fromJson(json['analysis'])
+            : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['relevancy'] = relevancy;
+    data['score'] = score;
+    data['remark'] = remark;
+    if (comments != null) data['comments'] = comments;
+    if (analysis != null) data['analysis'] = analysis!.toJson();
+    return data;
+  }
+}
+
+class HindiAnalysis {
+  List<String>? introduction;
+  List<String>? body;
+  List<String>? conclusion;
+  List<String>? strengths;
+  List<String>? weaknesses;
+  List<String>? suggestions;
+  List<String>? feedback;
+
+  HindiAnalysis({
+    this.introduction,
+    this.body,
+    this.conclusion,
+    this.strengths,
+    this.weaknesses,
+    this.suggestions,
+    this.feedback,
+  });
+
+  HindiAnalysis.fromJson(Map<String, dynamic> json) {
+    introduction =
+        json['introduction'] != null
+            ? List<String>.from(json['introduction'])
+            : null;
+    body = json['body'] != null ? List<String>.from(json['body']) : null;
+    conclusion =
+        json['conclusion'] != null
+            ? List<String>.from(json['conclusion'])
+            : null;
+    strengths =
+        json['strengths'] != null ? List<String>.from(json['strengths']) : null;
+    weaknesses =
+        json['weaknesses'] != null
+            ? List<String>.from(json['weaknesses'])
+            : null;
+    suggestions =
+        json['suggestions'] != null
+            ? List<String>.from(json['suggestions'])
+            : null;
+    feedback =
+        json['feedback'] != null ? List<String>.from(json['feedback']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (introduction != null) data['introduction'] = introduction;
+    if (body != null) data['body'] = body;
+    if (conclusion != null) data['conclusion'] = conclusion;
+    if (strengths != null) data['strengths'] = strengths;
+    if (weaknesses != null) data['weaknesses'] = weaknesses;
+    if (suggestions != null) data['suggestions'] = suggestions;
+    if (feedback != null) data['feedback'] = feedback;
     return data;
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:mains/app_imports.dart';
 import 'package:image/image.dart' as img;
 
@@ -146,26 +147,35 @@ class UploadAnswersController extends GetxController {
       );
 
       if (image != null) {
-        // Always materialize XFile to a temp file to avoid content:// issues
-        final bytes = await image.readAsBytes();
-        if (bytes.isEmpty) {
-          Get.snackbar('Error', 'Failed to capture image');
-          return;
-        }
-        final tempDir = await getTemporaryDirectory();
-        final tempPath =
-            '${tempDir.path}/picked_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final tempFile = File(tempPath);
-        await tempFile.writeAsBytes(bytes, flush: true);
+        final CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: image.path,
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.black,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+              statusBarColor: Colors.black,
+              hideBottomControls: true,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+              aspectRatioLockEnabled: false,
+            ),
+          ],
+        );
 
-        final fileSize = await tempFile.length();
+        if (croppedFile == null) return;
+
+        final fileSize = await File(croppedFile.path).length();
         if (fileSize > 10 * 1024 * 1024) {
           Get.snackbar('Warning', 'Image file is too large. Please try again.');
-          await tempFile.delete().catchError((_) {});
+          await File(croppedFile.path).delete().catchError((_) {});
           return;
         }
 
-        capturedImages.add(tempFile);
+        capturedImages.add(File(croppedFile.path));
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to capture image: ${e.toString()}');
@@ -174,23 +184,32 @@ class UploadAnswersController extends GetxController {
 
   Future<void> pickImageFromGallery() async {
     try {
+      // Restrict to 5 images
       if (capturedImages.length >= 5) {
         Get.snackbar('Limit Reached', 'Maximum 5 images allowed');
         return;
       }
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
+
+      // Pick multiple images
+      final List<XFile>? images = await _picker.pickMultiImage(
         maxWidth: 1200,
         maxHeight: 1200,
         imageQuality: 85,
       );
-      if (image != null) {
-        // Always copy to a real file in cache (handles content:// URIs)
-        final bytes = await image.readAsBytes();
-        if (bytes.isEmpty) {
-          Get.snackbar('Error', 'Failed to select image');
-          return;
+
+      if (images == null || images.isEmpty) {
+        return;
+      }
+
+      for (var image in images) {
+        if (capturedImages.length >= 5) {
+          Get.snackbar('Limit Reached', 'Maximum 5 images allowed');
+          break; // stop adding more
         }
+
+        final bytes = await image.readAsBytes();
+        if (bytes.isEmpty) continue;
+
         final tempDir = await getTemporaryDirectory();
         final tempPath =
             '${tempDir.path}/picked_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -199,14 +218,15 @@ class UploadAnswersController extends GetxController {
 
         final fileSize = await tempFile.length();
         if (fileSize > 10 * 1024 * 1024) {
-          Get.snackbar('Warning', 'Image file is too large. Please try again.');
+          Get.snackbar('Warning', 'Image file is too large. Skipped.');
           await tempFile.delete().catchError((_) {});
-          return;
+          continue;
         }
+
         capturedImages.add(tempFile);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to select image: ${e.toString()}');
+      Get.snackbar('Error', 'Failed to select images: ${e.toString()}');
     }
   }
 

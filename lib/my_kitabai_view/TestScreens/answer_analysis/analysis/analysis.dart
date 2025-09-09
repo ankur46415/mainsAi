@@ -19,6 +19,7 @@ class Analysis extends StatefulWidget {
 
 class _AnalysisState extends State<Analysis> {
   late AnalysisController controller;
+  String _selectedLanguage = 'english';
 
   final Map<String, Color> ratingColors = {
     "Excellent": Colors.green,
@@ -29,55 +30,103 @@ class _AnalysisState extends State<Analysis> {
 
   Map<String, Map<String, dynamic>> getEvaluationData() {
     final controller = Get.find<MainAnalyticsController>();
-    final evaluation =
-        controller.answerAnalysis.value?.data?.answer?.evaluation;
+    final answer = controller.answerAnalysis.value?.data?.answer;
+    final bool isHindi = _selectedLanguage == 'hindi';
     final Map<String, Map<String, dynamic>> evalData = {};
 
-    if (evaluation != null) {
-      final analysis = evaluation.analysis;
-      if (analysis?.introduction?.isNotEmpty ?? false) {
-        evalData['introduction'] = {
-          'rating': 'Excellent',
-          'marks': 'Introduction',
-          'comment': analysis!.introduction!.join('\n'),
-        };
+    if (!isHindi) {
+      final evaluation = answer?.evaluation;
+      final analysis = evaluation?.analysis;
+      if (analysis != null) {
+        if (analysis.introduction?.isNotEmpty ?? false) {
+          evalData['introduction'] = {
+            'rating': 'Excellent',
+            'marks': 'Introduction',
+            'comment': analysis.introduction!.join('\n'),
+          };
+        }
+        if (analysis.body?.isNotEmpty ?? false) {
+          evalData['body'] = {
+            'rating': 'Excellent',
+            'marks': 'Body',
+            'comment': analysis.body!.join('\n'),
+          };
+        }
+        if (analysis.conclusion?.isNotEmpty ?? false) {
+          evalData['conclusion'] = {
+            'rating': 'Excellent',
+            'marks': 'Conclusion',
+            'comment': analysis.conclusion!.join('\n'),
+          };
+        }
+        if (analysis.strengths?.isNotEmpty ?? false) {
+          evalData['Strengths'] = {
+            'rating': 'Excellent',
+            'marks': 'Strengths',
+            'comment': analysis.strengths!.join('\n'),
+          };
+        }
+        if (analysis.weaknesses?.isNotEmpty ?? false) {
+          evalData['Areas for Improvement'] = {
+            'rating': 'Needs Improvement',
+            'marks': 'Weaknesses',
+            'comment': analysis.weaknesses!.join('\n'),
+          };
+        }
+        if (analysis.suggestions?.isNotEmpty ?? false) {
+          evalData['Suggestions'] = {
+            'rating': 'Good',
+            'marks': 'Suggestions',
+            'comment': analysis.suggestions!.join('\n'),
+          };
+        }
       }
-      if (analysis?.body?.isNotEmpty ?? false) {
-        evalData['body'] = {
-          'rating': 'Excellent',
-          'marks': 'Body',
-          'comment': analysis!.body!.join('\n'),
-        };
-      }
-      if (analysis?.conclusion?.isNotEmpty ?? false) {
-        evalData['conclusion'] = {
-          'rating': 'Excellent',
-          'marks': 'Conclusion',
-          'comment': analysis!.conclusion!.join('\n'),
-        };
-      }
-      if (analysis?.strengths?.isNotEmpty ?? false) {
-        evalData['Strengths'] = {
-          'rating': 'Excellent',
-          'marks': 'Strengths',
-          'comment': analysis!.strengths!.join('\n'),
-        };
-      }
-
-      if (analysis?.weaknesses?.isNotEmpty ?? false) {
-        evalData['Areas for Improvement'] = {
-          'rating': 'Needs Improvement',
-          'marks': 'Weaknesses',
-          'comment': analysis!.weaknesses!.join('\n'),
-        };
-      }
-
-      if (analysis?.suggestions?.isNotEmpty ?? false) {
-        evalData['Suggestions'] = {
-          'rating': 'Good',
-          'marks': 'Suggestions',
-          'comment': analysis!.suggestions!.join('\n'),
-        };
+    } else {
+      final hindiEvaluation = answer?.hindiEvaluation;
+      final analysis = hindiEvaluation?.analysis;
+      if (analysis != null) {
+        if (analysis.introduction?.isNotEmpty ?? false) {
+          evalData['introduction'] = {
+            'rating': 'Excellent',
+            'marks': 'प्रस्तावना',
+            'comment': analysis.introduction!.join('\n'),
+          };
+        }
+        if (analysis.body?.isNotEmpty ?? false) {
+          evalData['body'] = {
+            'rating': 'Excellent',
+            'marks': 'मुख्य भाग',
+            'comment': analysis.body!.join('\n'),
+          };
+        }
+        if (analysis.conclusion?.isNotEmpty ?? false) {
+          evalData['conclusion'] = {
+            'rating': 'Excellent',
+            'marks': 'निष्कर्ष',
+            'comment': analysis.conclusion!.join('\n'),
+          };
+        }
+        if (analysis.strengths?.isNotEmpty ?? false) {
+          evalData['Strengths'] = {
+            'rating': 'Excellent',
+            'marks': 'मजबूतियाँ',
+            'comment': analysis.strengths!.join('\n'),
+          };
+        }
+        if (analysis.weaknesses?.isNotEmpty ?? false) {
+          evalData['Areas for Improvement'] = {
+            'rating': 'Needs Improvement',
+            'marks': 'कमज़ोरियाँ',
+            'comment': analysis.weaknesses!.join('\n'),
+          };
+        }
+        if (analysis.suggestions?.isNotEmpty ?? false) {
+          evalData['Suggestions'] = {
+            'rating': 'Good',
+            'marks': 'सुझाव',
+            'comment': analysis.suggestions!.join('\n'),
+          };
+        }
       }
     }
 
@@ -116,6 +165,7 @@ class _AnalysisState extends State<Analysis> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+
                       Center(
                         child: Container(
                           width: 48,
@@ -156,6 +206,7 @@ class _AnalysisState extends State<Analysis> {
                                 Colors.orange,
                                 (value) =>
                                     setState(() => selectedOption = value),
+
                               ),
                               _buildReviewOption(
                                 'Need better analysis',
@@ -790,6 +841,8 @@ class _AnalysisState extends State<Analysis> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildLanguageToggle(),
+              const SizedBox(height: 12),
               _buildSummaryCard(),
               const SizedBox(height: 24),
 
@@ -995,12 +1048,14 @@ class _AnalysisState extends State<Analysis> {
         padding: const EdgeInsets.all(20.0),
         child: Obx(() {
           final controller = Get.find<MainAnalyticsController>();
-          final evaluation =
-              controller.answerAnalysis.value?.data?.answer?.evaluation;
+          final answer = controller.answerAnalysis.value?.data?.answer;
+          final bool isHindi = _selectedLanguage == 'hindi';
+          final evaluation = isHindi ? null : answer?.evaluation;
+          final hindiEvaluation = isHindi ? answer?.hindiEvaluation : null;
 
-          final accuracy = evaluation?.accuracy ?? 0;
-          final score = evaluation?.score ?? 0;
-          final relevency = evaluation?.relevancy ?? 0;
+          final accuracy = isHindi ? 0 : (evaluation?.accuracy ?? 0);
+          final score = isHindi ? (hindiEvaluation?.score ?? 0) : (evaluation?.score ?? 0);
+          final relevency = isHindi ? (hindiEvaluation?.relevancy ?? 0) : (evaluation?.relevancy ?? 0);
           final maximumMarks =
               controller
                   .answerAnalysis
@@ -1034,7 +1089,7 @@ class _AnalysisState extends State<Analysis> {
                 children: [
                   Center(
                     child: Text(
-                      'Your Score',
+                      _selectedLanguage == 'hindi' ? 'आपका स्कोर' : 'Your Score',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w700,
                         fontSize: 26,
@@ -1063,7 +1118,7 @@ class _AnalysisState extends State<Analysis> {
                   Column(
                     children: [
                       Text(
-                        '${evaluation?.score ?? 0} / $maximumMarks ',
+                        '${scoreNum} / $maximumMarks ',
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -1082,21 +1137,21 @@ class _AnalysisState extends State<Analysis> {
                     Icons.trending_up,
                     // '$relevency%',
                     'N/A',
-                    'Your Rank',
+                    _selectedLanguage == 'hindi' ? 'आपकी रैंक' : 'Your Rank',
                     Colors.green,
                   ),
                   _buildMetricItem(
                     Icons.assessment,
                     // '${evaluation?.score ?? 0}',
                     'N/A',
-                    'Average Score',
+                    _selectedLanguage == 'hindi' ? 'औसत स्कोर' : 'Average Score',
                     Colors.orange,
                   ),
                   _buildMetricItem(
                     Icons.star,
                     // getRatingText(relevency),
                     'N/A',
-                    'Top Score',
+                    _selectedLanguage == 'हिन्दी' ? 'शीर्ष स्कोर' : 'Top Score',
                     _getProgressColor(progressValue),
                   ),
                 ],
@@ -1151,43 +1206,59 @@ class _AnalysisState extends State<Analysis> {
   Widget _buildBarChart() {
     return Obx(() {
       final controller = Get.find<MainAnalyticsController>();
-      final evaluation =
-          controller.answerAnalysis.value?.data?.answer?.evaluation;
+      final answer = controller.answerAnalysis.value?.data?.answer;
+      final bool isHindi = _selectedLanguage == 'hindi';
+      final evaluation = isHindi ? null : answer?.evaluation;
+      final hindiEvaluation = isHindi ? answer?.hindiEvaluation : null;
 
       // Create chart data from evaluation
       final List<MapEntry<String, Map<String, dynamic>>> chartData = [];
 
-      if (evaluation != null) {
+      if (!isHindi && evaluation != null) {
         final analysis = evaluation.analysis;
-
         if (analysis?.strengths?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Strengths', {
-              'rating': 'Excellent',
-              'marks': '${analysis!.strengths!.length}/5',
-              'comment': analysis.strengths!.join('\n'),
-            }),
-          );
+          chartData.add(MapEntry('Strengths', {
+            'rating': 'Excellent',
+            'marks': '${analysis!.strengths!.length}/5',
+            'comment': analysis.strengths!.join('\n'),
+          }));
         }
-
         if (analysis?.weaknesses?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Weaknesses', {
-              'rating': 'Needs Improvement',
-              'marks': '${analysis!.weaknesses!.length}/5',
-              'comment': analysis.weaknesses!.join('\n'),
-            }),
-          );
+          chartData.add(MapEntry('Weaknesses', {
+            'rating': 'Needs Improvement',
+            'marks': '${analysis!.weaknesses!.length}/5',
+            'comment': analysis.weaknesses!.join('\n'),
+          }));
         }
-
         if (analysis?.suggestions?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Suggestions', {
-              'rating': 'Good',
-              'marks': '${analysis!.suggestions!.length}/5',
-              'comment': analysis.suggestions!.join('\n'),
-            }),
-          );
+          chartData.add(MapEntry('Suggestions', {
+            'rating': 'Good',
+            'marks': '${analysis!.suggestions!.length}/5',
+            'comment': analysis.suggestions!.join('\n'),
+          }));
+        }
+      } else if (isHindi && hindiEvaluation != null) {
+        final analysis = hindiEvaluation.analysis;
+        if (analysis?.strengths?.isNotEmpty ?? false) {
+          chartData.add(MapEntry('मजबूतियाँ', {
+            'rating': 'Excellent',
+            'marks': '${analysis!.strengths!.length}/5',
+            'comment': analysis.strengths!.join('\n'),
+          }));
+        }
+        if (analysis?.weaknesses?.isNotEmpty ?? false) {
+          chartData.add(MapEntry('कमज़ोरियाँ', {
+            'rating': 'Needs Improvement',
+            'marks': '${analysis!.weaknesses!.length}/5',
+            'comment': analysis.weaknesses!.join('\n'),
+          }));
+        }
+        if (analysis?.suggestions?.isNotEmpty ?? false) {
+          chartData.add(MapEntry('सुझाव', {
+            'rating': 'Good',
+            'marks': '${analysis!.suggestions!.length}/5',
+            'comment': analysis.suggestions!.join('\n'),
+          }));
         }
       }
 
@@ -1273,9 +1344,11 @@ class _AnalysisState extends State<Analysis> {
 
   Widget Remark() {
     final controller = Get.find<MainAnalyticsController>();
-    final evaluation =
-        controller.answerAnalysis.value?.data?.answer?.evaluation;
-    final remark = evaluation?.remark ?? 0;
+    final answer = controller.answerAnalysis.value?.data?.answer;
+    final bool isHindi = _selectedLanguage == 'hindi';
+    final remark = isHindi
+        ? (answer?.hindiEvaluation?.remark ?? '')
+        : (answer?.evaluation?.remark ?? '');
 
     return Card(
       elevation: 7,
@@ -1316,9 +1389,11 @@ class _AnalysisState extends State<Analysis> {
 
   Widget comment() {
     final controller = Get.find<MainAnalyticsController>();
-    final evaluation =
-        controller.answerAnalysis.value?.data?.answer?.evaluation;
-    final List<String> comments = evaluation?.comments ?? [];
+    final answer = controller.answerAnalysis.value?.data?.answer;
+    final bool isHindi = _selectedLanguage == 'hindi';
+    final List<String> comments = isHindi
+        ? (answer?.hindiEvaluation?.comments ?? [])
+        : (answer?.evaluation?.comments ?? []);
 
     // Join comments with newlines
     final String commentText = comments.join('\n');
@@ -1333,7 +1408,7 @@ class _AnalysisState extends State<Analysis> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Comments',
+              isHindi ? 'टिप्पणियाँ' : 'Comments',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -1342,7 +1417,7 @@ class _AnalysisState extends State<Analysis> {
             ),
             const SizedBox(height: 8),
             Text(
-              commentText.isNotEmpty ? commentText : 'No comments available',
+              commentText.isNotEmpty ? commentText : (isHindi ? 'कोई टिप्पणी उपलब्ध नहीं' : 'No comments available'),
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
@@ -1369,6 +1444,30 @@ class _AnalysisState extends State<Analysis> {
           ),
         ),
         const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildLanguageToggle() {
+    final bool isHindi = _selectedLanguage == 'hindi';
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ChoiceChip(
+          label: Text('English', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          selected: !isHindi,
+          onSelected: (v) {
+            if (v) setState(() => _selectedLanguage = 'english');
+          },
+        ),
+        const SizedBox(width: 12),
+        ChoiceChip(
+          label: Text('हिन्दी', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          selected: isHindi,
+          onSelected: (v) {
+            if (v) setState(() => _selectedLanguage = 'hindi');
+          },
+        ),
       ],
     );
   }
