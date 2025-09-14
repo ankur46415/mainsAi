@@ -395,6 +395,11 @@ class _VoiceScreenState extends State<VoiceScreen>
               // History tab - show chat history
               return Expanded(child: _buildHistoryContent());
             }
+            
+            if (selected == 'Chat') {
+              // Chat tab - show chat messages
+              return Expanded(child: _buildChatContent());
+            }
 
             final items = controller.tabData[selected] ?? [];
             return Expanded(
@@ -802,6 +807,210 @@ class _VoiceScreenState extends State<VoiceScreen>
     });
   }
 
+  Widget _buildChatContent() {
+    return Obx(() {
+      if (controller.isLoadingChatDetails.value) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              children: [
+                CircularProgressIndicator(color: Colors.red),
+                SizedBox(height: 12),
+                Text(
+                  'Loading chat...',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      if (controller.messages.isEmpty) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline,
+                  size: 48,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'No messages found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Select a chat from history to view messages',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          // Chat header
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              border: Border(
+                bottom: BorderSide(color: Colors.red.shade200),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline,
+                  color: Colors.red.shade600,
+                  size: 20,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.selectedChatDetails['title'] ?? 'Chat',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red.shade800,
+                        ),
+                      ),
+                      Text(
+                        '${controller.messages.length} messages',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.red.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    controller.selectedTab.value = 'History';
+                  },
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.red.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Messages list
+          Expanded(
+            child: ListView.builder(
+              controller: controller.scrollController,
+              padding: EdgeInsets.all(16),
+              itemCount: controller.messages.length,
+              itemBuilder: (context, index) {
+                final message = controller.messages[index];
+                final isUser = message['sender'] == 'user';
+                
+                return Container(
+                  margin: EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: isUser 
+                        ? MainAxisAlignment.end 
+                        : MainAxisAlignment.start,
+                    children: [
+                      if (!isUser) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade100,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.smart_toy,
+                            color: Colors.red.shade600,
+                            size: 18,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                      ],
+                      
+                      Flexible(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isUser 
+                                ? Colors.red.shade500
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(18).copyWith(
+                              bottomLeft: isUser 
+                                  ? Radius.circular(18)
+                                  : Radius.circular(4),
+                              bottomRight: isUser 
+                                  ? Radius.circular(4)
+                                  : Radius.circular(18),
+                            ),
+                          ),
+                          child: Text(
+                            message['message'] ?? '',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: isUser 
+                                  ? Colors.white
+                                  : Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      if (isUser) ...[
+                        SizedBox(width: 8),
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade100,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.red.shade600,
+                            size: 18,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
@@ -876,6 +1085,7 @@ class _VoiceScreenState extends State<VoiceScreen>
       ),
     );
   }
+
 
   Widget _buildChatList(VoiceController controller, ThemeData theme) {
     return Container(

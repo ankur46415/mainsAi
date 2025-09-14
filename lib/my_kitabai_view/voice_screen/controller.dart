@@ -73,6 +73,13 @@ class VoiceController extends GetxController {
       ['Watched Lecture 1', 'Attempted Quiz 2', 'Downloaded PDF'].obs;
   final RxList<ChatHistory> chatHistory = <ChatHistory>[].obs;
   final RxBool isLoadingHistory = false.obs;
+
+  // Chat details for selected chat
+  final RxMap<String, dynamic> selectedChatDetails = <String, dynamic>{}.obs;
+  final RxList<Map<String, dynamic>> chatMessages =
+      <Map<String, dynamic>>[].obs;
+  final RxBool isLoadingChatDetails = false.obs;
+
   final RxString selectedTab = 'Voices'.obs;
   final RxBool isFirstInteraction = true.obs;
   final RxString selectedItem = ''.obs;
@@ -1334,11 +1341,15 @@ class VoiceController extends GetxController {
     final authToken = prefs.getString('authToken');
     final userId = prefs.getString('userId');
 
-    debugPrint("🔐 [Delete] AuthToken: ${authToken != null ? 'Present' : 'NULL'}");
+    debugPrint(
+      "🔐 [Delete] AuthToken: ${authToken != null ? 'Present' : 'NULL'}",
+    );
     debugPrint("👤 [Delete] UserId: ${userId ?? 'NULL'}");
 
     if (authToken == null || userId == null) {
-      debugPrint("❌ [Delete] Missing auth token or user ID -> Aborting request");
+      debugPrint(
+        "❌ [Delete] Missing auth token or user ID -> Aborting request",
+      );
       return;
     }
 
@@ -1350,11 +1361,15 @@ class VoiceController extends GetxController {
       };
 
       debugPrint("📤 [Delete] Sending POST request to API...");
-      debugPrint("🌍 [Delete] URL: https://test.ailisher.com/api/mobile/public-chat/chat/delete");
+      debugPrint(
+        "🌍 [Delete] URL: https://test.ailisher.com/api/mobile/public-chat/chat/delete",
+      );
       debugPrint("📝 [Delete] Request Body: $requestBody");
 
       final response = await http.post(
-        Uri.parse('https://test.ailisher.com/api/mobile/public-chat/chat/delete'),
+        Uri.parse(
+          'https://test.ailisher.com/api/mobile/public-chat/chat/delete',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $authToken',
@@ -1370,7 +1385,6 @@ class VoiceController extends GetxController {
         debugPrint("🔍 [Delete] Decoded JSON: $json");
 
         if (json['success'] == true) {
-
           debugPrint("✅ [Delete] Chat deleted successfully from server");
 
           // Remove from local list
@@ -1378,12 +1392,18 @@ class VoiceController extends GetxController {
           chatHistory.removeWhere((chat) => chat.chatId == chatId);
           final afterCount = chatHistory.length;
 
-          debugPrint("🗂️ [Delete] Local chat list updated: before=$beforeCount, after=$afterCount");
+          debugPrint(
+            "🗂️ [Delete] Local chat list updated: before=$beforeCount, after=$afterCount",
+          );
         } else {
-          debugPrint("❌ [Delete] Server responded with failure -> ${json['message'] ?? 'Unknown error'}");
+          debugPrint(
+            "❌ [Delete] Server responded with failure -> ${json['message'] ?? 'Unknown error'}",
+          );
         }
       } else {
-        debugPrint("❌ [Delete] Request failed with status: ${response.statusCode}");
+        debugPrint(
+          "❌ [Delete] Request failed with status: ${response.statusCode}",
+        );
       }
     } catch (e, stack) {
       debugPrint("💥 [Delete] Exception: $e");
@@ -1396,6 +1416,7 @@ class VoiceController extends GetxController {
   // Get individual chat details
   Future<void> getChatDetails(String chatId) async {
     try {
+      isLoadingChatDetails.value = true;
       print('🚀 [ChatDetails] getChatDetails() called');
       print('💬 [ChatDetails] ChatId: $chatId');
 
@@ -1411,7 +1432,8 @@ class VoiceController extends GetxController {
       print('🔑 [ChatDetails] AuthToken: Present');
       print('👤 [ChatDetails] UserId: $userId');
 
-      final url = 'https://test.ailisher.com/api/mobile/public-chat/chat-history';
+      final url =
+          'https://test.ailisher.com/api/mobile/public-chat/chat-history';
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $authToken',
@@ -1441,23 +1463,46 @@ class VoiceController extends GetxController {
           final chat = data['chat'];
           print('✅ [ChatDetails] Successfully loaded chat details');
           print('📋 [ChatDetails] Chat Title: ${chat['title']}');
-          print('📊 [ChatDetails] Messages Count: ${chat['messages']?.length ?? 0}');
-          
-          // TODO: Navigate to chat details screen or show in dialog
-          // For now, just show a success message
-          Get.snackbar(
-            'Chat Details',
-            'Loaded ${chat['messages']?.length ?? 0} messages from "${chat['title']}"',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            duration: Duration(seconds: 2),
+          print(
+            '📊 [ChatDetails] Messages Count: ${chat['messages']?.length ?? 0}',
           );
+
+          // Store chat details and messages
+          selectedChatDetails.value = chat;
+          chatMessages.value = List<Map<String, dynamic>>.from(
+            chat['messages'] ?? [],
+          );
+
+          // Set the current chat ID for continuing the conversation
+          currentChatId = chatId;
+
+          // Clear current messages and load the chat messages
+          messages.clear();
+          for (final message in chatMessages) {
+            final role = message['role'] ?? '';
+            final content = message['content'] ?? '';
+            if (role == 'user') {
+              messages.add({'sender': 'user', 'message': content});
+            } else if (role == 'assistant') {
+              messages.add({'sender': 'ai', 'message': content});
+            }
+          }
+
+          Get.back();
         } else {
           print('❌ [ChatDetails] Invalid response format');
+          Get.snackbar(
+            'Error',
+            'Invalid response format',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
         }
       } else {
-        print('❌ [ChatDetails] Request failed with status: ${response.statusCode}');
+        print(
+          '❌ [ChatDetails] Request failed with status: ${response.statusCode}',
+        );
         Get.snackbar(
           'Error',
           'Failed to load chat details',
@@ -1475,9 +1520,10 @@ class VoiceController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    } finally {
+      isLoadingChatDetails.value = false;
     }
   }
-
 }
 
 class ChatHistory {
