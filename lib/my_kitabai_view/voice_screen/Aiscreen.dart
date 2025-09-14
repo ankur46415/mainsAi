@@ -390,14 +390,12 @@ class _VoiceScreenState extends State<VoiceScreen>
           // Tab Content
           Obx(() {
             final selected = controller.selectedTab.value;
-            
+
             if (selected == 'History') {
               // History tab - show chat history
-              return Expanded(
-                child: _buildHistoryContent(),
-              );
+              return Expanded(child: _buildHistoryContent());
             }
-            
+
             final items = controller.tabData[selected] ?? [];
             return Expanded(
               child: ListView.separated(
@@ -531,95 +529,90 @@ class _VoiceScreenState extends State<VoiceScreen>
                 },
               ),
             );
-          }), ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: controller.chatHistory.length,
-                        itemBuilder: (context, index) {
-                          final chat = controller.chatHistory[index];
-                          return AnimatedContainer(
-                            duration: Duration(milliseconds: 200),
-                            curve: Curves.easeInOut,
-                            margin: EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.red.shade200,
-                                width: 1,
-                              ),
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade100,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.chat_bubble_outline,
-                                  color: Colors.red.shade600,
-                                  size: 20,
-                                ),
-                              ),
-                              title: Text(
-                                chat.title,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.red.shade800,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text(
-                                '${chat.messageCount} messages',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 11,
-                                  color: Colors.red.shade600,
-                                ),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.red.shade400,
-                                      size: 18,
-                                    ),
-                                    onPressed: () {
-                                      _showDeleteDialog(
-                                        chat.chatId,
-                                        chat.title,
-                                      );
-                                    },
-                                    tooltip: 'Delete chat',
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 14,
-                                    color: Colors.red.shade600,
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                // TODO: Navigate to specific chat
-                                debugPrint('Chat tapped: ${chat.chatId}');
-                              },
-                            ),
-                          );
+          }),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: controller.chatHistory.length,
+            itemBuilder: (context, index) {
+              final chat = controller.chatHistory[index];
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                margin: EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200, width: 1),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.red.shade600,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    chat.title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red.shade800,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    '${chat.messageCount} messages',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.red.shade600,
+                    ),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: Colors.red.shade400,
+                          size: 18,
+                        ),
+                        onPressed: () {
+                          _showDeleteDialog(chat.chatId, chat.title);
                         },
-                      )
-      ]),
+                        tooltip: 'Delete chat',
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: Colors.red.shade600,
+                      ),
+                    ],
+                  ),
+                   onTap: () {
+                     // Call API to get chat details
+                     controller.getChatDetails(chat.chatId);
+                   },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
-
 
   Widget _buildHistoryContent() {
     return Obx(() {
@@ -692,14 +685,17 @@ class _VoiceScreenState extends State<VoiceScreen>
             decoration: BoxDecoration(
               color: Colors.red.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.red.shade200,
-                width: 1,
-              ),
+              border: Border.all(color: Colors.red.shade200, width: 1),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+            child: InkWell(
+              onTap: () {
+                // Call API to get chat details
+                controller.getChatDetails(chat.chatId);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
                 // 🔴 Leading icon box
                 Container(
                   width: 32,
@@ -775,9 +771,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                                 },
                                 child: Text(
                                   'Delete',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.red,
-                                  ),
+                                  style: GoogleFonts.poppins(color: Colors.red),
                                 ),
                               ),
                             ],
@@ -800,11 +794,11 @@ class _VoiceScreenState extends State<VoiceScreen>
                   ],
                 ),
               ],
+              ),
             ),
           );
         },
       );
-
     });
   }
 

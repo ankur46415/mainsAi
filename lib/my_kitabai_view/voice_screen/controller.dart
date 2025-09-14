@@ -1393,6 +1393,91 @@ class VoiceController extends GetxController {
     }
   }
 
+  // Get individual chat details
+  Future<void> getChatDetails(String chatId) async {
+    try {
+      print('🚀 [ChatDetails] getChatDetails() called');
+      print('💬 [ChatDetails] ChatId: $chatId');
+
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+      final userId = prefs.getString('userId');
+
+      if (authToken == null || userId == null) {
+        print('❌ [ChatDetails] Auth token or user ID not found');
+        return;
+      }
+
+      print('🔑 [ChatDetails] AuthToken: Present');
+      print('👤 [ChatDetails] UserId: $userId');
+
+      final url = 'https://test.ailisher.com/api/mobile/public-chat/chat-history';
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      };
+
+      final body = {
+        'chatId': chatId,
+        'client_id': 'CLI147189HIGB',
+        'user_id': userId,
+      };
+
+      print('🌍 [ChatDetails] URL: $url');
+      print('📝 [ChatDetails] Request Body: $body');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      print('📬 [ChatDetails] Response Status Code: ${response.statusCode}');
+      print('📄 [ChatDetails] Raw Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['chat'] != null) {
+          final chat = data['chat'];
+          print('✅ [ChatDetails] Successfully loaded chat details');
+          print('📋 [ChatDetails] Chat Title: ${chat['title']}');
+          print('📊 [ChatDetails] Messages Count: ${chat['messages']?.length ?? 0}');
+          
+          // TODO: Navigate to chat details screen or show in dialog
+          // For now, just show a success message
+          Get.snackbar(
+            'Chat Details',
+            'Loaded ${chat['messages']?.length ?? 0} messages from "${chat['title']}"',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            duration: Duration(seconds: 2),
+          );
+        } else {
+          print('❌ [ChatDetails] Invalid response format');
+        }
+      } else {
+        print('❌ [ChatDetails] Request failed with status: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to load chat details',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('❌ [ChatDetails] Error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to load chat details: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
 }
 
 class ChatHistory {
