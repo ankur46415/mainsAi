@@ -562,7 +562,6 @@ class _VoiceScreenState extends State<VoiceScreen>
           ),
         );
       }
-
       if (controller.chatHistory.isEmpty) {
         return Container(
           padding: EdgeInsets.all(6),

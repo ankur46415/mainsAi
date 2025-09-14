@@ -16,7 +16,6 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
 
   Future<void> _pickImages() async {
     final List<XFile> pickedFiles = await ImagePicker().pickMultiImage();
-
     if (pickedFiles.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(pickedFiles.map((file) => File(file.path)));
@@ -36,38 +35,10 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
     }
   }
 
-  // Future<void> _pickQuestionImage() async {
-  //   final XFile? questionPhoto = await ImagePicker().pickImage(
-  //     source: ImageSource.gallery,
-  //   );
-
-  //   if (questionPhoto != null) {
-  //     final inputImage = InputImage.fromFilePath(questionPhoto.path);
-  //     final textRecognizer = TextRecognizer();
-
-  //     try {
-  //       final RecognizedText recognizedText = await textRecognizer.processImage(
-  //         inputImage,
-  //       );
-
-  //       setState(() {
-  //         _questionController.text = recognizedText.text;
-  //       });
-  //     } catch (e) {
-  //       debugPrint('Error extracting text: $e');
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(const SnackBar(content: Text('Failed to extract text')));
-  //     } finally {
-  //       textRecognizer.close();
-  //     }
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -76,7 +47,6 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
           ),
         ),
         elevation: 0,
@@ -95,22 +65,22 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Top card - Question input
+              // QUESTION CARD
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade100, width: 1.5),
+                  border: Border.all(color: Colors.blue.shade100, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.08),
-                      blurRadius: 12,
+                      color: Colors.blue.withOpacity(0.05),
+                      blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -119,176 +89,224 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'QUESTION',
+                      "Question",
                       style: GoogleFonts.poppins(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
                         color: Colors.blue.shade600,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      height: 180,
-                      child: TextField(
-                        controller: _questionController,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.grey.shade800,
+                    TextField(
+                      controller: _questionController,
+                      maxLines: 6,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey.shade800,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Write your question here...",
+                        hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                        contentPadding: const EdgeInsets.all(14),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        decoration: InputDecoration(
-                          hintText: 'Write your question here...',
-                          hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                          contentPadding: const EdgeInsets.all(12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue.shade400),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue.shade400),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _ThemedButton(
-                      icon: Icons.image_search,
-                      label: 'Upload Question Image',
-                      color: CustomColors.meeting,
-                      onTap: () {},
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _ThemedButton(
+                        icon: Icons.image_search,
+                        label: "Upload Image",
+                        color: CustomColors.meeting,
+                        onTap: () {},
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Bottom card - Answer images
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child:
-                            _selectedImages.isNotEmpty
-                                ? GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 12,
-                                        mainAxisSpacing: 12,
-                                      ),
-                                  itemCount: _selectedImages.length,
-                                  itemBuilder: (context, index) {
-                                    return Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          child: Image.file(
-                                            _selectedImages[index],
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                _selectedImages.removeAt(index);
-                                              });
-                                            },
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                color: Colors.white,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              padding: const EdgeInsets.all(4),
-                                              child: const Icon(
-                                                Icons.delete,
-                                                size: 14,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                )
-                                : Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.photo_camera_back_rounded,
-                                        size: 80,
-                                        color: Colors.grey[300],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        'No Answer Images Captured',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[500],
-                                        ),
-                                      ),
-                                    ],
+              // ANSWER IMAGES CARD
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.image, color: Colors.orange.shade600),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Answer Images",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _selectedImages.isNotEmpty
+                        ? GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                          itemCount: _selectedImages.length,
+                          itemBuilder: (context, index) {
+                            return Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    _selectedImages[index],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
                                   ),
                                 ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: _ThemedButton(
-                              icon: Icons.photo_library,
-                              label: 'Gallery',
-                              color: CustomColors.meeting.withOpacity(0.9),
-                              onTap: _pickImages,
-                            ),
+                                Positioned(
+                                  top: 6,
+                                  right: 6,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedImages.removeAt(index);
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: const EdgeInsets.all(4),
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 14,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                        : Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.photo_camera_back_rounded,
+                                size: 70,
+                                color: Colors.grey[300],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                "No Answer Images Captured",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _ThemedButton(
-                              icon: Icons.camera_alt,
-                              label: 'Camera',
-                              color: Colors.orange.shade600,
-                              onTap: _pickFromCamera,
-                            ),
+                        ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ThemedButton(
+                            icon: Icons.photo_library,
+                            label: "Gallery",
+                            color: CustomColors.meeting,
+                            onTap: _pickImages,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _ThemedButton(
+                            icon: Icons.camera_alt,
+                            label: "Camera",
+                            color: Colors.orange.shade600,
+                            onTap: _pickFromCamera,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFFFC107),
+                  Color.fromARGB(255, 236, 87, 87),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: FloatingActionButton.extended(
+              backgroundColor: Colors.transparent, // important
+              elevation: 0, // let container shadow handle elevation
+              onPressed: () {
+                debugPrint("✅ Submit pressed");
+                // TODO: Add your submit logic
+              },
+              icon: const Icon(Icons.check, color: Colors.white),
+              label: Text(
+                "Submit",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
           ),
         ),
       ),
@@ -314,22 +332,22 @@ class _ThemedButton extends StatelessWidget {
     return Material(
       borderRadius: BorderRadius.circular(12),
       color: color,
-      elevation: 2,
+      elevation: 1,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 45,
+          alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 10),
+              Icon(icon, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
               Text(
                 label,
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),

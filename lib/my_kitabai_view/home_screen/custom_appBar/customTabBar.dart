@@ -56,7 +56,7 @@ class CustomTabBar extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
-                label: 'AI Test',
+                label: 'AI Tests',
               ),
             ),
             Expanded(
