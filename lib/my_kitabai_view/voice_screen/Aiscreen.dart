@@ -43,7 +43,7 @@ class _VoiceScreenState extends State<VoiceScreen>
   @override
   void initState() {
     super.initState();
-
+    print(widget.questionId);
     _initializeController();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final msg = widget.welcomeAiMessages;
@@ -390,8 +390,15 @@ class _VoiceScreenState extends State<VoiceScreen>
           // Tab Content
           Obx(() {
             final selected = controller.selectedTab.value;
+            
+            if (selected == 'History') {
+              // History tab - show chat history
+              return Expanded(
+                child: _buildHistoryContent(),
+              );
+            }
+            
             final items = controller.tabData[selected] ?? [];
-
             return Expanded(
               child: ListView.separated(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -520,64 +527,11 @@ class _VoiceScreenState extends State<VoiceScreen>
                         ),
                       );
                     });
-                  } else if (selected == 'History') {
-                    // History tab - show chat history
-                    return Obx(() {
-                      if (controller.isLoadingHistory.value) {
-                        return Container(
-                          padding: EdgeInsets.all(20),
-                          child: Center(
-                            child: Column(
-                              children: [
-                                CircularProgressIndicator(color: Colors.red),
-                                SizedBox(height: 12),
-                                Text(
-                                  'Loading chat history...',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      if (controller.chatHistory.isEmpty) {
-                        return Container(
-                          padding: EdgeInsets.all(20),
-                          child: Center(
-                            child: Column(
-                              children: [
-                                Icon(Icons.chat_bubble_outline, 
-                                     size: 48, 
-                                     color: Colors.grey[400]),
-                                SizedBox(height: 12),
-                                Text(
-                                  'No chat history found',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Start a conversation to see your history here',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      return ListView.builder(
+                  }
+                },
+              ),
+            );
+          }), ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: controller.chatHistory.length,
@@ -597,7 +551,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                             ),
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16, 
+                                horizontal: 16,
                                 vertical: 8,
                               ),
                               leading: Container(
@@ -640,7 +594,10 @@ class _VoiceScreenState extends State<VoiceScreen>
                                       size: 18,
                                     ),
                                     onPressed: () {
-                                      _showDeleteDialog(chat.chatId, chat.title);
+                                      _showDeleteDialog(
+                                        chat.chatId,
+                                        chat.title,
+                                      );
                                     },
                                     tooltip: 'Delete chat',
                                   ),
@@ -658,16 +615,181 @@ class _VoiceScreenState extends State<VoiceScreen>
                             ),
                           );
                         },
-                      );
-                    });
-                  }
-                },
-              ),
-            );
-          }),
-        ],
-      ),
+                      )
+      ]),
     );
+  }
+
+
+  Widget _buildHistoryContent() {
+    return Obx(() {
+      if (controller.isLoadingHistory.value) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              children: [
+                CircularProgressIndicator(color: Colors.red),
+                SizedBox(height: 12),
+                Text(
+                  'Loading chat history...',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      if (controller.chatHistory.isEmpty) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline,
+                  size: 48,
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'No chat history found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Start a conversation to see your history here',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: controller.chatHistory.length,
+        itemBuilder: (context, index) {
+          final chat = controller.chatHistory[index];
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            margin: EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.red.shade200,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.chat_bubble_outline,
+                  color: Colors.red.shade600,
+                  size: 20,
+                ),
+              ),
+              title: Text(
+                chat.title,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red.shade800,
+                ),
+              ),
+              subtitle: Text(
+                '${chat.messageCount} messages',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.red.shade600,
+                ),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: Text(
+                            'Delete Chat',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          content: Text(
+                            'Are you sure you want to delete this chat?',
+                            style: GoogleFonts.poppins(),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Get.back();
+                                controller.deleteChat(chat.chatId);
+                              },
+                              child: Text(
+                                'Delete',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Colors.red.shade600,
+                      size: 18,
+                    ),
+                    tooltip: 'Delete chat',
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.red.shade600,
+                  ),
+                ],
+              ),
+              onTap: () {
+                // TODO: Navigate to specific chat
+                debugPrint('Chat tapped: ${chat.chatId}');
+              },
+            ),
+          );
+        },
+      );
+    });
   }
 
   Widget _buildAppBar(BuildContext context) {

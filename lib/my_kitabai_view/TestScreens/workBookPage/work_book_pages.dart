@@ -157,7 +157,7 @@ class WorkBookPagesForTest extends StatelessWidget {
               ),
               Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
               Tab(
-                child: Text('Question', style: TextStyle(color: Colors.white)),
+                child: Text('MyQuestions', style: TextStyle(color: Colors.white,fontSize: 13)),
               ),
             ],
           ),

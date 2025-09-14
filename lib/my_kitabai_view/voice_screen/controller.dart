@@ -41,6 +41,7 @@ class VoiceController extends GetxController {
   String? apiKey;
   RxBool showFaqOptions = true.obs;
   final bool? isRagChatAvailable;
+  String? currentChatId;
 
   void sendMessage(String text) {
     addMessage({'message': text, 'sender': 'user'});
@@ -62,7 +63,7 @@ class VoiceController extends GetxController {
   };
 
   final tabData = <String, List<String>>{
-    'History': ['Text 1', 'Text 2'],
+    'History': [], // Empty list for History tab
     'Voices': [],
     'Languages': [],
     'Modes': ['Mode 1', 'Mode 2', 'Mode 3'],
@@ -97,6 +98,7 @@ class VoiceController extends GetxController {
     isPlayingResponse.value = false;
     aiReply = '';
     userTextInput = '';
+    currentChatId = null; // Reset chat session
 
     if (questionId != null && questionId!.isNotEmpty) {
       await fetchBookDetails();
@@ -152,7 +154,7 @@ class VoiceController extends GetxController {
 
   void selectTab(String tab) {
     selectedTab.value = tab;
-    if (tab == 'History') {
+    if (tab == 'History' && !isLoadingHistory.value) {
       fetchChatHistory();
     }
   }
@@ -278,6 +280,7 @@ class VoiceController extends GetxController {
       isPlayingResponse.value = false;
     }
   }
+
   Future<RagChatForBook> ragChatApi(String question) async {
     debugPrint("📡 [ragChatApi] Preparing request (NEW API)...");
 
@@ -301,12 +304,23 @@ class VoiceController extends GetxController {
     };
     debugPrint("📦 [ragChatApi] Headers: $headers");
 
-    final body = jsonEncode({
+    // Prepare request body with chat_id if available
+    Map<String, dynamic> requestBody = {
       'question': question,
       'history': [],
       'client_id': 'CLI147189HIGB',
       'user_id': userId,
-    });
+    };
+
+    if (currentChatId != null) {
+      // If we have a chat session, include the chat_id in the request body
+      requestBody['chat_id'] = currentChatId;
+      debugPrint("💬 [ragChatApi] Using existing chat session: $currentChatId");
+    } else {
+      debugPrint("🆕 [ragChatApi] Starting new chat session");
+    }
+
+    final body = jsonEncode(requestBody);
     debugPrint("✉️ [ragChatApi] Body: $body");
 
     try {
@@ -323,6 +337,13 @@ class VoiceController extends GetxController {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         debugPrint("✅ [ragChatApi] Successfully parsed response.");
+
+        // Store the chat_id for future messages
+        if (json['chat_id'] != null) {
+          currentChatId = json['chat_id'];
+          debugPrint("💾 [ragChatApi] Stored chat_id: $currentChatId");
+        }
+
         // Extract llm_response and map it to answer field
         final data = json['data'];
         if (data != null && data['llm_response'] != null) {
@@ -1084,6 +1105,11 @@ class VoiceController extends GetxController {
     isChatMode.value = chatMode;
   }
 
+  void resetChatSession() {
+    currentChatId = null;
+    debugPrint("🔄 [Chat] Chat session reset");
+  }
+
   Future<void> fetchBookDetails() async {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
@@ -1202,108 +1228,171 @@ class VoiceController extends GetxController {
   }
 
   Future<void> fetchChatHistory() async {
-    if (questionId == null || questionId!.isEmpty) {
-      debugPrint("❌ No book ID available for fetching history");
+    debugPrint("🚀 [History] fetchChatHistory() called");
+
+    // Prevent multiple simultaneous calls
+    if (isLoadingHistory.value) {
+      debugPrint("⏳ [History] Already loading, skipping duplicate call");
+      return;
+    }
+
+    if (bookDetails.value?.id == null || bookDetails.value!.id!.isEmpty) {
+      debugPrint("❌ [History] No book ID available for fetching history");
       return;
     }
 
     isLoadingHistory.value = true;
-    debugPrint("📚 [History] Fetching chat history for book: $questionId");
+    final bookId = bookDetails.value!.id!;
+    debugPrint("📚 [History] Fetching chat history for bookId: $bookId");
 
     final prefs = await SharedPreferences.getInstance();
+    debugPrint("🔑 [History] SharedPreferences loaded");
+
     final authToken = prefs.getString('authToken');
     final userId = prefs.getString('userId');
 
+    debugPrint(
+      "🔐 [History] AuthToken: ${authToken != null ? 'Present' : 'NULL'}",
+    );
+    debugPrint("👤 [History] UserId: ${userId ?? 'NULL'}");
+
     if (authToken == null || userId == null) {
-      debugPrint("❌ Missing auth token or user ID");
+      debugPrint(
+        "❌ [History] Missing auth token or user ID -> Aborting request",
+      );
       isLoadingHistory.value = false;
       return;
     }
 
     try {
+      final requestBody = {
+        'bookId': bookId,
+        'user_id': userId,
+        'client_id': 'CLI147189HIGB',
+      };
+
+      debugPrint("📤 [History] Sending POST request to API...");
+      debugPrint(
+        "🌍 [History] URL: https://test.ailisher.com/api/mobile/public-chat/history",
+      );
+      debugPrint("📝 [History] Request Body: $requestBody");
+
       final response = await http.post(
         Uri.parse('https://test.ailisher.com/api/mobile/public-chat/history'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $authToken',
         },
-        body: jsonEncode({
-          'bookId': questionId,
-          'user_id': userId,
-          'client_id': 'CLI677117YN7N',
-        }),
+        body: jsonEncode(requestBody),
       );
 
-      debugPrint("📬 [History] Response Status: ${response.statusCode}");
-      debugPrint("📄 [History] Response Body: ${response.body}");
+      debugPrint("📬 [History] Response Status Code: ${response.statusCode}");
+      debugPrint("📄 [History] Raw Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
+        debugPrint("🔍 [History] Decoded JSON: $json");
+
         if (json['success'] == true && json['chats'] != null) {
           final List<dynamic> chatsJson = json['chats'];
-          chatHistory.value = chatsJson.map((chat) => ChatHistory.fromJson(chat)).toList();
+          debugPrint("🗂️ [History] Chats JSON Count: ${chatsJson.length}");
+
+          chatHistory.value =
+              chatsJson.map((chat) {
+                debugPrint("➡️ [History] Parsing Chat Item: $chat");
+                return ChatHistory.fromJson(chat);
+              }).toList();
+
           debugPrint("✅ [History] Loaded ${chatHistory.length} chat histories");
         } else {
-          debugPrint("⚠️ [History] No chats found or invalid response");
+          debugPrint("⚠️ [History] No chats found or invalid JSON response");
           chatHistory.value = [];
         }
       } else {
-        debugPrint("❌ [History] Failed with status: ${response.statusCode}");
+        debugPrint(
+          "❌ [History] Failed Request - Status: ${response.statusCode}",
+        );
         chatHistory.value = [];
       }
-    } catch (e) {
-      debugPrint("💥 [History] Exception: $e");
+    } catch (e, stack) {
+      debugPrint("💥 [History] Exception Caught: $e");
+      debugPrint("📌 [History] StackTrace: $stack");
       chatHistory.value = [];
     } finally {
       isLoadingHistory.value = false;
+      debugPrint("🏁 [History] fetchChatHistory() finished");
     }
   }
 
   Future<void> deleteChat(String chatId) async {
-    debugPrint("🗑️ [History] Deleting chat: $chatId");
+    debugPrint("🚀 [Delete] deleteChat() called");
+    debugPrint("🗑️ [Delete] ChatId to delete: $chatId");
 
     final prefs = await SharedPreferences.getInstance();
+    debugPrint("🔑 [Delete] SharedPreferences loaded");
+
     final authToken = prefs.getString('authToken');
     final userId = prefs.getString('userId');
 
+    debugPrint("🔐 [Delete] AuthToken: ${authToken != null ? 'Present' : 'NULL'}");
+    debugPrint("👤 [Delete] UserId: ${userId ?? 'NULL'}");
+
     if (authToken == null || userId == null) {
-      debugPrint("❌ Missing auth token or user ID");
+      debugPrint("❌ [Delete] Missing auth token or user ID -> Aborting request");
       return;
     }
 
     try {
+      final requestBody = {
+        'chatId': chatId,
+        'client_id': 'CLI147189HIGB',
+        'user_id': userId,
+      };
+
+      debugPrint("📤 [Delete] Sending POST request to API...");
+      debugPrint("🌍 [Delete] URL: https://test.ailisher.com/api/mobile/public-chat/chat/delete");
+      debugPrint("📝 [Delete] Request Body: $requestBody");
+
       final response = await http.post(
         Uri.parse('https://test.ailisher.com/api/mobile/public-chat/chat/delete'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $authToken',
         },
-        body: jsonEncode({
-          'chatId': chatId,
-          'client_id': 'CLI677117YN7N',
-          'user_id': userId,
-        }),
+        body: jsonEncode(requestBody),
       );
 
-      debugPrint("📬 [Delete] Response Status: ${response.statusCode}");
-      debugPrint("📄 [Delete] Response Body: ${response.body}");
+      debugPrint("📬 [Delete] Response Status Code: ${response.statusCode}");
+      debugPrint("📄 [Delete] Raw Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
+        debugPrint("🔍 [Delete] Decoded JSON: $json");
+
         if (json['success'] == true) {
-          debugPrint("✅ [Delete] Chat deleted successfully");
+
+          debugPrint("✅ [Delete] Chat deleted successfully from server");
+
           // Remove from local list
+          final beforeCount = chatHistory.length;
           chatHistory.removeWhere((chat) => chat.chatId == chatId);
+          final afterCount = chatHistory.length;
+
+          debugPrint("🗂️ [Delete] Local chat list updated: before=$beforeCount, after=$afterCount");
         } else {
-          debugPrint("❌ [Delete] Failed to delete chat");
+          debugPrint("❌ [Delete] Server responded with failure -> ${json['message'] ?? 'Unknown error'}");
         }
       } else {
-        debugPrint("❌ [Delete] Failed with status: ${response.statusCode}");
+        debugPrint("❌ [Delete] Request failed with status: ${response.statusCode}");
       }
-    } catch (e) {
+    } catch (e, stack) {
       debugPrint("💥 [Delete] Exception: $e");
+      debugPrint("📌 [Delete] StackTrace: $stack");
+    } finally {
+      debugPrint("🏁 [Delete] deleteChat() finished");
     }
   }
+
 }
 
 class ChatHistory {

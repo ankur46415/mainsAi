@@ -75,41 +75,34 @@ class Workbooks {
   });
 
   Workbooks.fromJson(Map<String, dynamic> json) {
-    myWorkbookId = json['_id']?.toString();
-    addedAt = json['addedAt']?.toString();
-    lastAccessedAt = json['lastAccessedAt']?.toString();
-    personalNote = json['personalNote']?.toString();
+    // Parse flat structure from API response
+    myWorkbookId = json['myworkbook_id']?.toString();
+    workbookId = json['workbook_id']?.toString();
+    title = json['title']?.toString();
+    author = json['author']?.toString();
+    publisher = json['publisher']?.toString();
+    description = json['description']?.toString();
+    coverImage = json['cover_image']?.toString();
+    coverImageUrl = json['cover_image_url']?.toString();
+    rating = (json['rating'] is int)
+        ? (json['rating'] as int).toDouble()
+        : (json['rating'] is double ? json['rating'] : null);
+    ratingCount = json['rating_count'];
+    mainCategory = json['main_category']?.toString();
+    subCategory = json['sub_category']?.toString();
+    exam = (json['exam'] == null || json['exam'] == "") ? null : json['exam'].toString();
+    paper = (json['paper'] == null || json['paper'] == "")
+        ? null
+        : json['paper'].toString();
+    subject = (json['subject'] == null || json['subject'] == "")
+        ? null
+        : json['subject'].toString();
+    tags = json['tags'] ?? [];
+    viewCount = json['view_count'];
+    addedAt = json['added_at']?.toString();
+    lastAccessedAt = json['last_accessed_at']?.toString();
+    personalNote = json['personal_note']?.toString();
     priority = json['priority']?.toString();
-
-    if (json['workbookId'] != null) {
-      var w = json['workbookId'];
-      workbookId = w['_id']?.toString();
-      title = w['title']?.toString();
-      author = w['author']?.toString();
-      publisher = w['publisher']?.toString();
-      description = w['description']?.toString();
-      coverImage = w['coverImageKey']?.toString();
-      coverImageUrl = w['coverImageUrl']?.toString();
-      rating =
-      (w['rating'] is int)
-          ? (w['rating'] as int).toDouble()
-          : (w['rating'] is double ? w['rating'] : null);
-      ratingCount = w['ratingCount'];
-      mainCategory = w['mainCategory']?.toString();
-      subCategory = w['subCategory']?.toString();
-      exam =
-      (w['exam'] == null || w['exam'] == "") ? null : w['exam'].toString();
-      paper =
-      (w['paper'] == null || w['paper'] == "")
-          ? null
-          : w['paper'].toString();
-      subject =
-      (w['subject'] == null || w['subject'] == "")
-          ? null
-          : w['subject'].toString();
-      tags = w['tags'] ?? [];
-      viewCount = w['viewCount'];
-    }
   }
 
   Map<String, dynamic> toJson() {
