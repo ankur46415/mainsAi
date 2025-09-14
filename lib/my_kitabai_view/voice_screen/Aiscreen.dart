@@ -625,16 +625,16 @@ class _VoiceScreenState extends State<VoiceScreen>
     return Obx(() {
       if (controller.isLoadingHistory.value) {
         return Container(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(12),
           child: Center(
             child: Column(
               children: [
-                CircularProgressIndicator(color: Colors.red),
-                SizedBox(height: 12),
+                CircularProgressIndicator(color: Colors.red, strokeWidth: 2),
+                SizedBox(height: 8),
                 Text(
                   'Loading chat history...',
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: 10,
                     color: Colors.grey[600],
                   ),
                 ),
@@ -646,30 +646,30 @@ class _VoiceScreenState extends State<VoiceScreen>
 
       if (controller.chatHistory.isEmpty) {
         return Container(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(6),
           child: Center(
             child: Column(
               children: [
                 Icon(
                   Icons.chat_bubble_outline,
-                  size: 48,
+                  size: 20,
                   color: Colors.grey[400],
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 8),
                 Text(
                   'No chat history found',
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 4),
                 Text(
                   'Start a conversation to see your history here',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: 10,
                     color: Colors.grey[500],
                   ),
                 ),
@@ -680,115 +680,131 @@ class _VoiceScreenState extends State<VoiceScreen>
       }
 
       return ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         itemCount: controller.chatHistory.length,
         itemBuilder: (context, index) {
           final chat = controller.chatHistory[index];
           return AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
-            margin: EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: Colors.red.shade200,
                 width: 1,
               ),
             ),
-            child: ListTile(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 🔴 Leading icon box
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.chat_bubble_outline,
+                    color: Colors.red.shade600,
+                    size: 16,
+                  ),
                 ),
-                child: Icon(
-                  Icons.chat_bubble_outline,
-                  color: Colors.red.shade600,
-                  size: 20,
+                const SizedBox(width: 10),
+
+                // 🔴 Title + Subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        chat.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red.shade800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${chat.messageCount} messages',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.red.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              title: Text(
-                chat.title,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.red.shade800,
-                ),
-              ),
-              subtitle: Text(
-                '${chat.messageCount} messages',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: Colors.red.shade600,
-                ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Get.dialog(
-                        AlertDialog(
-                          title: Text(
-                            'Delete Chat',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          content: Text(
-                            'Are you sure you want to delete this chat?',
-                            style: GoogleFonts.poppins(),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Get.back(),
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Get.back();
-                                controller.deleteChat(chat.chatId);
-                              },
-                              child: Text(
-                                'Delete',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.red,
-                                ),
+
+                // 🔴 Trailing actions
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        Get.dialog(
+                          AlertDialog(
+                            title: Text(
+                              'Delete Chat',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Colors.red.shade600,
-                      size: 18,
+                            content: Text(
+                              'Are you sure you want to delete this chat?',
+                              style: GoogleFonts.poppins(),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Get.back(),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Get.back();
+                                  controller.deleteChat(chat.chatId);
+                                },
+                                child: Text(
+                                  'Delete',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Colors.red.shade600,
+                        size: 16,
+                      ),
+                      tooltip: 'Delete chat',
                     ),
-                    tooltip: 'Delete chat',
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.red.shade600,
-                  ),
-                ],
-              ),
-              onTap: () {
-                // TODO: Navigate to specific chat
-                debugPrint('Chat tapped: ${chat.chatId}');
-              },
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12,
+                      color: Colors.red.shade600,
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         },
       );
+
     });
   }
 
@@ -874,6 +890,7 @@ class _VoiceScreenState extends State<VoiceScreen>
         right: Get.width * 0.05,
         bottom: Get.width * 0.03,
       ),
+
       height: Get.height * 0.6,
 
       child: Obx(() {
