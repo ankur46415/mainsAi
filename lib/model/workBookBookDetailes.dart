@@ -31,11 +31,14 @@ class WorkBookBookDetailes {
 
 class Workbook {
   String? language;
+  bool? isPaid;
   num? rating;
   num? ratingCount;
   List<dynamic>? conversations;
   List<dynamic>? users;
   String? summary;
+  String? publisher;
+  String? author;
   String? coverImageKey;
   String? coverImageUrl;
   String? mainCategory;
@@ -85,7 +88,10 @@ class Workbook {
     this.rating,
     this.ratingCount,
     this.conversations,
+    this.publisher,
+    this.author,
     this.users,
+    this.isPaid,
     this.summary,
     this.coverImageKey,
     this.coverImageUrl,
@@ -134,6 +140,9 @@ class Workbook {
 
   Workbook.fromJson(Map<String, dynamic> json) {
     language = json['language'];
+    publisher = json['publisher'];
+    author = json['author'];
+    isPaid = json['isPaid'] as bool?;
     rating = json['rating'];
     ratingCount = json['ratingCount'];
     conversations = json['conversations'];
@@ -199,6 +208,9 @@ class Workbook {
 
   Map<String, dynamic> toJson() => {
     'language': language,
+    'publisher': publisher,
+    'isPaid': isPaid,
+    'author': author,
     'rating': rating,
     'ratingCount': ratingCount,
     'conversations': conversations,

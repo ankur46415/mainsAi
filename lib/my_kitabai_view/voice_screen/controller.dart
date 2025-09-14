@@ -70,6 +70,8 @@ class VoiceController extends GetxController {
 
   final RxList<String> historyData =
       ['Watched Lecture 1', 'Attempted Quiz 2', 'Downloaded PDF'].obs;
+  final RxList<ChatHistory> chatHistory = <ChatHistory>[].obs;
+  final RxBool isLoadingHistory = false.obs;
   final RxString selectedTab = 'Voices'.obs;
   final RxBool isFirstInteraction = true.obs;
   final RxString selectedItem = ''.obs;
@@ -150,6 +152,9 @@ class VoiceController extends GetxController {
 
   void selectTab(String tab) {
     selectedTab.value = tab;
+    if (tab == 'History') {
+      fetchChatHistory();
+    }
   }
 
   void selectVoice(String voiceName) {
@@ -273,18 +278,21 @@ class VoiceController extends GetxController {
       isPlayingResponse.value = false;
     }
   }
-
   Future<RagChatForBook> ragChatApi(String question) async {
-    debugPrint("📡 [ragChatApi] Preparing request...");
+    debugPrint("📡 [ragChatApi] Preparing request (NEW API)...");
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
+    final userId = prefs.getString('userId');
     debugPrint(
       "🔑 [ragChatApi] Auth token retrieved: ${authToken != null ? '✔️ Present' : '❌ Missing'}",
     );
+    debugPrint(
+      "👤 [ragChatApi] User ID retrieved: ${userId != null ? '✔️ Present' : '❌ Missing'}",
+    );
 
     final String url =
-        'https://test.ailisher.com/api/mobile/public-chat/ask-fast/$questionId';
+        'https://test.ailisher.com/api/mobile/public-chat/ask/$questionId';
     debugPrint("🌐 [ragChatApi] URL: $url");
 
     final headers = {
@@ -293,7 +301,12 @@ class VoiceController extends GetxController {
     };
     debugPrint("📦 [ragChatApi] Headers: $headers");
 
-    final body = jsonEncode({'question': question});
+    final body = jsonEncode({
+      'question': question,
+      'history': [],
+      'client_id': 'CLI147189HIGB',
+      'user_id': userId,
+    });
     debugPrint("✉️ [ragChatApi] Body: $body");
 
     try {
@@ -310,7 +323,26 @@ class VoiceController extends GetxController {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         debugPrint("✅ [ragChatApi] Successfully parsed response.");
-        return RagChatForBook.fromJson(json);
+        // Extract llm_response and map it to answer field
+        final data = json['data'];
+        if (data != null && data['llm_response'] != null) {
+          // Create a modified json with llm_response mapped to answer
+          final modifiedJson = {
+            'success': json['success'],
+            'answer': data['llm_response'], // Map llm_response to answer
+            'confidence': data['confidence'],
+            'sources': data['sources'],
+            'method': data['method'],
+            'bookId': data['bookId'],
+            'bookTitle': data['bookTitle'],
+            'modelUsed': data['modelUsed'],
+            'tokensUsed': data['tokensUsed'],
+            'timing': data['timing'],
+          };
+          return RagChatForBook.fromJson(modifiedJson);
+        } else {
+          throw Exception('❌ No llm_response found in response data');
+        }
       } else {
         debugPrint(
           "❌ [ragChatApi] Failed with status code: ${response.statusCode}",
@@ -634,7 +666,14 @@ class VoiceController extends GetxController {
     };
 
     try {
-      debugPrint("Sending request to Sarvam API...");
+      debugPrint("🔊 [Sarvam] Sending request to Sarvam API...");
+      debugPrint("🔊 [Sarvam] Text to convert: $text");
+      debugPrint("🔊 [Sarvam] Speaker: ${selectedVoice.value}");
+      debugPrint("🔊 [Sarvam] Language: ${selectedLanguageLabel.value}");
+      debugPrint(
+        "🔊 [Sarvam] API Key: ${apiKey != null ? 'Present' : 'Missing'}",
+      );
+
       final response = await http
           .post(
             Uri.parse(apiUrl),
@@ -1131,10 +1170,24 @@ class VoiceController extends GetxController {
         final ragResponse = await ragChatApi(input);
 
         final aiText = ragResponse.answer ?? '';
+        debugPrint("🎯 [RAG] Extracted AI Text: $aiText");
+        debugPrint("🎯 [RAG] TTS Mode: ${ttsMode.value}");
 
         aiReply = aiText;
         addMessage({"sender": "ai", "message": aiText});
         showThinkingBubble.value = false;
+
+        // Use the appropriate TTS based on mode
+        if (ttsMode.value == 'flutter') {
+          debugPrint("🔊 [RAG] Calling Flutter TTS");
+          await callFlutterTts(aiText);
+        } else if (ttsMode.value == 'lmnt') {
+          debugPrint("🔊 [RAG] Calling LMNT TTS");
+          await callLmntForTTS(aiText);
+        } else {
+          debugPrint("🔊 [RAG] Calling Sarvam TTS with text: $aiText");
+          await callSarvamForTTS(aiText);
+        }
       } else {
         await getAIResponse(input);
         showThinkingBubble.value = false;
@@ -1146,6 +1199,130 @@ class VoiceController extends GetxController {
       isLoading.value = false;
       textController.clear();
     }
+  }
+
+  Future<void> fetchChatHistory() async {
+    if (questionId == null || questionId!.isEmpty) {
+      debugPrint("❌ No book ID available for fetching history");
+      return;
+    }
+
+    isLoadingHistory.value = true;
+    debugPrint("📚 [History] Fetching chat history for book: $questionId");
+
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+    final userId = prefs.getString('userId');
+
+    if (authToken == null || userId == null) {
+      debugPrint("❌ Missing auth token or user ID");
+      isLoadingHistory.value = false;
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://test.ailisher.com/api/mobile/public-chat/history'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'bookId': questionId,
+          'user_id': userId,
+          'client_id': 'CLI677117YN7N',
+        }),
+      );
+
+      debugPrint("📬 [History] Response Status: ${response.statusCode}");
+      debugPrint("📄 [History] Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        if (json['success'] == true && json['chats'] != null) {
+          final List<dynamic> chatsJson = json['chats'];
+          chatHistory.value = chatsJson.map((chat) => ChatHistory.fromJson(chat)).toList();
+          debugPrint("✅ [History] Loaded ${chatHistory.length} chat histories");
+        } else {
+          debugPrint("⚠️ [History] No chats found or invalid response");
+          chatHistory.value = [];
+        }
+      } else {
+        debugPrint("❌ [History] Failed with status: ${response.statusCode}");
+        chatHistory.value = [];
+      }
+    } catch (e) {
+      debugPrint("💥 [History] Exception: $e");
+      chatHistory.value = [];
+    } finally {
+      isLoadingHistory.value = false;
+    }
+  }
+
+  Future<void> deleteChat(String chatId) async {
+    debugPrint("🗑️ [History] Deleting chat: $chatId");
+
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+    final userId = prefs.getString('userId');
+
+    if (authToken == null || userId == null) {
+      debugPrint("❌ Missing auth token or user ID");
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://test.ailisher.com/api/mobile/public-chat/chat/delete'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'chatId': chatId,
+          'client_id': 'CLI677117YN7N',
+          'user_id': userId,
+        }),
+      );
+
+      debugPrint("📬 [Delete] Response Status: ${response.statusCode}");
+      debugPrint("📄 [Delete] Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        if (json['success'] == true) {
+          debugPrint("✅ [Delete] Chat deleted successfully");
+          // Remove from local list
+          chatHistory.removeWhere((chat) => chat.chatId == chatId);
+        } else {
+          debugPrint("❌ [Delete] Failed to delete chat");
+        }
+      } else {
+        debugPrint("❌ [Delete] Failed with status: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("💥 [Delete] Exception: $e");
+    }
+  }
+}
+
+class ChatHistory {
+  final String chatId;
+  final String title;
+  final int messageCount;
+
+  ChatHistory({
+    required this.chatId,
+    required this.title,
+    required this.messageCount,
+  });
+
+  factory ChatHistory.fromJson(Map<String, dynamic> json) {
+    return ChatHistory(
+      chatId: json['chatId'] ?? '',
+      title: json['title'] ?? '',
+      messageCount: json['messageCount'] ?? 0,
+    );
   }
 }
 

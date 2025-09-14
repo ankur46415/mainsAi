@@ -41,11 +41,11 @@ class ApiUrls {
   static const String appConfig = '${baseUrl3}api/config/clients/CLI147189HIGB';
 
   static const String appExpireConfigLlm =
-      '${baseUrl3}api/config/clients/CLI147189HIGB/config/LLM/expire/685bba1ea5326be311a7ad04'; //gemini
+      '${baseUrl3}api/config/clients/CLI147189HIGB/config/LLM/expire/685bba1ea5326be311a7ad04';
   static const String subjectiveTestSubmitBase =
       '${baseUrl4}/api/subjectivetest/clients/CLI147189HIGB/tests/';
   static const String appExpireConfigTts =
-      '${baseUrl3}api/config/clients/CLI147189HIGB/config/TTS/expire/685bba74a5326be311a7ad16'; //tts = servam
+      '${baseUrl3}api/config/clients/CLI147189HIGB/config/TTS/expire/685bba74a5326be311a7ad16';
   static const String getAssetData = '${baseUrl3}api/qrcode/book-data/';
   static const String bookfullAnalysis = '${apiUrl3}submitted-answers/';
   static const String courseDetaile = '${baseUrl3}api/book/';

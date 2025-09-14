@@ -95,7 +95,8 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                           children: [
                             SizedBox(height: Get.width * 0.05),
                             Obx(() {
-                              if (controller.isLoading.value || !controller.hasLoaded.value) {
+                              if (controller.isLoading.value ||
+                                  !controller.hasLoaded.value) {
                                 return const Center(
                                   child: CircularProgressIndicator(),
                                 );
@@ -140,30 +141,84 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
-                                            child: CachedNetworkImage(
-                                              imageUrl: book.image_url ?? '',
-                                              fit: BoxFit.fill,
-                                              width: double.infinity,
-                                              errorWidget:
-                                                  (
-                                                    context,
-                                                    url,
-                                                    error,
-                                                  ) => Container(
-                                                    color: Colors.grey[200],
-                                                    alignment: Alignment.center,
-                                                    child: const Icon(
-                                                      Icons.menu_book_rounded,
-                                                      color: Colors.grey,
-                                                      size: 50,
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                CachedNetworkImage(
+                                                  imageUrl:
+                                                      book.image_url ?? '',
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        url,
+                                                        error,
+                                                      ) => Container(
+                                                        color: Colors.grey[200],
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: const Icon(
+                                                          Icons
+                                                              .menu_book_rounded,
+                                                          color: Colors.grey,
+                                                          size: 50,
+                                                        ),
+                                                      ),
+                                                  placeholder:
+                                                      (context, url) => Center(
+                                                        child: Image.asset(
+                                                          "assets/images/mains-logo.png",
+                                                        ),
+                                                      ),
+                                                ),
+                                                // Paid indicator - only show when isPaid is true
+                                                if (book.isPaid == true)
+                                                  Positioned(
+                                                    bottom: 8,
+                                                    left: 8,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withValues(
+                                                                  alpha: 0.3,
+                                                                ),
+                                                            blurRadius: 4,
+                                                            offset:
+                                                                const Offset(
+                                                                  0,
+                                                                  2,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Text(
+                                                        'PAID',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                      ),
                                                     ),
                                                   ),
-                                              placeholder:
-                                                  (context, url) => Center(
-                                                    child: Image.asset(
-                                                      "assets/images/mains-logo.png",
-                                                    ),
-                                                  ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -183,7 +238,8 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                             SizedBox(
                               height: 200,
                               child: Obx(() {
-                                if (controller.isLoading.value || !controller.hasLoaded.value) {
+                                if (controller.isLoading.value ||
+                                    !controller.hasLoaded.value) {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
@@ -222,19 +278,25 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                           borderRadius: BorderRadius.circular(
                                             6,
                                           ),
-                                          child: CachedNetworkImage(
-                                            imageUrl: book.image_url ?? '',
-                                            fit: BoxFit.fill,
-                                            width: double.infinity,
-                                            placeholder:
-                                                (context, url) => Center(
-                                                  child: Image.asset(
-                                                    "assets/images/mains-logo.png",
-                                                  ),
-                                                ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Container(
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              CachedNetworkImage(
+                                                imageUrl: book.image_url ?? '',
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                placeholder:
+                                                    (context, url) => Center(
+                                                      child: Image.asset(
+                                                        "assets/images/mains-logo.png",
+                                                      ),
+                                                    ),
+                                                errorWidget:
+                                                    (
+                                                      context,
+                                                      url,
+                                                      error,
+                                                    ) => Container(
                                                       color: Colors.grey[200],
                                                       alignment:
                                                           Alignment.center,
@@ -244,6 +306,52 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         size: 40,
                                                       ),
                                                     ),
+                                              ),
+                                              // Paid indicator - only show when isPaid is true
+                                              // TEMPORARY: Always show for testing
+                                              if (book.isPaid == true)
+                                                Positioned(
+                                                  bottom: 8,
+                                                  left: 8,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black
+                                                              .withValues(
+                                                                alpha: 0.3,
+                                                              ),
+                                                          blurRadius: 4,
+                                                          offset: const Offset(
+                                                            0,
+                                                            2,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Text(
+                                                      'PAID',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -590,7 +698,10 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                               BorderRadius.circular(
                                                                 6,
                                                               ),
-                                                          child:
+                                                          child: Stack(
+                                                            fit:
+                                                                StackFit.expand,
+                                                            children: [
                                                               book.image_url ==
                                                                       null
                                                                   ? Center(
@@ -609,7 +720,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                                         '',
                                                                     fit:
                                                                         BoxFit
-                                                                            .fill,
+                                                                            .cover,
                                                                     width:
                                                                         double
                                                                             .infinity,
@@ -643,6 +754,57 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                                           ),
                                                                         ),
                                                                   ),
+
+                                                              if (book.isPaid ==
+                                                                  true)
+                                                                Positioned(
+                                                                  bottom: 8,
+                                                                  left: 8,
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          8,
+                                                                      vertical:
+                                                                          4,
+                                                                    ),
+                                                                    decoration: BoxDecoration(
+                                                                      color:
+                                                                          Colors
+                                                                              .red,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            12,
+                                                                          ),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors.black.withValues(
+                                                                            alpha:
+                                                                                0.3,
+                                                                          ),
+                                                                          blurRadius:
+                                                                              4,
+                                                                          offset: const Offset(
+                                                                            0,
+                                                                            2,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    child: Text(
+                                                                      'PAID',
+                                                                      style: GoogleFonts.poppins(
+                                                                        fontSize:
+                                                                            10,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        color:
+                                                                            Colors.white,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
                                                     );

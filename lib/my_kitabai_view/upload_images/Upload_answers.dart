@@ -1,7 +1,12 @@
 import 'dart:io';
-import 'package:image_cropper/image_cropper.dart';
-
-import '../../app_imports.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mains/common/colors.dart';
+import 'package:mains/my_kitabai_view/bottomBar/MyHomePage.dart';
+import 'package:mains/my_kitabai_view/bottomBar/controller.dart';
 import 'controller.dart';
 
 class UploadAnswers extends StatefulWidget {
@@ -87,9 +92,9 @@ class _UploadAnswersState extends State<UploadAnswers> {
                 widget.questionsText.toString(),
                 maxLines: _isQuestionExpanded ? null : 3,
                 overflow:
-                _isQuestionExpanded
-                    ? TextOverflow.visible
-                    : TextOverflow.ellipsis,
+                    _isQuestionExpanded
+                        ? TextOverflow.visible
+                        : TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -169,177 +174,177 @@ class _UploadAnswersState extends State<UploadAnswers> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildQuestionBox(),
-              SizedBox(height: Get.width * 0.02),
-              Obx(
-                    () => Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Answer Image Captured',
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[800],
-                          ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildQuestionBox(),
+                      SizedBox(height: Get.width * 0.02),
+                      Obx(
+                        () => Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Answer Image Captured',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${controller.capturedImages.length} of 5',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: controller.capturedImages.length / 5,
+                              backgroundColor: Colors.grey[200],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                CustomColors.meeting.withOpacity(0.8),
+                              ),
+                              minHeight: 8,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                         ),
-                        const Spacer(),
-                        Text(
-                          '${controller.capturedImages.length} of 5',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[600],
-                          ),
+                      ).animate().fadeIn(duration: 300.ms),
+                      const SizedBox(height: 20),
+                      Obx(
+                        () => SizedBox(
+                          height: 300,
+                          child:
+                              controller.capturedImages.isEmpty
+                                  ? _buildEmptyState(context)
+                                  : _buildImageGrid(controller),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: controller.capturedImages.length / 5,
-                      backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        CustomColors.meeting.withOpacity(0.8),
                       ),
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 300.ms),
-
-              const SizedBox(height: 20),
-
-              // Image grid
-              Obx(
-                    () => Expanded(
-                  child:
-                  controller.capturedImages.isEmpty
-                      ? _buildEmptyState(context)
-                      : _buildImageGrid(controller),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 20),
-
+              // Fixed bottom buttons
               Column(
                 children: [
                   Obx(() {
                     return controller.capturedImages.length == 5
                         ? _buildActionButton(
-                      context: context,
-                      icon: Icons.add_a_photo_rounded,
-                      label: 'Add Images',
-                      color: CustomColors.grey, // Disabled color
-                      onTap: () {}, // Disabled action
-                      width: Get.width * 0.5,
-                    )
-                        : _buildActionButton(
-                      context: context,
-                      icon: Icons.add_a_photo_rounded,
-                      label: 'Add Images',
-                      color: CustomColors.meeting,
-                      onTap: () {
-                        showModalBottomSheet(
                           context: context,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          backgroundColor: Colors.white,
-                          builder: (context) {
-                            return SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                  horizontal: 20,
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Top handle bar
-                                    Container(
-                                      width: 40,
-                                      height: 4,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(
-                                          10,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Camera option
-                                    ListTile(
-                                      leading: Lottie.asset(
-                                        'assets/lottie/cameralottie.json',
-                                        fit: BoxFit.contain,
-                                      ),
-                                      title: Text(
-                                        'Camera',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Take a new photo',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        controller.captureImage();
-                                      },
-                                    ),
-
-                                    const Divider(),
-
-                                    // Gallery option
-                                    ListTile(
-                                      leading: Lottie.asset(
-                                        'assets/lottie/gallery.json',
-                                        fit: BoxFit.contain,
-                                      ),
-                                      title: Text(
-                                        'Gallery',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Choose from existing photos',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        controller.pickImageFromGallery();
-                                      },
-                                    ),
-
-                                    const SizedBox(height: 12),
-                                  ],
+                          icon: Icons.add_a_photo_rounded,
+                          label: 'Add Images',
+                          color: CustomColors.grey,
+                          onTap: () {},
+                          width: Get.width * 0.5,
+                        )
+                        : _buildActionButton(
+                          context: context,
+                          icon: Icons.add_a_photo_rounded,
+                          label: 'Add Images',
+                          color: CustomColors.meeting.withOpacity(0.8),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
                                 ),
                               ),
+                              backgroundColor: Colors.white,
+                              builder: (context) {
+                                return SafeArea(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 20,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Top handle bar
+                                        Container(
+                                          width: 40,
+                                          height: 4,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        // Camera option
+                                        ListTile(
+                                          leading: Lottie.asset(
+                                            'assets/lottie/cameralottie.json',
+                                            fit: BoxFit.contain,
+                                          ),
+                                          title: Text(
+                                            'Camera',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            'Take a new photo',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            controller.captureImage();
+                                          },
+                                        ),
+                                        const Divider(),
+                                        // Gallery option
+                                        ListTile(
+                                          leading: Lottie.asset(
+                                            'assets/lottie/gallery.json',
+                                            fit: BoxFit.contain,
+                                          ),
+                                          title: Text(
+                                            'Gallery',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            'Choose from existing photos',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            controller.pickImageFromGallery();
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
+                          width: Get.width * 0.5,
                         );
-                      },
-
-                      width: Get.width * 0.5,
-                    );
                   }),
-
                   const SizedBox(height: 12),
                   _buildActionButton(
                     context: context,
@@ -437,11 +442,11 @@ class _UploadAnswersState extends State<UploadAnswers> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.file(
-                    File(image.path),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  )
+                        File(image.path),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      )
                       .animate(onPlay: (controller) => controller.repeat())
                       .shimmer(duration: 1000.ms),
                 ),
@@ -479,7 +484,7 @@ class _UploadAnswersState extends State<UploadAnswers> {
                   child: GestureDetector(
                     onTap:
                         () =>
-                        _showDeleteConfirmation(context, controller, index),
+                            _showDeleteConfirmation(context, controller, index),
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -519,7 +524,7 @@ class _UploadAnswersState extends State<UploadAnswers> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width:
-          width ?? double.infinity, // 👈 Use provided width or full width
+              width ?? double.infinity, // 👈 Use provided width or full width
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -542,174 +547,129 @@ class _UploadAnswersState extends State<UploadAnswers> {
     );
   }
 
-
-
   void _showImagePreview(BuildContext context, File image) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        insetPadding: EdgeInsets.zero,
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // 🔹 Top bar with Edit & Close
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    onPressed: () async {
-                      final cropped = await ImageCropper().cropImage(
-                        sourcePath: image.path,
-                        uiSettings: [
-                          AndroidUiSettings(
-                            toolbarTitle: 'Crop Image',
-                            toolbarColor: Colors.black,
-                            toolbarWidgetColor: Colors.white,
-                            initAspectRatio: CropAspectRatioPreset.original,
-                            lockAspectRatio: false,
-                            statusBarColor: Colors.black,
-                            hideBottomControls: true,
-                          ),
-                          IOSUiSettings(
-                            title: 'Crop Image',
-                            aspectRatioLockEnabled: false,
-                          ),
-                        ],
-                      );
-                      if (cropped == null) return;
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.only(top: 24),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black87),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
 
-                      final index = controller.capturedImages.indexWhere(
-                        (file) => file.path == image.path,
-                      );
-                      if (index != -1) {
-                        controller.capturedImages[index] = File(cropped.path);
-                      }
-
-                      Navigator.pop(context);
-                      _showImagePreview(context, File(cropped.path));
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black87),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-
-              // 🔹 Image Preview
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: InteractiveViewer(
-                    minScale: 0.5,
-                    maxScale: 4.0,
-                    child: Image.file(
-                      image,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
+                /// 🔹 Image Preview
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: Image.file(
+                        image,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 🔹 Delete Button
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _deleteImage(image);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                /// 🔹 Delete Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    controller.capturedImages.removeWhere(
+                      (f) => f.path == image.path,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
+                  icon: const Icon(Icons.delete),
+                  label: const Text('Delete'),
                 ),
-                icon: const Icon(Icons.delete),
-                label: const Text('Delete'),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-
-
-  void _deleteImage(File image) {
-    final index = controller.capturedImages.indexWhere(
-      (file) => file.path == image.path,
-    );
-    if (index != -1) {
-      controller.capturedImages.removeAt(index);
-    }
-  }
-
-  // Removed custom crop dialog; using ImageCropper directly from preview
 
   void _showDeleteConfirmation(
-      BuildContext context,
-      UploadAnswersController controller,
-      int index,
-      ) {
+    BuildContext context,
+    UploadAnswersController controller,
+    int index,
+  ) {
     if (Get.isDialogOpen ?? false) Get.back();
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-        title: Text(
-          'Delete this sheet?',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          'Are you sure you want to remove this answer sheet?',
-          style: GoogleFonts.poppins(),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            title: Text(
+              'Delete this sheet?',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              controller.capturedImages.removeAt(index);
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Delete',
-              style: GoogleFonts.poppins(
-                color: Colors.red[400],
-                fontWeight: FontWeight.w600,
+            content: Text(
+              'Are you sure you want to remove this answer sheet?',
+              style: GoogleFonts.poppins(),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(color: Colors.grey[600]),
+                ),
               ),
-            ),
+              TextButton(
+                onPressed: () {
+                  controller.capturedImages.removeAt(index);
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Delete',
+                  style: GoogleFonts.poppins(
+                    color: Colors.red[400],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _showSubmitConfirmation(
-      BuildContext context,
-      UploadAnswersController controller,
-      ) {
+    BuildContext context,
+    UploadAnswersController controller,
+  ) {
     if (Get.isDialogOpen ?? false) Get.back();
 
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -717,111 +677,111 @@ class _UploadAnswersState extends State<UploadAnswers> {
         context: context,
         builder:
             (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 24,
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 340),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 24,
                 vertical: 24,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.cloud_upload_rounded,
-                    size: 64,
-                    color: CustomColors.meeting,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 340),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Total Answer Sheets : ${controller.capturedImages.length}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Please ensure all answer sheets are clearly visible before submitting.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13.5,
-                      color: Colors.grey[600],
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 28),
-                  Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Get.back(),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: BorderSide(color: Colors.grey[400]!),
-                          ),
-                          child: Text(
-                            'Review Again',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ),
+                      Icon(
+                        Icons.cloud_upload_rounded,
+                        size: 64,
+                        color: CustomColors.meeting,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final uploadController =
-                            Get.find<UploadAnswersController>();
-                            final bottomNavController =
-                            Get.find<BottomNavController>();
-                            bottomNavController.changeIndex(3);
-                            Get.offAll(() => MyHomePage());
-                            await Future.delayed(
-                              const Duration(milliseconds: 300),
-                            );
-                            uploadController.uploadImagesToAPI();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: CustomColors.meeting,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Submit Now',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Total Answer Sheets : ${controller.capturedImages.length}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Please ensure all answer sheets are clearly visible before submitting.',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.5,
+                          color: Colors.grey[600],
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 28),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Get.back(),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                side: BorderSide(color: Colors.grey[400]!),
+                              ),
+                              child: Text(
+                                'Review Again',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final uploadController =
+                                    Get.find<UploadAnswersController>();
+                                final bottomNavController =
+                                    Get.find<BottomNavController>();
+                                bottomNavController.changeIndex(3);
+                                Get.offAll(() => MyHomePage());
+                                await Future.delayed(
+                                  const Duration(milliseconds: 300),
+                                );
+                                uploadController.uploadImagesToAPI();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: CustomColors.meeting,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Submit Now',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
       );
     });
   }

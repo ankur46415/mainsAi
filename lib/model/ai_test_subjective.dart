@@ -115,6 +115,7 @@ class Test {
   bool? isTrending;
   bool? isHighlighted;
   bool? isActive;
+  bool? isPaid;
   String? createdAt;
   String? updatedAt;
   UserTestStatus? userTestStatus;
@@ -133,6 +134,7 @@ class Test {
     this.isTrending,
     this.isHighlighted,
     this.isActive,
+    this.isPaid,
     this.createdAt,
     this.updatedAt,
     this.userTestStatus,
@@ -154,6 +156,7 @@ class Test {
       isTrending: json['is_trending'],
       isHighlighted: json['is_highlighted'],
       isActive: json['is_active'],
+      isPaid: json['isPaid'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       userTestStatus:
@@ -178,6 +181,7 @@ class Test {
     'is_trending': isTrending,
     'is_highlighted': isHighlighted,
     'is_active': isActive,
+    'isPaid': isPaid,
     'created_at': createdAt,
     'updated_at': updatedAt,
     'userTestStatus': userTestStatus?.toJson(),

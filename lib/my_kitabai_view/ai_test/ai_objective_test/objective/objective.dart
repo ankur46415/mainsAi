@@ -270,6 +270,7 @@ class _TestCategoriesObjectivePageState
                                   },
                                   child: _buildTestCard(
                                     imageUrl: test.imageUrl,
+                                    isPaid: test.isPaid,
                                   ),
                                 );
                               },
@@ -292,24 +293,57 @@ class _TestCategoriesObjectivePageState
     );
   }
 
-  Widget _buildTestCard({required String? imageUrl}) {
+  Widget _buildTestCard({required String? imageUrl, bool? isPaid}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: Image.network(
-        imageUrl ?? 'https://picsum.photos/200/300',
-        height: double.infinity,
-        width: double.infinity,
-        fit: BoxFit.fill,
-        errorBuilder:
-            (context, error, stackTrace) => Container(
-              color: Colors.grey[300],
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.menu_book_rounded,
-                size: 40,
-                color: Colors.grey,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            imageUrl ?? 'https://picsum.photos/200/300',
+            height: double.infinity,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder:
+                (context, error, stackTrace) => Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.menu_book_rounded,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
+                ),
+          ),
+          // Paid indicator - only show when isPaid is true
+          if (isPaid == true)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'PAID',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
+        ],
       ),
     );
   }

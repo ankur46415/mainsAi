@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mains/app_routes.dart';
 import 'package:mains/common/loading_widget.dart';
 import 'package:mains/my_kitabai_view/book_detailes_page/booking_details_page/controller.dart';
 import 'package:mains/my_kitabai_view/book_detailes_page/summery/summery_texts.dart';
@@ -65,7 +66,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatar(
-                    backgroundColor: Colors.black.withOpacity(0.4),
+                    backgroundColor: Colors.black.withValues(alpha: 0.4),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
@@ -130,7 +131,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                       const SizedBox(height: 8),
                       _buildStatsCard(),
                       const SizedBox(height: 16),
-                      _buildActionButtons(),
+                      _buildActionButtons(bookData),
                       const SizedBox(height: 12),
                       _buildTagsSection(bookData),
                       Obx(
@@ -159,7 +160,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -168,16 +169,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                bookData.title ?? 'No Title',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
               if (bookData.chatAvailable != null) ...[
                 const SizedBox(width: 6),
                 if (bookData.chatAvailable)
@@ -195,9 +187,46 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                     fit: BoxFit.contain,
                   ),
               ],
+
+              Spacer(),
+              if (bookData.isPaid == true) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'PAID',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: Get.width * 0.02),
+              ],
             ],
           ),
 
+          Text(
+            bookData.title ?? 'No Title',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           SizedBox(height: Get.width * 0.01),
           Text(
             '${bookData.subjectName ?? ''} | ${bookData.paperName ?? ''}, ${bookData.examName ?? ''}',
@@ -208,6 +237,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
             ),
           ),
           SizedBox(height: Get.width * 0.015),
+          // Paid indicator - only show when isPaid is true
           _buildRatingRow(bookData),
           const SizedBox(height: 8),
           const Divider(height: 1),
@@ -278,7 +308,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         color: Colors.grey[50],
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -306,7 +336,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(dynamic bookData) {
     return Column(
       children: [
         Container(
@@ -351,7 +381,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               Container(
                 width: 1,
                 height: Get.width * 0.06,
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
               ),
               Expanded(
                 child: _buildActionButton(
@@ -387,7 +417,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               Container(
                 width: 1,
                 height: Get.width * 0.06,
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
               ),
 
               Expanded(
@@ -411,7 +441,12 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed:
-                  controller.isSaved == true || controller.isActionLoading.value
+                  bookData.isPaid == true
+                      ? () {
+                        Get.toNamed(AppRoutes.specificCourse);
+                      }
+                      : controller.isSaved == true ||
+                          controller.isActionLoading.value
                       ? () async {
                         if (!Get.isRegistered<MyLibraryController>()) {
                           Get.put(MyLibraryController(), permanent: true);
@@ -430,14 +465,18 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
 
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    controller.isSaved == true ? Colors.green : Colors.blue,
+                    bookData.isPaid == true
+                        ? Colors.orange
+                        : controller.isSaved == true
+                        ? Colors.green
+                        : Colors.blue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 minimumSize: const Size.fromHeight(52),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 disabledBackgroundColor: Colors.grey,
-                disabledForegroundColor: Colors.white.withOpacity(0.7),
+                disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
               ),
               child:
                   controller.isActionLoading.value
@@ -452,7 +491,9 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                         ),
                       )
                       : Text(
-                        controller.isSaved == true
+                        bookData.isPaid == true
+                            ? 'Purchase Plan'
+                            : controller.isSaved == true
                             ? 'Go to My Library'
                             : 'Add To My Library',
                         style: GoogleFonts.poppins(

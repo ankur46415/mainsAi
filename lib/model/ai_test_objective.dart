@@ -1,3 +1,5 @@
+import 'workBookData.dart';
+
 class AiTestHomeResponse {
   final bool success;
   final AiTestData data;
@@ -77,6 +79,8 @@ class AiTestItem {
   final int totalQuestions;
   final int testMaximumMarks;
   final bool? isEnabled;
+  final bool? isPaid;
+  final List<PlanDetails> planDetails;
 
   AiTestItem({
     required this.testId,
@@ -90,6 +94,8 @@ class AiTestItem {
     required this.estimatedTime,
     required this.instructions,
     this.isEnabled,
+    this.isPaid,
+    this.planDetails = const [],
   });
 
   factory AiTestItem.fromJson(Map<String, dynamic> json) {
@@ -111,6 +117,12 @@ class AiTestItem {
               ? json['testMaximumMarks']
               : int.tryParse(json['testMaximumMarks']?.toString() ?? '0') ?? 0,
       isEnabled: json['isEnabled'] ?? false,
+      isPaid: json['isPaid'] ?? false,
+      planDetails:
+          (json['planDetails'] as List<dynamic>?)
+              ?.map((e) => PlanDetails.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -127,6 +139,8 @@ class AiTestItem {
       'totalQuestions': totalQuestions,
       'testMaximumMarks': testMaximumMarks,
       'isEnabled': isEnabled,
+      'isPaid': isPaid,
+      'planDetails': planDetails.map((e) => e.toJson()).toList(),
     };
   }
 }

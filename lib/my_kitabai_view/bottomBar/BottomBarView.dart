@@ -167,9 +167,12 @@ class _BottomBarViewState extends State<BottomBarView>
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: Color(0xFFFFC107),
                         gradient: LinearGradient(
-                          colors: [Colors.blue.shade800, Colors.blue.shade400],
+                          colors: [
+                            Color(0xFFFFC107),
+                            Color.fromARGB(255, 236, 87, 87),
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -293,7 +296,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                         height: 24,
                         color:
                             widget.tabIconData!.isSelected
-                                ? Colors.blue
+                                ? Color(0xFFFFC107)
                                 : Colors.grey,
                       ),
                     ),
@@ -315,7 +318,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: Colors.blue,
+                            color: Color(0xFFFFC107),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -330,7 +333,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                   fontSize: 12,
                   color:
                       widget.tabIconData!.isSelected
-                          ? Colors.blue
+                          ? Color(0xFFFFC107)
                           : Colors.grey,
                 ),
               ),

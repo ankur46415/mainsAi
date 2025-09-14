@@ -1,10 +1,14 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/my_kitabai_view/TestScreens/workBookPage/user_questions/question_answer_page.dart/question_answer_page.dart';
 import 'package:mains/my_kitabai_view/ai_test/ai_test_subjective/subjective_test_answer/binding.dart';
 import 'package:mains/my_kitabai_view/ai_test/ai_test_subjective/subjective_test_answer/sync_upload_answer/sync_sub_answer.dart';
 import 'package:mains/my_kitabai_view/ai_test/start_test/objective_test_description.dart';
 import 'package:mains/my_kitabai_view/evaluators/list_of_submissions.dart';
 import 'package:mains/my_kitabai_view/help/help_screen.dart';
 import 'package:mains/my_kitabai_view/manaul_qr_result/chapter_detailes.dart';
+import 'package:mains/my_kitabai_view/plans/all_plan_screen.dart';
+import 'package:mains/my_kitabai_view/plans/make_paymnet/make_payment.dart';
+import 'package:mains/my_kitabai_view/plans/specific_course_plans/specific_course%20plans.dart';
 import 'package:mains/my_kitabai_view/watch/video_page/play_video_controller.dart';
 import 'package:mains/my_kitabai_view/yt_reel/binding.dart';
 import 'package:mains/my_kitabai_view/yt_reel/yt_reel.dart';
@@ -51,10 +55,19 @@ class AppRoutes {
   static const String mainNav = '/mainNav';
   static const String payHistory = '/payHistory';
   static const String reels = '/reels';
+  static const String plans = '/plans';
+  static const String specificCourse = '/specificCourse';
+  static const String makePayment = '/makePayment';
+  static const String questionAnswerPage = '/questionAnswerPage';
 }
 
+//QuestionAnswerPage
 final List<GetPage> appPages = [
+  GetPage(name: AppRoutes.questionAnswerPage, page: () => QuestionAnswerPage()),
   GetPage(name: AppRoutes.introScreen, page: () => IntroMainScreen()),
+  GetPage(name: AppRoutes.plans, page: () => AllPlanScreen()),
+  GetPage(name: AppRoutes.makePayment, page: () => MakePayment()),
+  GetPage(name: AppRoutes.specificCourse, page: () => SpecificCourse()),
   GetPage(name: AppRoutes.login, page: () => User_Login_option()),
   GetPage(name: AppRoutes.helpScreen, page: () => HelpScreen()),
   GetPage(name: AppRoutes.feedback, page: () => FeedbackForm()),
@@ -120,10 +133,7 @@ final List<GetPage> appPages = [
       );
     },
   ),
-  GetPage(
-    name: AppRoutes.assetResult,
-    page: () => AssetReslut(),
-  ),
+  GetPage(name: AppRoutes.assetResult, page: () => AssetReslut()),
   GetPage(
     name: AppRoutes.subjectiveSetDetail,
     page: () {

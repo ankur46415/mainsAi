@@ -131,28 +131,67 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 3,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: CachedNetworkImage(
-                                    imageUrl: book.coverImageUrl ?? '',
-                                    fit: BoxFit.fill,
-                                    width: double.infinity,
-                                    errorWidget:
-                                        (context, url, error) => Container(
-                                          color: Colors.grey[200],
-                                          alignment: Alignment.center,
-                                          child: const Icon(
-                                            Icons.menu_book_rounded,
-                                            color: Colors.grey,
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: CachedNetworkImage(
+                                        imageUrl: book.coverImageUrl ?? '',
+                                        fit: BoxFit.fill,
+                                        width: double.infinity,
+                                        errorWidget:
+                                            (context, url, error) => Container(
+                                              color: Colors.grey[200],
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                Icons.menu_book_rounded,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                        placeholder:
+                                            (context, url) => Center(
+                                              child: Image.asset(
+                                                "assets/images/mains-logo.png",
+                                              ),
+                                            ),
+                                      ),
+                                    ),
+                                    // Paid indicator - only show when isPaid is true
+                                    if (book.isPaid == true)
+                                      Positioned(
+                                        bottom: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Text(
+                                            'PAID',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                    placeholder:
-                                        (context, url) => Center(
-                                          child: Image.asset(
-                                            "assets/images/mains-logo.png",
-                                          ),
-                                        ),
-                                  ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             );
@@ -192,29 +231,67 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                child: CachedNetworkImage(
-                                  imageUrl: book.coverImageUrl ?? '',
-                                  fit: BoxFit.fill,
-                                  width: double.infinity,
-                                  placeholder:
-                                      (context, url) => Center(
-                                        child: Image.asset(
-                                          "assets/images/mains-logo.png",
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: CachedNetworkImage(
+                                      imageUrl: book.coverImageUrl ?? '',
+                                      fit: BoxFit.fill,
+                                      width: double.infinity,
+                                      placeholder:
+                                          (context, url) => Center(
+                                            child: Image.asset(
+                                              "assets/images/mains-logo.png",
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) => Container(
+                                            color: Colors.grey[200],
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.menu_book_rounded,
+                                              color: Colors.grey,
+                                              size: 40,
+                                            ),
+                                          ),
+                                    ),
+                                  ),
+                                  if (book.isPaid == true)
+                                    Positioned(
+                                      bottom: 18,
+                                      left: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          'PAID',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
-                                  errorWidget:
-                                      (context, url, error) => Container(
-                                        color: Colors.grey[200],
-                                        alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.menu_book_rounded,
-                                          color: Colors.grey,
-                                          size: 40,
-                                        ),
-                                      ),
-                                ),
+                                    ),
+                                ],
                               ),
                             ),
                           );
@@ -562,42 +639,79 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child:
-              book.coverImageUrl == null || book.coverImageUrl!.isEmpty
-                  ? Center(
-                    child: Image.asset(
-                      "assets/images/nophoto.png",
-                      fit: BoxFit.contain,
-                      height: 60,
-                    ),
-                  )
-                  : CachedNetworkImage(
-                    imageUrl: book.coverImageUrl!,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    placeholder:
-                        (context, url) => Center(
-                          child: Image.asset(
-                            "assets/images/mains-logo.png",
-                            fit: BoxFit.contain,
-                            height: 50,
-                          ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child:
+                  book.coverImageUrl == null || book.coverImageUrl!.isEmpty
+                      ? Center(
+                        child: Image.asset(
+                          "assets/images/nophoto.png",
+                          fit: BoxFit.contain,
+                          height: 60,
                         ),
-                    errorWidget:
-                        (context, url, error) => Container(
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: Image.asset(
-                              "assets/images/nophoto.png",
-                              fit: BoxFit.contain,
-                              height: 60,
-                              color: Colors.grey,
+                      )
+                      : CachedNetworkImage(
+                        imageUrl: book.coverImageUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        placeholder:
+                            (context, url) => Center(
+                              child: Image.asset(
+                                "assets/images/mains-logo.png",
+                                fit: BoxFit.contain,
+                                height: 50,
+                              ),
                             ),
-                          ),
-                        ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: Center(
+                                child: Image.asset(
+                                  "assets/images/nophoto.png",
+                                  fit: BoxFit.contain,
+                                  height: 60,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                      ),
+            ),
+            // Paid indicator - only show when isPaid is true
+            if (book.isPaid == true)
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
                   ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'PAID',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

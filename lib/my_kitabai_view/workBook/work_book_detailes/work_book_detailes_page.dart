@@ -87,7 +87,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatar(
-                    backgroundColor: Colors.black.withOpacity(0.4),
+                    backgroundColor: Colors.black.withValues(alpha: 0.4),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
@@ -246,11 +246,13 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                         110,
                                         179,
                                         243,
-                                      ).withOpacity(0.2),
+                                      ).withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
                                           blurRadius: 6,
                                           offset: const Offset(0, 3),
                                         ),
@@ -331,7 +333,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -339,6 +341,39 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
       ),
       child: Column(
         children: [
+          Row(
+            children: [
+              Spacer(),
+              if (bookData.isPaid == true) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'PAID',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: Get.width * 0.02),
+              ],
+            ],
+          ),
           Text(
             bookData.title ?? '',
             textAlign: TextAlign.center,
@@ -357,6 +392,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             ),
           ),
           SizedBox(height: Get.width * 0.02),
+          // Paid indicator - only show when isPaid is true
           _buildRatingRow(bookData),
           const SizedBox(height: 8),
           const Divider(height: 1),
@@ -406,11 +442,16 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
       children: [
         _buildMetaDataItem(
           label: 'Creator',
-          value: 'Unknown',
-          // value: bookData.createdBy?.id ?? 'Unknown',
+          value: bookData.author ?? 'Unknown',
         ),
-        _buildMetaDataItem(label: 'Institution', value: 'Unknown'),
-        _buildMetaDataItem(label: 'Language', value: 'English'),
+        _buildMetaDataItem(
+          label: 'Institution',
+          value: bookData.publisher ?? 'Unknown',
+        ),
+        _buildMetaDataItem(
+          label: 'Language',
+          value: bookData.language ?? 'Unknown',
+        ),
       ],
     );
   }
@@ -422,7 +463,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
         color: Colors.grey[50],
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -454,76 +495,69 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
   Widget _buildActionButtons(Workbook bookData) {
     return Column(
       children: [
-        bookData.isMyWorkbookAdded != true
-            ? SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  controller.addToMyBooks(widget.bookId.toString());
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  minimumSize: const Size.fromHeight(52),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                child:
-                    controller.isActionLoading.value
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                            strokeWidth: 2,
-                          ),
-                        )
-                        : Text(
-                          'Add to My Library',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-              ),
-            )
-            : SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (!Get.isRegistered<MyLibraryController>()) {
-                    Get.put(MyLibraryController(), permanent: true);
-                  }
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed:
+                bookData.isPaid == true
+                    ? () {
+                      Get.toNamed(AppRoutes.specificCourse);
+                    }
+                    : bookData.isMyWorkbookAdded == true
+                    ? () async {
+                      if (!Get.isRegistered<MyLibraryController>()) {
+                        Get.put(MyLibraryController(), permanent: true);
+                      }
 
-                  final myLibraryController = Get.find<MyLibraryController>();
-                  await myLibraryController.loadBooks();
+                      final myLibraryController =
+                          Get.find<MyLibraryController>();
+                      await myLibraryController.loadBooks();
 
-                  final bottomNavController = Get.find<BottomNavController>();
-                  bottomNavController.changeIndex(1);
-                  Get.offAll(() => MyHomePage(initialLibraryTabIndex: 1));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  minimumSize: const Size.fromHeight(52),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                child: Text(
-                  'Go to My Library',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
+                      final bottomNavController =
+                          Get.find<BottomNavController>();
+                      bottomNavController.changeIndex(1);
+                      Get.offAll(() => MyHomePage(initialLibraryTabIndex: 1));
+                    }
+                    : () {
+                      controller.addToMyBooks(widget.bookId.toString());
+                    },
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  bookData.isPaid == true
+                      ? Colors.orange
+                      : bookData.isMyWorkbookAdded == true
+                      ? Colors.green
+                      : Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
               ),
+              minimumSize: const Size.fromHeight(52),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
             ),
+            child:
+                controller.isActionLoading.value
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : Text(
+                      bookData.isPaid == true
+                          ? 'Purchase Plan'
+                          : bookData.isMyWorkbookAdded == true
+                          ? 'Go to My Library'
+                          : 'Add to My Library',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+          ),
+        ),
       ],
     );
   }

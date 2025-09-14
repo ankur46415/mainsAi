@@ -38,33 +38,48 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(
-            child: Center(
-              child: SizedBox(
-                height: 200,
-                width: 200,
-                child: Lottie.asset(
-                  'assets/lottie/book_loading.json',
-                  fit: BoxFit.contain,
-                  delegates: LottieDelegates(
-                    values: [
-                      ValueDelegate.color(const ['**'], value: Colors.red),
-                    ],
-                  ),
+            child: SizedBox(
+              height: 200,
+              width: 200,
+              child: Lottie.asset(
+                'assets/lottie/book_loading.json',
+                fit: BoxFit.contain,
+                delegates: LottieDelegates(
+                  values: [
+                    ValueDelegate.color(['**'], value: Colors.red),
+                  ],
                 ),
               ),
             ),
           );
         }
+
+        final questions = controller.questions;
+
+        if (questions.isEmpty) {
+          return const Center(child: Text('No questions available'));
+        }
+
         return ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: controller.questions.length,
+          padding: const EdgeInsets.only(
+            left: 12,
+            right: 12,
+            top: 12,
+            bottom: 56,
+          ),
+          itemCount: questions.length,
           itemBuilder: (context, index) {
-            final q = controller.questions[index];
+            final q = questions[index];
             final metadata = q.metadata;
+
             final RxBool isExpanded = expandedMap.putIfAbsent(
               index,
               () => false.obs,
             );
+
+            final qText = q.question ?? 'No question text';
+            final wordCount = qText.trim().split(RegExp(r'\s+')).length;
+            final bool showSeeMore = wordCount > 18;
 
             return TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 300),
@@ -111,7 +126,7 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /// Header Row
+                      // ---------- Metadata Row ----------
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -172,39 +187,44 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
                         ],
                       ),
                       const SizedBox(height: 12),
+
                       Obx(() {
-                        final qText = q.question ?? 'No question text';
+                        final expanded = isExpanded.value;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxHeight:
-                                    isExpanded.value ? double.infinity : 60,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Text(
-                                  qText,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey.shade800,
-                                  ),
-                                ),
+                            Text(
+                              qText,
+                              maxLines: showSeeMore && !expanded ? 3 : null,
+                              overflow:
+                                  showSeeMore && !expanded
+                                      ? TextOverflow.ellipsis
+                                      : null,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey.shade800,
                               ),
                             ),
                             const SizedBox(height: 6),
-                            GestureDetector(
-                              onTap: () => isExpanded.toggle(),
-                              child: Text(
-                                isExpanded.value ? 'See less' : 'See more',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
+                            if (showSeeMore)
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: const Size(0, 0),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  overlayColor: Colors.transparent,
+                                ),
+                                onPressed: () => isExpanded.toggle(),
+                                child: Text(
+                                  expanded ? 'See less' : 'See more',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.blue,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         );
                       }),
@@ -235,22 +255,10 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Difficulty: ${metadata?.difficultyLevel ?? 'N/A'}',
-                  style: GoogleFonts.poppins(),
-                ),
-                Text(
-                  'Word Limit: ${metadata?.wordLimit ?? 'N/A'}',
-                  style: GoogleFonts.poppins(),
-                ),
-                Text(
-                  'Time: ${metadata?.estimatedTime ?? 'N/A'} min',
-                  style: GoogleFonts.poppins(),
-                ),
-                Text(
-                  'Marks: ${metadata?.maximumMarks ?? 'N/A'}',
-                  style: GoogleFonts.poppins(),
-                ),
+                Text('Difficulty: ${metadata?.difficultyLevel ?? 'N/A'}'),
+                Text('Word Limit: ${metadata?.wordLimit ?? 'N/A'}'),
+                Text('Time: ${metadata?.estimatedTime ?? 'N/A'} min'),
+                Text('Marks: ${metadata?.maximumMarks ?? 'N/A'}'),
               ],
             ),
             actions: [

@@ -28,6 +28,7 @@ class _VoiceScreenState extends State<VoiceScreen>
   late VoiceController controller;
   bool _isControllerInitialized = false;
   late AudioPlayer welcomePlayer;
+  bool showWelcome = true;
 
   List<FAQs> get initialFaqs {
     if (widget.welcomeAiFAQsForChat == null) return [];
@@ -126,7 +127,10 @@ class _VoiceScreenState extends State<VoiceScreen>
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.red.shade50, Colors.white],
+                colors: [
+                  const Color.fromARGB(255, 247, 201, 127),
+                  Colors.white,
+                ],
               ),
             ),
             child: Column(
@@ -296,7 +300,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                   child: Icon(
                     Icons.person,
                     size: 32,
-                    color: Colors.red.shade800,
+                    color: Colors.orange.shade800,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -312,7 +316,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                 Text(
                   'Customize your experience',
                   style: GoogleFonts.poppins(
-                    color: Colors.red.shade700,
+                    color: Colors.orange.shade700,
                     fontSize: 12,
                   ),
                 ),
@@ -337,7 +341,7 @@ class _VoiceScreenState extends State<VoiceScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children:
-                    ['Modes', 'Voices', 'Languages'].map((tab) {
+                    ['Voices', 'Languages', 'History'].map((tab) {
                       final isSelected = controller.selectedTab.value == tab;
                       return AnimatedContainer(
                         duration: Duration(milliseconds: 300),
@@ -355,7 +359,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                           border:
                               isSelected
                                   ? Border.all(
-                                    color: Colors.red.shade300,
+                                    color: Colors.orange.shade300,
                                     width: 1.5,
                                   )
                                   : null,
@@ -367,7 +371,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                             style: GoogleFonts.poppins(
                               color:
                                   isSelected
-                                      ? Colors.red.shade800
+                                      ? Colors.orange.shade800
                                       : Colors.grey.shade700,
                               fontWeight:
                                   isSelected
@@ -386,9 +390,7 @@ class _VoiceScreenState extends State<VoiceScreen>
           // Tab Content
           Obx(() {
             final selected = controller.selectedTab.value;
-            final items =
-                controller.tabData[selected] ??
-                (selected == 'Modes' ? ['Mode 1', 'Mode 2', 'Mode 3'] : []);
+            final items = controller.tabData[selected] ?? [];
 
             return Expanded(
               child: ListView.separated(
@@ -518,67 +520,144 @@ class _VoiceScreenState extends State<VoiceScreen>
                         ),
                       );
                     });
-                  } else {
-                    // Modes tab
+                  } else if (selected == 'History') {
+                    // History tab - show chat history
                     return Obx(() {
-                      final isSelected =
-                          (item == 'Mode 1' &&
-                              controller.ttsMode.value == 'sarvam') ||
-                          (item == 'Mode 2' &&
-                              controller.ttsMode.value == 'flutter') ||
-                          (item == 'Mode 3' &&
-                              controller.ttsMode.value == 'lmnt');
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? Colors.red.shade50
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          leading: Icon(Icons.bolt, color: Colors.red.shade600),
-                          title: Text(
-                            item,
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  isSelected
-                                      ? Colors.red.shade800
-                                      : Colors.grey.shade800,
-                              fontSize: 11,
+                      if (controller.isLoadingHistory.value) {
+                        return Container(
+                          padding: EdgeInsets.all(20),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                CircularProgressIndicator(color: Colors.red),
+                                SizedBox(height: 12),
+                                Text(
+                                  'Loading chat history...',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          trailing: Container(
-                            width: 24,
-                            height: 24,
+                        );
+                      }
+
+                      if (controller.chatHistory.isEmpty) {
+                        return Container(
+                          padding: EdgeInsets.all(20),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(Icons.chat_bubble_outline, 
+                                     size: 48, 
+                                     color: Colors.grey[400]),
+                                SizedBox(height: 12),
+                                Text(
+                                  'No chat history found',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Start a conversation to see your history here',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: controller.chatHistory.length,
+                        itemBuilder: (context, index) {
+                          final chat = controller.chatHistory[index];
+                          return AnimatedContainer(
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            margin: EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color:
-                                    isSelected
-                                        ? Colors.red.shade600
-                                        : Colors.grey.shade400,
-                                width: 2,
+                                color: Colors.red.shade200,
+                                width: 1,
                               ),
                             ),
-                            child:
-                                isSelected
-                                    ? Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.red.shade600,
-                                    )
-                                    : null,
-                          ),
-                          onTap: () {
-                            controller.handleDrawerModeSelection(item);
-                            Get.back(); // Close drawer after selection
-                          },
-                        ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, 
+                                vertical: 8,
+                              ),
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.chat_bubble_outline,
+                                  color: Colors.red.shade600,
+                                  size: 20,
+                                ),
+                              ),
+                              title: Text(
+                                chat.title,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.red.shade800,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                '${chat.messageCount} messages',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.red.shade600,
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red.shade400,
+                                      size: 18,
+                                    ),
+                                    onPressed: () {
+                                      _showDeleteDialog(chat.chatId, chat.title);
+                                    },
+                                    tooltip: 'Delete chat',
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: Colors.red.shade600,
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                // TODO: Navigate to specific chat
+                                debugPrint('Chat tapped: ${chat.chatId}');
+                              },
+                            ),
+                          );
+                        },
                       );
                     });
                   }
@@ -607,11 +686,11 @@ class _VoiceScreenState extends State<VoiceScreen>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.red.shade100,
+                    color: Colors.orange.shade100,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.menu, color: Colors.blue.shade800),
+                    icon: Icon(Icons.menu, color: Colors.orange.shade800),
                     onPressed: () {
                       Scaffold.of(context).openDrawer();
                     },
@@ -630,11 +709,11 @@ class _VoiceScreenState extends State<VoiceScreen>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.red.shade100,
+              color: Colors.orange.shade100,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: Icon(Icons.qr_code_scanner, color: Colors.blue.shade800),
+              icon: Icon(Icons.qr_code_scanner, color: Colors.orange.shade800),
               onPressed: () {
                 Get.toNamed(AppRoutes.getAsset);
               },
@@ -658,7 +737,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                 color: Colors.red.shade100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.cancel, color: Colors.red.shade800),
+              child: Icon(Icons.cancel, color: Colors.orange.shade800),
             ),
           ),
         ],
@@ -674,24 +753,73 @@ class _VoiceScreenState extends State<VoiceScreen>
         bottom: Get.width * 0.03,
       ),
       height: Get.height * 0.6,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+
       child: Obx(() {
         final messages = controller.messages;
         final showThinking = controller.showThinkingBubble.value;
         final List<Widget> chatBubbles = [];
 
+        if (widget.isFromBottomNav && showWelcome && messages.isEmpty) {
+          chatBubbles.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 24.0,
+                horizontal: 16.0,
+              ),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFFFC107),
+                        Color.fromARGB(255, 236, 87, 87),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Color(0xFFFFC107), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFFFFC107).withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.school, color: Colors.white, size: 40),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Welcome to mAIns",
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "UPSC / PCS Mains Answer Writing",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
         if (messages.isEmpty) {
-          // Welcome message from previous screen
           final dynamicWelcome = widget.welcomeAiMessages;
           if (dynamicWelcome != null && dynamicWelcome.isNotEmpty) {
             chatBubbles.add(
@@ -782,25 +910,11 @@ class _VoiceScreenState extends State<VoiceScreen>
   Widget _buildBottomBar(VoiceController controller, ThemeData theme) {
     return Container(
       padding: EdgeInsets.only(
-        top: Get.width * 0.03,
         bottom: Get.width * 0.03,
         right: Get.width * 0.03,
         left: Get.width * 0.03,
       ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Colors.red.shade50],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
+
       child: Obx(() {
         final isListening = controller.isListening.value;
         final isProcessing =
@@ -814,7 +928,7 @@ class _VoiceScreenState extends State<VoiceScreen>
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.red.shade100,
+                border: Border.all(color: Colors.red),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -822,7 +936,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                 icon: Icon(
                   isChatMode ? Icons.mic : Icons.chat,
                   size: 18,
-                  color: Colors.red,
+                  color: Color.fromARGB(255, 235, 176, 2),
                 ),
                 onPressed: () {
                   controller.toggleChatMode();
@@ -830,7 +944,6 @@ class _VoiceScreenState extends State<VoiceScreen>
               ),
             ),
             SizedBox(width: Get.width * 0.03),
-            // Center section
             Expanded(
               child: Center(
                 child:
@@ -874,7 +987,12 @@ class _VoiceScreenState extends State<VoiceScreen>
                                   size: 20,
                                   color: Colors.white,
                                 ),
-                                onPressed: controller.sendChatMessage,
+                                onPressed: () {
+                                  setState(() {
+                                    showWelcome = false;
+                                  });
+                                  controller.sendChatMessage();
+                                },
                               ),
                             ),
                           ],
@@ -903,13 +1021,13 @@ class _VoiceScreenState extends State<VoiceScreen>
         gradient: LinearGradient(
           colors:
               isListening
-                  ? [Colors.red.shade600, Colors.blue.shade400]
-                  : [Colors.red, Colors.blue.shade700],
+                  ? [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)]
+                  : [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
         ),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.red.withOpacity(isListening ? 0.4 : 0.3),
+            color: const Color(0xFFFFC107).withOpacity(isListening ? 0.4 : 0.3),
             blurRadius: isListening ? 20 : 10,
             spreadRadius: isListening ? 2 : 1,
           ),
@@ -1250,6 +1368,41 @@ class _VoiceScreenState extends State<VoiceScreen>
                     ),
                   ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(String chatId, String chatTitle) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Delete Chat',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          'Are you sure you want to delete "$chatTitle"?',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.deleteChat(chatId);
+            },
+            child: Text(
+              'Delete',
+              style: GoogleFonts.poppins(color: Colors.red),
+            ),
+          ),
+        ],
       ),
     );
   }

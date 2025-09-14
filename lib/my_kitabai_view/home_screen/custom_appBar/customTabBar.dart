@@ -20,10 +20,7 @@ class CustomTabBar extends StatelessWidget {
     return Obx(
       () => Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey, width: 1.0)),
-          color: Colors.white,
-        ),
+        decoration: const BoxDecoration(color: Colors.white),
         child: Row(
           children: [
             Expanded(
@@ -35,7 +32,7 @@ class CustomTabBar extends StatelessWidget {
                   size: 32,
                   color:
                       tabControllerManager.selectedIndex.value == 0
-                          ? Colors.red
+                          ? CustomColors.meeting
                           : Colors.grey,
                 ),
                 label: 'AI WorkBooks',
@@ -48,7 +45,7 @@ class CustomTabBar extends StatelessWidget {
                 icon: ColorFiltered(
                   colorFilter: ColorFilter.mode(
                     tabControllerManager.selectedIndex.value == 1
-                        ? Colors.red
+                        ? CustomColors.meeting
                         : Colors.black,
                     BlendMode.srcIn,
                   ),
@@ -77,7 +74,7 @@ class CustomTabBar extends StatelessWidget {
                         const ['**'],
                         value:
                             tabControllerManager.selectedIndex.value == 2
-                                ? Colors.red
+                                ? CustomColors.meeting
                                 : Colors.grey,
                       ),
                     ],
@@ -136,7 +133,7 @@ class CustomTabButton extends StatelessWidget {
               label,
               style: GoogleFonts.poppins(
                 fontSize: 11,
-                color: isSelected ? Colors.red : Colors.grey[600],
+                color: isSelected ? CustomColors.meeting : Colors.grey[600],
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 height: 1.0, // Tighter line height
               ),

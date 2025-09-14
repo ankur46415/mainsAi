@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mains/app_routes.dart';
-import 'package:mains/my_kitabai_view/bottomBar/MyHomePage.dart';
-import 'package:mains/my_kitabai_view/bottomBar/controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'analysis_controller.dart';
 import '../main_analysis/main_analytics_controller.dart';
@@ -165,7 +162,6 @@ class _AnalysisState extends State<Analysis> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-
                       Center(
                         child: Container(
                           width: 48,
@@ -206,7 +202,6 @@ class _AnalysisState extends State<Analysis> {
                                 Colors.orange,
                                 (value) =>
                                     setState(() => selectedOption = value),
-
                               ),
                               _buildReviewOption(
                                 'Need better analysis',
@@ -1054,8 +1049,14 @@ class _AnalysisState extends State<Analysis> {
           final hindiEvaluation = isHindi ? answer?.hindiEvaluation : null;
 
           final accuracy = isHindi ? 0 : (evaluation?.accuracy ?? 0);
-          final score = isHindi ? (hindiEvaluation?.score ?? 0) : (evaluation?.score ?? 0);
-          final relevency = isHindi ? (hindiEvaluation?.relevancy ?? 0) : (evaluation?.relevancy ?? 0);
+          final score =
+              isHindi
+                  ? (hindiEvaluation?.score ?? 0)
+                  : (evaluation?.score ?? 0);
+          final relevency =
+              isHindi
+                  ? (hindiEvaluation?.relevancy ?? 0)
+                  : (evaluation?.relevancy ?? 0);
           final maximumMarks =
               controller
                   .answerAnalysis
@@ -1089,7 +1090,9 @@ class _AnalysisState extends State<Analysis> {
                 children: [
                   Center(
                     child: Text(
-                      _selectedLanguage == 'hindi' ? 'आपका स्कोर' : 'Your Score',
+                      _selectedLanguage == 'hindi'
+                          ? 'आपका स्कोर'
+                          : 'Your Score',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w700,
                         fontSize: 26,
@@ -1144,7 +1147,9 @@ class _AnalysisState extends State<Analysis> {
                     Icons.assessment,
                     // '${evaluation?.score ?? 0}',
                     'N/A',
-                    _selectedLanguage == 'hindi' ? 'औसत स्कोर' : 'Average Score',
+                    _selectedLanguage == 'hindi'
+                        ? 'औसत स्कोर'
+                        : 'Average Score',
                     Colors.orange,
                   ),
                   _buildMetricItem(
@@ -1217,48 +1222,60 @@ class _AnalysisState extends State<Analysis> {
       if (!isHindi && evaluation != null) {
         final analysis = evaluation.analysis;
         if (analysis?.strengths?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('Strengths', {
-            'rating': 'Excellent',
-            'marks': '${analysis!.strengths!.length}/5',
-            'comment': analysis.strengths!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('Strengths', {
+              'rating': 'Excellent',
+              'marks': '${analysis!.strengths!.length}/5',
+              'comment': analysis.strengths!.join('\n'),
+            }),
+          );
         }
         if (analysis?.weaknesses?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('Weaknesses', {
-            'rating': 'Needs Improvement',
-            'marks': '${analysis!.weaknesses!.length}/5',
-            'comment': analysis.weaknesses!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('Weaknesses', {
+              'rating': 'Needs Improvement',
+              'marks': '${analysis!.weaknesses!.length}/5',
+              'comment': analysis.weaknesses!.join('\n'),
+            }),
+          );
         }
         if (analysis?.suggestions?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('Suggestions', {
-            'rating': 'Good',
-            'marks': '${analysis!.suggestions!.length}/5',
-            'comment': analysis.suggestions!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('Suggestions', {
+              'rating': 'Good',
+              'marks': '${analysis!.suggestions!.length}/5',
+              'comment': analysis.suggestions!.join('\n'),
+            }),
+          );
         }
       } else if (isHindi && hindiEvaluation != null) {
         final analysis = hindiEvaluation.analysis;
         if (analysis?.strengths?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('मजबूतियाँ', {
-            'rating': 'Excellent',
-            'marks': '${analysis!.strengths!.length}/5',
-            'comment': analysis.strengths!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('मजबूतियाँ', {
+              'rating': 'Excellent',
+              'marks': '${analysis!.strengths!.length}/5',
+              'comment': analysis.strengths!.join('\n'),
+            }),
+          );
         }
         if (analysis?.weaknesses?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('कमज़ोरियाँ', {
-            'rating': 'Needs Improvement',
-            'marks': '${analysis!.weaknesses!.length}/5',
-            'comment': analysis.weaknesses!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('कमज़ोरियाँ', {
+              'rating': 'Needs Improvement',
+              'marks': '${analysis!.weaknesses!.length}/5',
+              'comment': analysis.weaknesses!.join('\n'),
+            }),
+          );
         }
         if (analysis?.suggestions?.isNotEmpty ?? false) {
-          chartData.add(MapEntry('सुझाव', {
-            'rating': 'Good',
-            'marks': '${analysis!.suggestions!.length}/5',
-            'comment': analysis.suggestions!.join('\n'),
-          }));
+          chartData.add(
+            MapEntry('सुझाव', {
+              'rating': 'Good',
+              'marks': '${analysis!.suggestions!.length}/5',
+              'comment': analysis.suggestions!.join('\n'),
+            }),
+          );
         }
       }
 
@@ -1346,9 +1363,10 @@ class _AnalysisState extends State<Analysis> {
     final controller = Get.find<MainAnalyticsController>();
     final answer = controller.answerAnalysis.value?.data?.answer;
     final bool isHindi = _selectedLanguage == 'hindi';
-    final remark = isHindi
-        ? (answer?.hindiEvaluation?.remark ?? '')
-        : (answer?.evaluation?.remark ?? '');
+    final remark =
+        isHindi
+            ? (answer?.hindiEvaluation?.remark ?? '')
+            : (answer?.evaluation?.remark ?? '');
 
     return Card(
       elevation: 7,
@@ -1391,9 +1409,10 @@ class _AnalysisState extends State<Analysis> {
     final controller = Get.find<MainAnalyticsController>();
     final answer = controller.answerAnalysis.value?.data?.answer;
     final bool isHindi = _selectedLanguage == 'hindi';
-    final List<String> comments = isHindi
-        ? (answer?.hindiEvaluation?.comments ?? [])
-        : (answer?.evaluation?.comments ?? []);
+    final List<String> comments =
+        isHindi
+            ? (answer?.hindiEvaluation?.comments ?? [])
+            : (answer?.evaluation?.comments ?? []);
 
     // Join comments with newlines
     final String commentText = comments.join('\n');
@@ -1417,7 +1436,11 @@ class _AnalysisState extends State<Analysis> {
             ),
             const SizedBox(height: 8),
             Text(
-              commentText.isNotEmpty ? commentText : (isHindi ? 'कोई टिप्पणी उपलब्ध नहीं' : 'No comments available'),
+              commentText.isNotEmpty
+                  ? commentText
+                  : (isHindi
+                      ? 'कोई टिप्पणी उपलब्ध नहीं'
+                      : 'No comments available'),
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
@@ -1454,7 +1477,10 @@ class _AnalysisState extends State<Analysis> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ChoiceChip(
-          label: Text('English', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          label: Text(
+            'English',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
           selected: !isHindi,
           onSelected: (v) {
             if (v) setState(() => _selectedLanguage = 'english');
@@ -1462,7 +1488,10 @@ class _AnalysisState extends State<Analysis> {
         ),
         const SizedBox(width: 12),
         ChoiceChip(
-          label: Text('हिन्दी', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          label: Text(
+            'हिन्दी',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
           selected: isHindi,
           onSelected: (v) {
             if (v) setState(() => _selectedLanguage = 'hindi');

@@ -124,13 +124,14 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                         ),
                       ),
 
+
                       const SizedBox(height: 24),
                       GetBuilder<ObjectiveRestNameController>(
                         init: _initializeController(),
                         builder: (controller) {
                           // Check if controller is properly initialized
                           if (!Get.isRegistered<
-                            ObjectiveRestNameController
+                              ObjectiveRestNameController
                           >()) {
                             return Center(
                               child: Column(
@@ -161,14 +162,14 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                   .value
                                   ?.attemptStats
                                   ?.totalAttempts ??
-                              0;
+                                  0;
                           final maxAttempts =
                               controller
                                   .resultData
                                   .value
                                   ?.attemptStats
                                   ?.maxAttempts ??
-                              5;
+                                  5;
 
                           if (controller.isLoading.value) {
                             return const Center(
@@ -178,39 +179,116 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                           return Column(
                             children: [
                               if (totalAttempts < maxAttempts)
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed:
-                                        () => Get.toNamed(
-                                          AppRoutes.onjTestDescription,
-                                          arguments: testData,
-                                        ),
-                                    icon: const Icon(
-                                      Icons.play_arrow,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      "Let's Starts",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                              // Show different buttons based on isPaid status
+                                if (testData.isPaid == true) ...[
+                                  // Paid test buttons
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        // Navigate to specific course page
+                                        Get.toNamed(
+                                          AppRoutes.specificCourse,
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.shopping_cart,
                                         color: Colors.white,
                                       ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 14,
+                                      label: Text(
+                                        "Buy Course",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                      backgroundColor: Colors.red,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 14,
+                                        ),
+                                        backgroundColor: Colors.orange,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        elevation: 6,
                                       ),
-                                      elevation: 6,
                                     ),
                                   ),
-                                ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        // Navigate to test description for paid test
+                                        Get.toNamed(
+                                          AppRoutes.onjTestDescription,
+                                          arguments: testData,
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.info_outline,
+                                        color: Colors.orange,
+                                      ),
+                                      label: Text(
+                                        "View Details",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 14,
+                                        ),
+                                        side: const BorderSide(
+                                          color: Colors.orange,
+                                          width: 2,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ] else ...[
+                                  // Free test button
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () => Get.toNamed(
+                                        AppRoutes.onjTestDescription,
+                                        arguments: testData,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                      ),
+                                      label: Text(
+                                        "Let's Start",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 14,
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        elevation: 6,
+                                      ),
+                                    ),
+                                  ),
+                                ],
 
                               const SizedBox(height: 32),
                               Text(
@@ -233,14 +311,14 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                               else
                                 Column(
                                   children: List.generate(history.length, (
-                                    index,
-                                  ) {
+                                      index,
+                                      ) {
                                     final attempt = history[index];
                                     final dateTime =
                                         DateTime.tryParse(
                                           attempt.submittedAt ?? '',
                                         ) ??
-                                        DateTime.now();
+                                            DateTime.now();
                                     final formattedDate =
                                         "${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}";
 
@@ -257,12 +335,12 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                         borderRadius: BorderRadius.circular(12),
                                         onTap: () {
                                           Get.to(
-                                            () => ResultOfAttemptTest(
+                                                () => ResultOfAttemptTest(
                                               attempt: attempt,
                                               testId: testData.testId,
                                               maxMarks:
-                                                  testData.testMaximumMarks
-                                                      .toString(),
+                                              testData.testMaximumMarks
+                                                  .toString(),
                                             ),
                                           );
                                         },
@@ -270,19 +348,19 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                           padding: const EdgeInsets.all(12),
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                                MainAxisAlignment
+                                                    .spaceBetween,
                                                 children: [
                                                   Text(
                                                     "Attempt ${attempt.attemptNumber}",
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 16,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                   Icon(
@@ -396,7 +474,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
           (context, url) => const Center(child: CircularProgressIndicator()),
       errorWidget:
           (context, url, error) =>
-              Image.asset('assets/images/bookb.png', fit: BoxFit.fill),
+          Image.asset('assets/images/bookb.png', fit: BoxFit.fill),
     );
   }
 

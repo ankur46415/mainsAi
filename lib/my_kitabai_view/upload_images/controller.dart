@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_cropper/image_cropper.dart';
 import 'package:mains/app_imports.dart';
 import 'package:image/image.dart' as img;
 
@@ -147,35 +146,13 @@ class UploadAnswersController extends GetxController {
       );
 
       if (image != null) {
-        final CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: image.path,
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.black,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false,
-              statusBarColor: Colors.black,
-              hideBottomControls: true,
-            ),
-            IOSUiSettings(
-              title: 'Crop Image',
-              aspectRatioLockEnabled: false,
-            ),
-          ],
-        );
-
-        if (croppedFile == null) return;
-
-        final fileSize = await File(croppedFile.path).length();
+        final fileSize = await File(image.path).length();
         if (fileSize > 10 * 1024 * 1024) {
           Get.snackbar('Warning', 'Image file is too large. Please try again.');
-          await File(croppedFile.path).delete().catchError((_) {});
           return;
         }
 
-        capturedImages.add(File(croppedFile.path));
+        capturedImages.add(File(image.path));
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to capture image: ${e.toString()}');
@@ -232,7 +209,6 @@ class UploadAnswersController extends GetxController {
 
   Future<File> _compressImage(File file) async {
     try {
-      // Check if file exists
       if (!await file.exists()) {
         print('Error: File does not exist for compression: ${file.path}');
         return file;
@@ -249,14 +225,11 @@ class UploadAnswersController extends GetxController {
         return file;
       }
 
-      // Decode image with error handling
       final image = img.decodeImage(bytes);
       if (image == null) {
         print('Error: Could not decode image: ${file.path}');
         return file;
       }
-
-      // Resize image if it's too large to reduce memory usage
       var resized = image;
       if (image.width > 1200 || image.height > 1200) {
         resized = img.copyResize(

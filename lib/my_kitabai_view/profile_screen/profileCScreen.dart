@@ -76,6 +76,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     title: "Payment History",
                     onTap: () => Get.toNamed(AppRoutes.payHistory),
                   ),
+                  _buildSettingsOption(
+                    icon: Icons.history,
+                    title: "Plans",
+                    onTap: () => Get.toNamed(AppRoutes.plans),
+                  ),
                   if (profile.isEvaluator == true)
                     _buildSettingsOption(
                       icon: Icons.admin_panel_settings,

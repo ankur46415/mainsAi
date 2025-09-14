@@ -210,7 +210,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                           stackTrace,
                                                                         ) {
                                                                           return Icon(
-                                                                             Icons.menu_book_rounded,
+                                                                            Icons.menu_book_rounded,
                                                                             size:
                                                                                 80,
                                                                             color:
@@ -919,39 +919,41 @@ Widget _buildQuestionBox() {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: isExpanded ? double.infinity : 60,
-                      ),
-                      child: SingleChildScrollView(
-                        child: Text(
-                          questionText,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4,
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
+                    Text(
+                      questionText,
+                      maxLines:
+                          isExpanded
+                              ? null
+                              : 3, // 👈 show only 3 lines initially
+                      overflow:
+                          isExpanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                        color: Colors.grey.shade800,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => controller.isSeeMoreExpanded.toggle(),
-                          child: Text(
-                            isExpanded ? 'See Less' : 'See more',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
+                    if (questionText.trim().split(RegExp(r'\s+')).length > 18)
+                      TextButton(
+                        onPressed: () => controller.isSeeMoreExpanded.toggle(),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          isExpanded ? 'See Less' : 'See More',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
                   ],
                 );
               }),

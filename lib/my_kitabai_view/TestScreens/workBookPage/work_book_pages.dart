@@ -1,5 +1,6 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/model/getAllUploadedAnswers.dart';
+import 'package:mains/my_kitabai_view/TestScreens/workBookPage/user_questions/user_questions_page.dart';
 import 'package:mains/my_kitabai_view/upload_images/controller.dart';
 
 class WorkBookPagesForTest extends StatelessWidget {
@@ -122,7 +123,7 @@ class WorkBookPagesForTest extends StatelessWidget {
     final Color primaryRed = Colors.red[700]!;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
@@ -155,6 +156,9 @@ class WorkBookPagesForTest extends StatelessWidget {
                 child: Text('WorkBook', style: TextStyle(color: Colors.white)),
               ),
               Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
+              Tab(
+                child: Text('Question', style: TextStyle(color: Colors.white)),
+              ),
             ],
           ),
         ),
@@ -503,6 +507,8 @@ class WorkBookPagesForTest extends StatelessWidget {
                 ),
               );
             }),
+
+            UserQuestionsPage(),
           ],
         ),
         floatingActionButton: Container(

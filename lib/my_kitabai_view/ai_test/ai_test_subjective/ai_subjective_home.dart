@@ -297,7 +297,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.4),
+                                          color: Colors.black.withValues(alpha: 0.4),
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -329,6 +329,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                   imageUrl:
                                       test.imageUrl ??
                                       'https://picsum.photos/300/200',
+                                  isPaid: test.isPaid,
                                 ),
                               );
                             },
@@ -356,36 +357,69 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
     );
   }
 
-  Widget _buildTestCard({required String imageUrl}) {
+  Widget _buildTestCard({required String imageUrl, bool? isPaid}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        height: double.infinity,
-        width: double.infinity,
-        fit: BoxFit.fill,
-        placeholder:
-            (context, url) => Container(
-              color: Colors.grey[300],
-              child: Center(
-                child: Image.asset(
-                  'assets/images/bookb.png',
-                  fit: BoxFit.fill,
-                  color: Colors.grey,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          CachedNetworkImage(
+            imageUrl: imageUrl,
+            height: double.infinity,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            placeholder:
+                (context, url) => Container(
+                  color: Colors.grey[300],
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/bookb.png',
+                      fit: BoxFit.fill,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+            errorWidget:
+                (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset("assets/images/bookb.png", color: Colors.grey),
+                    ],
+                  ),
+                ),
+          ),
+          // Paid indicator - only show when isPaid is true
+          if (isPaid == true)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'PAID',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-        errorWidget:
-            (context, url, error) => Container(
-              color: Colors.grey[300],
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/images/bookb.png", color: Colors.grey),
-                ],
-              ),
-            ),
+        ],
       ),
     );
   }

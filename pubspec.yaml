@@ -30,7 +30,6 @@ dependencies:
   pinput:
   flutter_tts: ^3.8.5
   gif: ^2.3.0
-  image_cropper: ^9.1.0
   flutter_image_compress:
   syncfusion_flutter_charts:
   photo_view:

@@ -50,6 +50,7 @@ class WorkBookResponse {
 
 class WorkBookHighlighted {
   bool? isEnabled;
+  bool? isPaid;
   String? sId;
   String? title;
   String? description;
@@ -98,9 +99,11 @@ class WorkBookHighlighted {
   String? fullClassification;
   bool? isCurrentlyTrending;
   String? id;
+  List<PlanDetails>? planDetails;
 
   WorkBookHighlighted({
     this.isEnabled,
+    this.isPaid,
     this.sId,
     this.title,
     this.description,
@@ -149,10 +152,12 @@ class WorkBookHighlighted {
     this.fullClassification,
     this.isCurrentlyTrending,
     this.id,
+    this.planDetails,
   });
 
   WorkBookHighlighted.fromJson(Map<String, dynamic> json) {
     isEnabled = json['isEnabled'] as bool?;
+    isPaid = json['isPaid'] as bool?;
     sId = json['_id'];
     title = json['title'];
     description = json['description'];
@@ -203,11 +208,18 @@ class WorkBookHighlighted {
     fullClassification = json['fullClassification'];
     isCurrentlyTrending = json['isCurrentlyTrending'];
     id = json['id'];
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['_id'] = this.sId;
     data['title'] = this.title;
     data['description'] = this.description;
@@ -259,6 +271,9 @@ class WorkBookHighlighted {
     data['fullClassification'] = this.fullClassification;
     data['isCurrentlyTrending'] = this.isCurrentlyTrending;
     data['id'] = this.id;
+    if (this.planDetails != null) {
+      data['planDetails'] = this.planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -289,6 +304,7 @@ class User {
 }
 
 class WorkBookTrending {
+  bool? isPaid;
   String? sId;
   String? title;
   String? description;
@@ -341,8 +357,10 @@ class WorkBookTrending {
   bool? isCurrentlyTrending;
   String? id;
   String? coverImage;
+  List<PlanDetails>? planDetails;
 
   WorkBookTrending({
+    this.isPaid,
     this.sId,
     this.title,
     this.description,
@@ -395,9 +413,11 @@ class WorkBookTrending {
     this.isCurrentlyTrending,
     this.id,
     this.coverImage,
+    this.planDetails,
   });
 
   WorkBookTrending.fromJson(Map<String, dynamic> json) {
+    isPaid = json['isPaid'] as bool?;
     sId = json['_id'] as String?;
     title = json['title'] as String?;
     description = json['description'] as String?;
@@ -457,10 +477,17 @@ class WorkBookTrending {
     isCurrentlyTrending = json['isCurrentlyTrending'] as bool?;
     id = json['id'] as String?;
     coverImage = json['coverImage'] as String?;
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['isPaid'] = isPaid;
     data['_id'] = sId;
     data['title'] = title;
     data['description'] = description;
@@ -517,12 +544,16 @@ class WorkBookTrending {
     data['isCurrentlyTrending'] = isCurrentlyTrending;
     data['id'] = id;
     data['coverImage'] = coverImage;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
 
 class Workbooks {
   bool? isEnabled;
+  bool? isPaid;
   String? exam;
   String? paper;
   String? subject;
@@ -573,9 +604,11 @@ class Workbooks {
   dynamic categoryOrderByUser;
   String? clientId;
   String? userType;
+  List<PlanDetails>? planDetails;
 
   Workbooks({
     this.isEnabled,
+    this.isPaid,
     this.exam,
     this.paper,
     this.subject,
@@ -626,11 +659,13 @@ class Workbooks {
     this.categoryOrderByUser,
     this.clientId,
     this.userType,
+    this.planDetails,
   });
 
   factory Workbooks.fromJson(Map<String, dynamic> json) {
     return Workbooks(
       isEnabled: json['isEnabled'] as bool?,
+      isPaid: json['isPaid'] as bool?,
       exam: json['exam'] as String?,
       paper: json['paper'] as String?,
       subject: json['subject'] as String?,
@@ -686,12 +721,18 @@ class Workbooks {
       categoryOrderByUser: json['categoryOrderByUser'],
       clientId: json['clientId'] as String?,
       userType: json['userType'] as String?,
+      planDetails: json['planDetails'] != null
+          ? (json['planDetails'] as List<dynamic>)
+              .map((v) => PlanDetails.fromJson(v as Map<String, dynamic>))
+              .toList()
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['exam'] = exam;
     data['paper'] = paper;
     data['subject'] = subject;
@@ -744,6 +785,9 @@ class Workbooks {
     data['categoryOrderByUser'] = categoryOrderByUser;
     data['clientId'] = clientId;
     data['userType'] = userType;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -793,4 +837,50 @@ class CategoryOrders {
     'CS': cs,
     'Civil Services': civilServices,
   };
+}
+
+class PlanDetails {
+  String? id;
+  String? name;
+  String? description;
+  int? mrp;
+  int? offerPrice;
+  String? category;
+  int? duration;
+  String? status;
+
+  PlanDetails({
+    this.id,
+    this.name,
+    this.description,
+    this.mrp,
+    this.offerPrice,
+    this.category,
+    this.duration,
+    this.status,
+  });
+
+  PlanDetails.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    description = json['description'];
+    mrp = json['mrp'];
+    offerPrice = json['offerPrice'];
+    category = json['category'];
+    duration = json['duration'];
+    status = json['status'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['description'] = description;
+    data['mrp'] = mrp;
+    data['offerPrice'] = offerPrice;
+    data['category'] = category;
+    data['duration'] = duration;
+    data['status'] = status;
+    return data;
+  }
 }

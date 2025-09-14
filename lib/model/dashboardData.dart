@@ -1,3 +1,5 @@
+import 'workBookData.dart';
+
 class DashBoardData {
   bool? success;
   Data? data;
@@ -98,6 +100,7 @@ class Highlighted {
   bool? highlight;
   bool? trending;
   bool? isEnabled;
+  bool? isPaid;
   String? author;
   String? publisher;
   String? description;
@@ -106,6 +109,7 @@ class Highlighted {
   String? examName;
   String? paperName;
   String? subjectName;
+  List<PlanDetails>? planDetails;
 
   Highlighted({
     this.bookId,
@@ -117,6 +121,7 @@ class Highlighted {
     this.highlight,
     this.trending,
     this.isEnabled,
+    this.isPaid,
     this.author,
     this.publisher,
     this.description,
@@ -125,6 +130,7 @@ class Highlighted {
     this.examName,
     this.paperName,
     this.subjectName,
+    this.planDetails,
   });
 
   Highlighted.fromJson(Map<String, dynamic> json) {
@@ -137,6 +143,7 @@ class Highlighted {
     highlight = json['highlight'];
     trending = json['trending'];
     isEnabled = json['isEnabled'];
+    isPaid = json['isPaid'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -145,6 +152,12 @@ class Highlighted {
     examName = json['exam_name'];
     paperName = json['paper_name'];
     subjectName = json['subject_name'];
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -158,6 +171,7 @@ class Highlighted {
     data['highlight'] = highlight;
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -166,6 +180,9 @@ class Highlighted {
     data['exam_name'] = examName;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -180,6 +197,7 @@ class Trending {
   bool? highlight;
   bool? trending;
   bool? isEnabled;
+  bool? isPaid;
   String? author;
   String? publisher;
   String? description;
@@ -188,6 +206,7 @@ class Trending {
   String? examName;
   String? paperName;
   String? subjectName;
+  List<PlanDetails>? planDetails;
 
   Trending({
     this.bookId,
@@ -199,6 +218,7 @@ class Trending {
     this.highlight,
     this.trending,
     this.isEnabled,
+    this.isPaid,
     this.author,
     this.publisher,
     this.description,
@@ -207,6 +227,7 @@ class Trending {
     this.examName,
     this.paperName,
     this.subjectName,
+    this.planDetails,
   });
 
   Trending.fromJson(Map<String, dynamic> json) {
@@ -219,6 +240,7 @@ class Trending {
     highlight = json['highlight'];
     trending = json['trending'];
     isEnabled = json['isEnabled'];
+    isPaid = json['isPaid'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -227,6 +249,12 @@ class Trending {
     examName = json['exam_name'];
     paperName = json['paper_name'];
     subjectName = json['subject_name'];
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -240,6 +268,7 @@ class Trending {
     data['highlight'] = highlight;
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -248,6 +277,9 @@ class Trending {
     data['exam_name'] = examName;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -261,6 +293,7 @@ class Recent {
   bool? highlight;
   bool? trending;
   bool? isEnabled;
+  bool? isPaid;
   String? author;
   String? publisher;
   String? description;
@@ -269,6 +302,7 @@ class Recent {
   String? examName;
   String? paperName;
   String? subjectName;
+  List<PlanDetails>? planDetails;
 
   Recent({
     this.bookId,
@@ -279,6 +313,7 @@ class Recent {
     this.highlight,
     this.trending,
     this.isEnabled,
+    this.isPaid,
     this.author,
     this.publisher,
     this.description,
@@ -287,6 +322,7 @@ class Recent {
     this.examName,
     this.paperName,
     this.subjectName,
+    this.planDetails,
   });
 
   Recent.fromJson(Map<String, dynamic> json) {
@@ -298,6 +334,7 @@ class Recent {
     highlight = json['highlight'];
     trending = json['trending'];
     isEnabled = json['isEnabled'];
+    isPaid = json['isPaid'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -309,6 +346,12 @@ class Recent {
     examName = json['exam_name'];
     paperName = json['paper_name'];
     subjectName = json['subject_name'];
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -321,6 +364,7 @@ class Recent {
     data['highlight'] = highlight;
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -329,6 +373,9 @@ class Recent {
     data['exam_name'] = examName;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -483,14 +530,15 @@ class Book {
   bool? highlight;
   bool? trending;
   bool? isEnabled;
+  bool? isPaid;
   String? author;
   String? publisher;
   String? description;
-
   int? viewCount;
   String? examName;
   String? paperName;
   String? subjectName;
+  List<PlanDetails>? planDetails;
 
   Book({
     this.bookId,
@@ -502,14 +550,15 @@ class Book {
     this.highlight,
     this.trending,
     this.isEnabled,
+    this.isPaid,
     this.author,
     this.publisher,
     this.description,
-
     this.viewCount,
     this.examName,
     this.paperName,
     this.subjectName,
+    this.planDetails,
   });
 
   Book.fromJson(Map<String, dynamic> json) {
@@ -522,14 +571,20 @@ class Book {
     highlight = json['highlight'];
     trending = json['trending'];
     isEnabled = json['isEnabled'];
+    isPaid = json['isPaid'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
-
     viewCount = json['viewCount'];
     examName = json['exam_name'];
     paperName = json['paper_name'];
     subjectName = json['subject_name'];
+    if (json['planDetails'] != null) {
+      planDetails = <PlanDetails>[];
+      json['planDetails'].forEach((v) {
+        planDetails!.add(PlanDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -543,14 +598,17 @@ class Book {
     data['highlight'] = highlight;
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
+    data['isPaid'] = isPaid;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
-
     data['viewCount'] = viewCount;
     data['exam_name'] = examName;
     data['paper_name'] = paperName;
     data['subject_name'] = subjectName;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

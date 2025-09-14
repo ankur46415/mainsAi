@@ -50,6 +50,7 @@ class BookDetails {
   String? subjectName;
   bool? is_added_to_my_books;
   bool? isVideoAvailable;
+  bool? isPaid;
   List<Chapter>? chapters;
   List<Review>? reviews;
   List<IndexChapter>? index;
@@ -67,6 +68,7 @@ class BookDetails {
     this.rating,
     this.ratingCount,
     this.isVideoAvailable,
+    this.isPaid,
     this.mainCategory,
     this.subCategory,
     this.effectiveSubCategory,
@@ -100,6 +102,7 @@ class BookDetails {
       publisher: json['publisher'],
       language: json['language'],
       isVideoAvailable: json['isVideoAvailable'],
+      isPaid: json['isPaid'],
       rating: json['rating']?.toDouble(),
       ratingCount: json['rating_count'],
       mainCategory: json['mainCategory'],
@@ -156,6 +159,7 @@ class BookDetails {
     data['publisher'] = publisher;
     data['language'] = language;
     data['isVideoAvailable'] = isVideoAvailable;
+    data['isPaid'] = isPaid;
     data['rating'] = rating;
     data['rating_count'] = ratingCount;
     data['mainCategory'] = mainCategory;

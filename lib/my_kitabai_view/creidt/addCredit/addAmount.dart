@@ -56,9 +56,9 @@ class _AddAmountScreenState extends State<AddAmountScreen> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [primaryColor, primaryColor.withOpacity(0.8)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -452,15 +452,17 @@ class _AddAmountScreenState extends State<AddAmountScreen> {
                       margin: const EdgeInsets.fromLTRB(16, 16, 16, 45),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [primaryColor, primaryColor.withOpacity(0.9)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                          colors: [
+                            Color(0xFFFFC107),
+                            Color.fromARGB(255, 236, 87, 87),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          //minimumSize: const Size.fromHeight(56),
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
