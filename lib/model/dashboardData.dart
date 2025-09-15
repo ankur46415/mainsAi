@@ -101,6 +101,7 @@ class Highlighted {
   bool? trending;
   bool? isEnabled;
   bool? isPaid;
+  bool? isEnrolled;
   String? author;
   String? publisher;
   String? description;
@@ -122,6 +123,7 @@ class Highlighted {
     this.trending,
     this.isEnabled,
     this.isPaid,
+    this.isEnrolled,
     this.author,
     this.publisher,
     this.description,
@@ -144,6 +146,7 @@ class Highlighted {
     trending = json['trending'];
     isEnabled = json['isEnabled'];
     isPaid = json['isPaid'];
+    isEnrolled = json['isEnrolled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -172,6 +175,7 @@ class Highlighted {
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
+    data['isEnrolled'] = isEnrolled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -198,6 +202,7 @@ class Trending {
   bool? trending;
   bool? isEnabled;
   bool? isPaid;
+  bool? isEnrolled;
   String? author;
   String? publisher;
   String? description;
@@ -219,6 +224,7 @@ class Trending {
     this.trending,
     this.isEnabled,
     this.isPaid,
+    this.isEnrolled,
     this.author,
     this.publisher,
     this.description,
@@ -241,6 +247,7 @@ class Trending {
     trending = json['trending'];
     isEnabled = json['isEnabled'];
     isPaid = json['isPaid'];
+    isEnrolled = json['isEnrolled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -269,6 +276,7 @@ class Trending {
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
+    data['isEnrolled'] = isEnrolled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -294,6 +302,7 @@ class Recent {
   bool? trending;
   bool? isEnabled;
   bool? isPaid;
+  bool? isEnrolled;
   String? author;
   String? publisher;
   String? description;
@@ -314,6 +323,7 @@ class Recent {
     this.trending,
     this.isEnabled,
     this.isPaid,
+    this.isEnrolled,
     this.author,
     this.publisher,
     this.description,
@@ -335,6 +345,7 @@ class Recent {
     trending = json['trending'];
     isEnabled = json['isEnabled'];
     isPaid = json['isPaid'];
+    isEnrolled = json['isEnrolled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -365,6 +376,7 @@ class Recent {
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
+    data['isEnrolled'] = isEnrolled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;
@@ -531,6 +543,7 @@ class Book {
   bool? trending;
   bool? isEnabled;
   bool? isPaid;
+  bool? isEnrolled;
   String? author;
   String? publisher;
   String? description;
@@ -551,6 +564,7 @@ class Book {
     this.trending,
     this.isEnabled,
     this.isPaid,
+    this.isEnrolled,
     this.author,
     this.publisher,
     this.description,
@@ -572,6 +586,7 @@ class Book {
     trending = json['trending'];
     isEnabled = json['isEnabled'];
     isPaid = json['isPaid'];
+    isEnrolled = json['isEnrolled'];
     author = json['author'];
     publisher = json['publisher'];
     description = json['description'];
@@ -599,6 +614,7 @@ class Book {
     data['trending'] = trending;
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
+    data['isEnrolled'] = isEnrolled;
     data['author'] = author;
     data['publisher'] = publisher;
     data['description'] = description;

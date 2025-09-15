@@ -80,6 +80,7 @@ class AiTestItem {
   final int testMaximumMarks;
   final bool? isEnabled;
   final bool? isPaid;
+  final bool? isEnrolled;
   final List<PlanDetails> planDetails;
 
   AiTestItem({
@@ -95,6 +96,7 @@ class AiTestItem {
     required this.instructions,
     this.isEnabled,
     this.isPaid,
+    this.isEnrolled,
     this.planDetails = const [],
   });
 
@@ -118,6 +120,7 @@ class AiTestItem {
               : int.tryParse(json['testMaximumMarks']?.toString() ?? '0') ?? 0,
       isEnabled: json['isEnabled'] ?? false,
       isPaid: json['isPaid'] ?? false,
+      isEnrolled: json['isEnrolled'] ?? false,
       planDetails:
           (json['planDetails'] as List<dynamic>?)
               ?.map((e) => PlanDetails.fromJson(e))
@@ -140,6 +143,7 @@ class AiTestItem {
       'testMaximumMarks': testMaximumMarks,
       'isEnabled': isEnabled,
       'isPaid': isPaid,
+      'isEnrolled': isEnrolled,
       'planDetails': planDetails.map((e) => e.toJson()).toList(),
     };
   }

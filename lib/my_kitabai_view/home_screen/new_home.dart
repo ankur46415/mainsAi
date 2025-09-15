@@ -172,8 +172,11 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         ),
                                                       ),
                                                 ),
-                                                // Paid indicator - only show when isPaid is true
-                                                if (book.isPaid == true)
+                                                // Enrollment/Paid indicator
+                                                if ((book as dynamic)
+                                                            .isEnrolled ==
+                                                        true ||
+                                                    book.isPaid == true)
                                                   Positioned(
                                                     bottom: 8,
                                                     left: 8,
@@ -205,7 +208,11 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         ],
                                                       ),
                                                       child: Text(
-                                                        'PAID',
+                                                        ((book as dynamic)
+                                                                    .isEnrolled ==
+                                                                true)
+                                                            ? 'ENROLLED'
+                                                            : 'PAID',
                                                         style:
                                                             GoogleFonts.poppins(
                                                               fontSize: 10,
@@ -308,8 +315,10 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                     ),
                                               ),
                                               // Paid indicator - only show when isPaid is true
-                                              // TEMPORARY: Always show for testing
-                                              if (book.isPaid == true)
+                                              if ((book as dynamic)
+                                                          .isEnrolled ==
+                                                      true ||
+                                                  book.isPaid == true)
                                                 Positioned(
                                                   bottom: 8,
                                                   left: 8,
@@ -340,7 +349,11 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                       ],
                                                     ),
                                                     child: Text(
-                                                      'PAID',
+                                                      ((book as dynamic)
+                                                                  .isEnrolled ==
+                                                              true)
+                                                          ? 'ENROLLED'
+                                                          : 'PAID',
                                                       style:
                                                           GoogleFonts.poppins(
                                                             fontSize: 10,
@@ -755,8 +768,10 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                                         ),
                                                                   ),
 
-                                                              if (book.isPaid ==
-                                                                  true)
+                                                              if ((book as dynamic)
+                                                                          .isEnrolled ==
+                                                                      true ||
+                                                                  book.isPaid == true)
                                                                 Positioned(
                                                                   bottom: 8,
                                                                   left: 8,
@@ -791,7 +806,12 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                                       ],
                                                                     ),
                                                                     child: Text(
-                                                                      'PAID',
+                                                                      ((book
+                                                                                      as dynamic)
+                                                                                  .isEnrolled ==
+                                                                              true)
+                                                                          ? 'ENROLLED'
+                                                                          : 'PAID',
                                                                       style: GoogleFonts.poppins(
                                                                         fontSize:
                                                                             10,
