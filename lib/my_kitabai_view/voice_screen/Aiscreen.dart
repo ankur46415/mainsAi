@@ -48,14 +48,6 @@ class _VoiceScreenState extends State<VoiceScreen>
     // Load chat history immediately after controller is ready
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       controller.fetchChatHistory();
-      final msg = widget.welcomeAiMessages;
-      if (msg != null && msg.isNotEmpty) {
-        await Future.delayed(const Duration(milliseconds: 300));
-        await controller.flutterTts.setLanguage(
-          controller.selectedLanguageLabel.value,
-        );
-        await controller.flutterTts.speak(msg);
-      }
     });
   }
 
@@ -998,7 +990,7 @@ class _VoiceScreenState extends State<VoiceScreen>
 
         return ListView(
           controller: controller.scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           children: chatBubbles,
         );
       }),

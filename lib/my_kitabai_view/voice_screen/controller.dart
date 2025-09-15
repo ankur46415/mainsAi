@@ -30,6 +30,7 @@ class VoiceController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxList<Map<String, String>> messages = <Map<String, String>>[].obs;
   final RxBool isPlayingResponse = false.obs;
+  final RxString currentPlayingMessage = ''.obs;
   final RxDouble currentSoundLevel = 0.0.obs;
   String userTextInput = '';
   String aiReply = '';
@@ -278,9 +279,7 @@ class VoiceController extends GetxController {
       if (player?.playing ?? false) {
         await player?.stop();
       }
-      if (flutterTts != null) {
-        await flutterTts.stop();
-      }
+      await flutterTts.stop();
       isPlayingResponse.value = false;
     } catch (e) {
       debugPrint('Error stopping audio: $e');
@@ -542,14 +541,7 @@ class VoiceController extends GetxController {
         showThinkingBubble.value =
             false; // Hide thinking as soon as response arrives
 
-        // Use the appropriate TTS based on mode
-        if (ttsMode.value == 'flutter') {
-          await callFlutterTts(aiText);
-        } else if (ttsMode.value == 'lmnt') {
-          await callLmntForTTS(aiText);
-        } else {
-          await callSarvamForTTS(aiText);
-        }
+        // Do not auto-play TTS; playback happens only when user taps the icon
       } else if (response.statusCode == 503) {
         debugPrint("[AI] Server overloaded (503)");
         addMessage({
@@ -559,7 +551,6 @@ class VoiceController extends GetxController {
         });
         showThinkingBubble.value = false;
         await sendIsExpiredFlagGemini();
-        await callFlutterTts("Server overloaded. Please try again shortly.");
       } else {
         final error = "Error: ${response.statusCode} - ${response.body}";
         debugPrint("[AI] API Error: $error");
@@ -570,7 +561,7 @@ class VoiceController extends GetxController {
               "We’re experiencing high traffic. Our servers are currently overloaded. Please try again shortly.",
         });
         showThinkingBubble.value = false;
-        await callFlutterTts("An error occurred. Please try again shortly.");
+        // No auto TTS on errors
       }
     } catch (e) {
       debugPrint("[AI] Exception: $e");
@@ -581,7 +572,7 @@ class VoiceController extends GetxController {
             "We’re experiencing high traffic. Our servers are currently overloaded. Please try again shortly.",
       });
       showThinkingBubble.value = false;
-      await callFlutterTts("Something went wrong. Please try again shortly.");
+      // No auto TTS on exceptions
     } finally {
       isLoading.value = false;
       textController.clear();
@@ -1214,7 +1205,7 @@ class VoiceController extends GetxController {
         await getAIResponse(input);
         showThinkingBubble.value = false;
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       await getAIResponse(input);
       showThinkingBubble.value = false;
     } finally {

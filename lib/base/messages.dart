@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mains/base/text_style.dart';
+import 'package:mains/my_kitabai_view/voice_screen/controller.dart';
 
 class MessageBubble extends StatelessWidget {
   final String message;
@@ -19,39 +20,69 @@ class MessageBubble extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    VoiceController? controller;
+    try {
+      controller = Get.find<VoiceController>();
+    } catch (_) {
+      controller = null;
+    }
+
     return Row(
       mainAxisAlignment:
           isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         if (!isUser) _buildAvatar(),
         Flexible(
-          child: Container(
-            margin: EdgeInsets.only(
-              top: 8,
-              bottom: 8,
-              left: isUser ? 50 : 8,
-              right: isUser ? 8 : 50,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: isUser ? Colors.red : const Color(0xFFECECEC),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
-                bottomLeft: Radius.circular(isUser ? 18 : 4),
-                bottomRight: Radius.circular(isUser ? 4 : 18),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () async {
+              if (controller == null || isUser || isTyping) return;
+              final local = controller;
+              final isSame = local.currentPlayingMessage.value == message;
+              final isPlaying = local.isPlayingResponse.value && isSame;
+              if (isPlaying) {
+                await local.stopCurrentResponse();
+                local.currentPlayingMessage.value = '';
+              } else {
+                local.currentPlayingMessage.value = message;
+                if (local.ttsMode.value == 'flutter') {
+                  await local.callFlutterTts(message);
+                } else if (local.ttsMode.value == 'lmnt') {
+                  await local.callLmntForTTS(message);
+                } else {
+                  await local.callSarvamForTTS(message);
+                }
+              }
+            },
+            child: Container(
+              margin: EdgeInsets.only(
+                top: 8,
+                bottom: 8,
+                left: isUser ? 50 : 8,
+                right: isUser ? 8 : 50,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(2, 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: isUser ? Colors.red : const Color(0xFFECECEC),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                  bottomLeft: Radius.circular(isUser ? 18 : 4),
+                  bottomRight: Radius.circular(isUser ? 4 : 18),
                 ),
-              ],
-            ),
-            child:
-                isTyping
-                    ? Row(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(2, 4),
+                  ),
+                ],
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (isTyping)
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TypingDots(
@@ -68,29 +99,41 @@ class MessageBubble extends StatelessWidget {
                         ),
                       ],
                     )
-                    : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            message,
-                            style: TextStyles.lato(
-                              fontSize: Get.width * 0.03,
-                              fontWeight: FontWeight.w800,
-                              color: isUser ? Colors.white : Colors.black87,
-                            ),
-                          ),
+                  else
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: (!isUser && controller != null) ? 40 : 0,
+                      ),
+                      child: Text(
+                        message,
+                        style: TextStyles.lato(
+                          fontSize: Get.width * 0.03,
+                          fontWeight: FontWeight.w800,
+                          color: isUser ? Colors.white : Colors.black87,
                         ),
-                        if (!isUser && onPlay != null) ...[
-                          const SizedBox(width: 8),
-                          IconButton(
-                            icon: Icon(Icons.play_arrow, color: Colors.orange),
-                            tooltip: 'Play with Sarvam',
-                            onPressed: onPlay,
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
+
+                  if (!isUser && !isTyping && controller != null)
+                    Positioned(
+                      right: -30,
+                      child: Obx(() {
+                        final isSame =
+                            controller!.currentPlayingMessage.value == message;
+                        final isPlaying =
+                            controller!.isPlayingResponse.value && isSame;
+                        return Icon(
+                          isPlaying
+                              ? Icons.stop_circle_outlined
+                              : Icons.play_circle_fill,
+                          color: isPlaying ? Colors.red : Colors.blue,
+                          size: 28,
+                        );
+                      }),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -113,10 +156,13 @@ class MessageBubble extends StatelessWidget {
       child:
           isUser
               ? const Icon(Icons.person, size: 18, color: Colors.red)
-              : Image.asset(
-                "assets/images/Mains_logo.png",
-                height: Get.width * 0.07,
-                color: Colors.red,
+              : ClipOval(
+                child: Image.asset(
+                  "assets/images/mains-logo.png",
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
               ),
     );
   }
