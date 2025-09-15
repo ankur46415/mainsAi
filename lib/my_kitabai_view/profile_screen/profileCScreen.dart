@@ -71,16 +71,15 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
 
                   CreditCard(),
                   const SizedBox(height: 24),
+
+                  _buildPlansCard(),
+                  const SizedBox(height: 24),
                   _buildSettingsOption(
                     icon: Icons.history,
                     title: "Payment History",
                     onTap: () => Get.toNamed(AppRoutes.payHistory),
                   ),
-                  _buildSettingsOption(
-                    icon: Icons.history,
-                    title: "Plans",
-                    onTap: () => Get.toNamed(AppRoutes.plans),
-                  ),
+
                   if (profile.isEvaluator == true)
                     _buildSettingsOption(
                       icon: Icons.admin_panel_settings,
@@ -302,6 +301,139 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         minLeadingWidth: 0,
+      ),
+    );
+  }
+
+  Widget _buildPlansCard() {
+    return Center(
+      child: GestureDetector(
+        onTap: () => Get.toNamed(AppRoutes.plans),
+        child: Container(
+          width: 340,
+          // 🔹 Removed fixed height so it wraps content
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFF6F00), Color(0xFFE53935)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: [0.3, 0.9],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -50,
+                top: -50,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 20,
+                bottom: 20,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // 🔹 Shrink to fit
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top badge
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.list_alt,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Available Plans',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.arrow_forward,
+                                  size: 18,
+                                  color: Color(0xFFFF6F00),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "View",
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Color(0xFFFF6F00),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

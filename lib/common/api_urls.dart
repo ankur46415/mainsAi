@@ -4,7 +4,7 @@ class ApiUrls {
   static const String baseUrl4 = 'https://test.ailisher.com';
 
   static const String apiUrl = '${baseUrl}api/v1/';
-
+  //final String backendUrl = 'https://test.ailisher.com/api/paytm/initiate';
   ///https://test.ailisher.com
   static const String apiUrl2 =
       '${baseUrl3}api/clients/CLI147189HIGB/mobile/auth/';
@@ -77,8 +77,16 @@ class ApiUrls {
   static const String reelsBase = '${apiUrl3}reels';
   static const String subjectiveTestList =
       '$baseUrl4/api/subjectivetest/clients/CLI147189HIGB/get-test';
+
   static const String objectiveTestList =
       '$baseUrl4/api/objectivetest/clients/CLI147189HIGB/get-test';
+
+  static const String paytmInitiate = '${baseUrl3}api/paytm/initiate';
+
+  // Plans endpoints
+  static const String creditPlans = '${apiUrl3}credit/plans';
+  static const String creditPlanBase = '${apiUrl3}credit/plan/';
+
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

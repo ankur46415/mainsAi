@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:mains/model/models.dart';
 
@@ -47,41 +46,37 @@ class SpecificCourseController extends GetxController {
     _isRequestInFlight.value = true;
 
     try {
-      final Uri uri = Uri.parse(
-        'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/plan/$planId',
+      final String url = ApiUrls.creditPlanBase + planId!;
+      print('🌐 Request URI: $url');
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          print('📥 Response Status: ${response.statusCode}');
+          print('📦 Response Body: ${response.body}');
+          if (response.statusCode == 200) {
+            final Map<String, dynamic> body =
+                json.decode(response.body) as Map<String, dynamic>;
+            final PlanResponse parsed = PlanResponse.fromJson(body);
+            plan.value = parsed.data;
+            print('✅ Plan data fetched successfully: $body');
+          } else if (response.statusCode == 401) {
+            errorMessage.value = 'Unauthorized. Please log in again.';
+            print('⚠️ Unauthorized (401)');
+          } else {
+            errorMessage.value =
+                'Request failed: ${response.statusCode} ${response.reasonPhrase ?? ''}'
+                    .trim();
+            print('⚠️ Request failed: ${errorMessage.value}');
+          }
+        },
+        onError: () {
+          errorMessage.value = 'Failed to fetch plan';
+        },
       );
-      final Map<String, String> headers = <String, String>{
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        if (authToken != null && authToken!.isNotEmpty)
-          'Authorization': 'Bearer $authToken',
-      };
-
-      print('🌐 Request URI: $uri');
-      print('📝 Request Headers: $headers');
-
-      final http.Response response = await http
-          .get(uri, headers: headers)
-          .timeout(const Duration(seconds: 20));
-
-      print('📥 Response Status: ${response.statusCode}');
-      print('📦 Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> body =
-            json.decode(response.body) as Map<String, dynamic>;
-        final PlanResponse parsed = PlanResponse.fromJson(body);
-        plan.value = parsed.data;
-        print('✅ Plan data fetched successfully: $body');
-      } else if (response.statusCode == 401) {
-        errorMessage.value = 'Unauthorized. Please log in again.';
-        print('⚠️ Unauthorized (401)');
-      } else {
-        errorMessage.value =
-            'Request failed: ${response.statusCode} ${response.reasonPhrase ?? ''}'
-                .trim();
-        print('⚠️ Request failed: ${errorMessage.value}');
-      }
     } catch (e) {
       errorMessage.value = e.toString();
       print('❗ Exception caught: $e');

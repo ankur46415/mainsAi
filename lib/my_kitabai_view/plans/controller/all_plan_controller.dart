@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:mains/common/api_services.dart';
+import 'package:mains/common/api_urls.dart';
 import '../../../model/course_plans.dart';
 import '../../../common/shred_pref.dart';
 
@@ -37,29 +38,32 @@ class AllPlanController extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      
-      final response = await http.get(
-        Uri.parse('https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/plans'),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
+      await callWebApiGet(
+        null,
+        ApiUrls.creditPlans,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          if (response.statusCode == 200) {
+            final Map<String, dynamic> jsonData = json.decode(response.body);
+            final CoursePlansData coursePlansData = CoursePlansData.fromJson(jsonData);
+            if (coursePlansData.success == true && coursePlansData.data != null) {
+              plans.value = coursePlansData.data!;
+            } else {
+              hasError.value = true;
+              errorMessage.value = 'Failed to load plans';
+            }
+          } else {
+            hasError.value = true;
+            errorMessage.value = 'Server error: ${response.statusCode}';
+          }
+        },
+        onError: () {
+          hasError.value = true;
+          errorMessage.value = 'Network error: Failed to fetch plans';
         },
       );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = json.decode(response.body);
-        final CoursePlansData coursePlansData = CoursePlansData.fromJson(jsonData);
-        
-        if (coursePlansData.success == true && coursePlansData.data != null) {
-          plans.value = coursePlansData.data!;
-        } else {
-          hasError.value = true;
-          errorMessage.value = 'Failed to load plans';
-        }
-      } else {
-        hasError.value = true;
-        errorMessage.value = 'Server error: ${response.statusCode}';
-      }
     } catch (e) {
       hasError.value = true;
       errorMessage.value = 'Network error: ${e.toString()}';
