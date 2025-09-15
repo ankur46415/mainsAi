@@ -1204,23 +1204,12 @@ class VoiceController extends GetxController {
 
         final aiText = ragResponse.answer ?? '';
         debugPrint("🎯 [RAG] Extracted AI Text: $aiText");
-        debugPrint("🎯 [RAG] TTS Mode: ${ttsMode.value}");
+        debugPrint("🎯 [RAG] TTS Mode:  ttsMode.value");
 
         aiReply = aiText;
         addMessage({"sender": "ai", "message": aiText});
         showThinkingBubble.value = false;
-
-        // Use the appropriate TTS based on mode
-        if (ttsMode.value == 'flutter') {
-          debugPrint("🔊 [RAG] Calling Flutter TTS");
-          await callFlutterTts(aiText);
-        } else if (ttsMode.value == 'lmnt') {
-          debugPrint("🔊 [RAG] Calling LMNT TTS");
-          await callLmntForTTS(aiText);
-        } else {
-          debugPrint("🔊 [RAG] Calling Sarvam TTS with text: $aiText");
-          await callSarvamForTTS(aiText);
-        }
+        // REMOVE AUTO-PLAY: Do not call TTS here
       } else {
         await getAIResponse(input);
         showThinkingBubble.value = false;
@@ -1231,6 +1220,18 @@ class VoiceController extends GetxController {
     } finally {
       isLoading.value = false;
       textController.clear();
+    }
+  }
+
+  Future<void> playSarvamTTS(String message) async {
+    if (message.trim().isEmpty) return;
+    try {
+      isPlayingResponse.value = true;
+      await callSarvamForTTS(message);
+    } catch (e) {
+      debugPrint('Error playing Sarvam TTS: $e');
+    } finally {
+      isPlayingResponse.value = false;
     }
   }
 

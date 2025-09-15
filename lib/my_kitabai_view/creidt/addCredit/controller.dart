@@ -34,7 +34,7 @@ class PaymentController extends GetxController {
     isLoading.value = true;
 
     const url =
-        'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/recharge-plans';
+        'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/plans/without-items';
     print("🌐 API URL: $url");
     print("🛡️ Authorization Token: $authToken");
 
@@ -83,8 +83,7 @@ class PaymentController extends GetxController {
     }
   }
 
-  final String backendUrl =
-      'https://test.ailisher.com/api/paytm/initiate';
+  final String backendUrl = 'https://test.ailisher.com/api/paytm/initiate';
 
   Future<void> initiatePayment({
     required double amount,
@@ -173,4 +172,5 @@ class PaymentController extends GetxController {
       Get.snackbar("Error", e.toString());
     }
   }
+
 }

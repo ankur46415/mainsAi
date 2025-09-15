@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mains/common/loading_widget.dart';
 
 import '../../app_routes.dart';
 import '../../model/course_plans.dart';
@@ -38,7 +39,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const LoadingWidget(message: "Loading plans...");
         }
 
         if (controller.hasError.value) {
@@ -111,7 +112,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
 
     return InkWell(
       onTap: () {
-        Get.toNamed(AppRoutes.specificCourse);
+        Get.toNamed(AppRoutes.specificCourse, arguments: {'planId': plan.sId});
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
@@ -317,7 +318,10 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Get.toNamed(AppRoutes.specificCourse);
+                          Get.toNamed(
+                            AppRoutes.specificCourse,
+                            arguments: {'planId': plan.sId},
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(

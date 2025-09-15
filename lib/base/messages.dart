@@ -7,6 +7,7 @@ class MessageBubble extends StatelessWidget {
   final bool isUser;
   final ThemeData theme;
   final bool isTyping;
+  final VoidCallback? onPlay;
 
   const MessageBubble({
     super.key,
@@ -14,6 +15,7 @@ class MessageBubble extends StatelessWidget {
     required this.isUser,
     required this.theme,
     this.isTyping = false,
+    this.onPlay,
   });
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,6 @@ class MessageBubble extends StatelessWidget {
                     ? Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-
                         TypingDots(
                           color: isUser ? Colors.white : Colors.black87,
                         ),
@@ -65,16 +66,30 @@ class MessageBubble extends StatelessWidget {
                             color: isUser ? Colors.white : Colors.black87,
                           ),
                         ),
-
                       ],
                     )
-                    : Text(
-                      message,
-                      style: TextStyles.lato(
-                        fontSize: Get.width * 0.03,
-                        fontWeight: FontWeight.w800,
-                        color: isUser ? Colors.white : Colors.black87,
-                      ),
+                    : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            message,
+                            style: TextStyles.lato(
+                              fontSize: Get.width * 0.03,
+                              fontWeight: FontWeight.w800,
+                              color: isUser ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                        if (!isUser && onPlay != null) ...[
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(Icons.play_arrow, color: Colors.orange),
+                            tooltip: 'Play with Sarvam',
+                            onPressed: onPlay,
+                          ),
+                        ],
+                      ],
                     ),
           ),
         ),
@@ -101,7 +116,7 @@ class MessageBubble extends StatelessWidget {
               : Image.asset(
                 "assets/images/Mains_logo.png",
                 height: Get.width * 0.07,
-                color: Colors.red
+                color: Colors.red,
               ),
     );
   }

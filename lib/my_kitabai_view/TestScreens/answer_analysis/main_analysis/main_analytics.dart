@@ -513,10 +513,11 @@ class _MainAnalyticsState extends State<MainAnalytics>
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: TabBar(
-                              isScrollable: true,
-                              labelPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                              isScrollable: _tabs.length > 3,
+                              labelPadding:
+                                  _tabs.length > 3
+                                      ? EdgeInsets.symmetric(horizontal: 12)
+                                      : EdgeInsets.zero,
                               indicatorColor: Colors.transparent,
                               controller: _tabController,
                               indicator: BoxDecoration(
@@ -531,9 +532,16 @@ class _MainAnalyticsState extends State<MainAnalytics>
                               unselectedLabelColor: Colors.grey.shade600,
                               labelStyle: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: Colors.black,
                               ),
+                              unselectedLabelStyle: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                              tabAlignment:
+                                  _tabs.length > 3 ? TabAlignment.start : null,
                               tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
                             ),
                           ),

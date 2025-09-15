@@ -45,7 +45,9 @@ class _VoiceScreenState extends State<VoiceScreen>
     super.initState();
     print(widget.questionId);
     _initializeController();
+    // Load chat history immediately after controller is ready
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      controller.fetchChatHistory();
       final msg = widget.welcomeAiMessages;
       if (msg != null && msg.isNotEmpty) {
         await Future.delayed(const Duration(milliseconds: 300));
@@ -121,6 +123,11 @@ class _VoiceScreenState extends State<VoiceScreen>
       child: Scaffold(
         backgroundColor: Colors.white,
         drawer: _buildDrawer(),
+        onDrawerChanged: (isOpened) {
+          if (isOpened) {
+            controller.fetchChatHistory();
+          }
+        },
         body: SafeArea(
           child: Container(
             decoration: BoxDecoration(
@@ -272,7 +279,6 @@ class _VoiceScreenState extends State<VoiceScreen>
   }
 
   Widget _buildDrawer() {
-    // Removed: final VoiceController controller = Get.find<VoiceController>();
     // Now using the controller from the state class directly
 
     return Drawer(
@@ -281,261 +287,86 @@ class _VoiceScreenState extends State<VoiceScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
       ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            width: Get.width,
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.only(bottomRight: Radius.circular(20)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.red.shade100,
-                  radius: 32,
-                  child: Icon(
-                    Icons.person,
-                    size: 32,
-                    color: Colors.orange.shade800,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Settings',
-                  style: GoogleFonts.poppins(
-                    color: Colors.red.shade900,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Customize your experience',
-                  style: GoogleFonts.poppins(
-                    color: Colors.orange.shade700,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
+      child: Container(
+        // Match VoiceScreen gradient
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [const Color.fromARGB(255, 247, 201, 127), Colors.white],
           ),
-
-          // Tabs
-          Obx(() {
-            return Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              width: Get.width,
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 2,
-                    offset: Offset(0, 2),
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.red.shade100,
+                    radius: 32,
+                    child: Icon(
+                      Icons.person,
+                      size: 32,
+                      color: Colors.orange.shade800,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Settings',
+                    style: GoogleFonts.poppins(
+                      color: Colors.red.shade900,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Customize your experience',
+                    style: GoogleFonts.poppins(
+                      color: Colors.orange.shade700,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:
-                    ['Voices', 'Languages', 'History'].map((tab) {
-                      final isSelected = controller.selectedTab.value == tab;
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? Colors.red.shade50
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                          border:
-                              isSelected
-                                  ? Border.all(
-                                    color: Colors.orange.shade300,
-                                    width: 1.5,
-                                  )
-                                  : null,
-                        ),
-                        child: GestureDetector(
-                          onTap: () => controller.selectTab(tab),
-                          child: Text(
-                            tab,
-                            style: GoogleFonts.poppins(
-                              color:
-                                  isSelected
-                                      ? Colors.orange.shade800
-                                      : Colors.grey.shade700,
-                              fontWeight:
-                                  isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+            ),
+
+            // Remove tab bar, add heading instead
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 16.0,
+                horizontal: 16.0,
               ),
-            );
-          }),
+              child: Row(
+                children: [
+                  Icon(Icons.history, color: Colors.red.shade600, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'History',
+                    style: GoogleFonts.poppins(
+                      color: Colors.red.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-          // Tab Content - Made scrollable and properly constrained
-          Expanded(
-            child: Obx(() {
-              final selected = controller.selectedTab.value;
-
-              if (selected == 'History') {
-                // History tab - show chat history
-                return _buildHistoryContent();
-              }
-
-              if (selected == 'Chat') {
-                // Chat tab - show chat messages
-                return _buildChatContent();
-              }
-
-              final items = controller.tabData[selected] ?? [];
-              return ListView.separated(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                itemCount: items.length,
-                separatorBuilder:
-                    (_, __) => Divider(height: 1, color: Colors.grey.shade200),
-                itemBuilder: (_, index) {
-                  final item = items[index];
-                  if (selected == 'Voices') {
-                    return Obx(() {
-                      final selectedKey = controller.voiceMapping.keys
-                          .firstWhere(
-                            (key) =>
-                                controller.voiceMapping[key] ==
-                                controller.selectedVoice.value,
-                            orElse: () => '',
-                          );
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color:
-                              item == selectedKey
-                                  ? Colors.red.shade50
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          title: Text(
-                            item,
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  item == selectedKey
-                                      ? Colors.red.shade800
-                                      : Colors.grey.shade800,
-                            ),
-                          ),
-                          trailing: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color:
-                                    item == selectedKey
-                                        ? Colors.red.shade600
-                                        : Colors.grey.shade400,
-                                width: 2,
-                              ),
-                            ),
-                            child:
-                                item == selectedKey
-                                    ? Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.red.shade600,
-                                    )
-                                    : null,
-                          ),
-                          onTap: () => controller.selectVoice(item),
-                        ),
-                      );
-                    });
-                  } else if (selected == 'Languages') {
-                    return Obx(() {
-                      final selectedKey = controller.languageMapping.keys
-                          .firstWhere(
-                            (key) =>
-                                controller.languageMapping[key] ==
-                                controller.selectedLanguageLabel.value,
-                            orElse: () => '',
-                          );
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color:
-                              item == selectedKey
-                                  ? Colors.red.shade50
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          leading: Icon(
-                            Icons.language,
-                            color: Colors.red.shade600,
-                          ),
-                          title: Text(
-                            item,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  item == selectedKey
-                                      ? Colors.red.shade800
-                                      : Colors.grey.shade800,
-                            ),
-                          ),
-                          trailing: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color:
-                                    item == selectedKey
-                                        ? Colors.red.shade600
-                                        : Colors.grey.shade400,
-                                width: 2,
-                              ),
-                            ),
-                            child:
-                                item == selectedKey
-                                    ? Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.red.shade600,
-                                    )
-                                    : null,
-                          ),
-                          onTap: () => controller.selectLanguage(item),
-                        ),
-                      );
-                    });
-                  }
-                },
-              );
-            }),
-          ),
-        ],
+            // Tab Content - Only show History content
+            Expanded(child: _buildHistoryContent()),
+          ],
+        ),
       ),
     );
   }
@@ -1144,6 +975,11 @@ class _VoiceScreenState extends State<VoiceScreen>
                 message: message['message'] ?? '',
                 isUser: isUser,
                 theme: theme,
+                onPlay:
+                    !isUser
+                        ? () =>
+                            controller.playSarvamTTS(message['message'] ?? '')
+                        : null,
               ),
             );
           }

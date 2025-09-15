@@ -12,27 +12,135 @@ class QuestionAnswerPage extends StatefulWidget {
 
 class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   final TextEditingController _questionController = TextEditingController();
-  final List<File> _selectedImages = [];
+  final List<File> _questionImages = [];
+  final List<File> _answerImages = [];
+  bool _showQuestionTextField = false;
 
-  Future<void> _pickImages() async {
+  Future<void> _pickImagesForQuestion() async {
     final List<XFile> pickedFiles = await ImagePicker().pickMultiImage();
     if (pickedFiles.isNotEmpty) {
       setState(() {
-        _selectedImages.addAll(pickedFiles.map((file) => File(file.path)));
+        _questionImages.addAll(pickedFiles.map((file) => File(file.path)));
       });
     }
   }
 
-  Future<void> _pickFromCamera() async {
+  Future<void> _pickImagesForAnswer() async {
+    final List<XFile> pickedFiles = await ImagePicker().pickMultiImage();
+    if (pickedFiles.isNotEmpty) {
+      setState(() {
+        _answerImages.addAll(pickedFiles.map((file) => File(file.path)));
+      });
+    }
+  }
+
+  Future<void> _pickFromCameraForQuestion() async {
     final XFile? photo = await ImagePicker().pickImage(
       source: ImageSource.camera,
     );
-
     if (photo != null) {
       setState(() {
-        _selectedImages.add(File(photo.path));
+        _questionImages.add(File(photo.path));
       });
     }
+  }
+
+  Future<void> _pickFromCameraForAnswer() async {
+    final XFile? photo = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    if (photo != null) {
+      setState(() {
+        _answerImages.add(File(photo.path));
+      });
+    }
+  }
+
+  void _openImagePickerSheetForQuestion() {
+    _openImagePickerSheet(
+      onGallery: _pickImagesForQuestion,
+      onCamera: _pickFromCameraForQuestion,
+    );
+  }
+
+  void _openImagePickerSheetForAnswer() {
+    _openImagePickerSheet(
+      onGallery: _pickImagesForAnswer,
+      onCamera: _pickFromCameraForAnswer,
+    );
+  }
+
+  void _openImagePickerSheet({
+    required Future<void> Function() onGallery,
+    required Future<void> Function() onCamera,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Add Images",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _BottomSheetTile(
+                        icon: Icons.photo_library_rounded,
+                        label: "Gallery",
+                        color: CustomColors.meeting,
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await onGallery();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _BottomSheetTile(
+                        icon: Icons.camera_alt_rounded,
+                        label: "Camera",
+                        color: Colors.orange.shade600,
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await onCamera();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -51,7 +159,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
         ),
         elevation: 0,
         title: Text(
-          'Question & Answer',
+          'Add Question Answer',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -88,51 +196,156 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Question",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue.shade600,
-                      ),
+                    Row(
+                      children: [
+                        Icon(Icons.help_outline, color: Colors.blue.shade600),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Add Question",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.blue.shade600,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _questionController,
-                      maxLines: 6,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey.shade800,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Write your question here...",
-                        hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                        contentPadding: const EdgeInsets.all(14),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: Text(
+                            _showQuestionTextField ? "Text (On)" : "Text",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  _showQuestionTextField
+                                      ? Colors.white
+                                      : Colors.blue.shade700,
+                            ),
+                          ),
+                          selected: _showQuestionTextField,
+                          selectedColor: Colors.blueAccent,
+                          backgroundColor: Colors.blue.shade50,
+                          onSelected: (v) {
+                            setState(() {
+                              _showQuestionTextField = v;
+                            });
+                          },
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue.shade400),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                        if (!_showQuestionTextField)
+                          ChoiceChip(
+                            label: Text(
+                              "Upload Image",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                            selected: false,
+                            backgroundColor: Colors.green.shade50,
+                            onSelected:
+                                (_) => _openImagePickerSheetForQuestion(),
+                          ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _ThemedButton(
-                        icon: Icons.image_search,
-                        label: "Upload Image",
-                        color: CustomColors.meeting,
-                        onTap: () {},
+                    if (_showQuestionTextField) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _questionController,
+                        maxLines: 6,
+                        maxLength: 500,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey.shade800,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Write your question here...",
+                          hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                          counterStyle: GoogleFonts.poppins(fontSize: 10),
+                          contentPadding: const EdgeInsets.all(14),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue.shade400),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
+                    if (_questionImages.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                        itemCount: _questionImages.length,
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    _questionImages[index],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _questionImages.removeAt(index);
+                                    });
+                                  },
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -154,15 +367,17 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                   ],
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Icon(Icons.image, color: Colors.orange.shade600),
                         const SizedBox(width: 8),
                         Text(
-                          "Answer Images",
+                          "Add Answer Images",
                           style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             fontSize: 14,
                             color: Colors.grey.shade800,
                           ),
@@ -170,7 +385,8 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _selectedImages.isNotEmpty
+
+                    _answerImages.isNotEmpty
                         ? GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -180,17 +396,29 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                                 crossAxisSpacing: 12,
                                 mainAxisSpacing: 12,
                               ),
-                          itemCount: _selectedImages.length,
+                          itemCount: _answerImages.length,
                           itemBuilder: (context, index) {
                             return Stack(
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    _selectedImages[index],
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      _answerImages[index],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -199,7 +427,7 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                                   child: GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        _selectedImages.removeAt(index);
+                                        _answerImages.removeAt(index);
                                       });
                                     },
                                     child: Container(
@@ -241,28 +469,13 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
                             ],
                           ),
                         ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ThemedButton(
-                            icon: Icons.photo_library,
-                            label: "Gallery",
-                            color: CustomColors.meeting,
-                            onTap: _pickImages,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _ThemedButton(
-                            icon: Icons.camera_alt,
-                            label: "Camera",
-                            color: Colors.orange.shade600,
-                            onTap: _pickFromCamera,
-                          ),
-                        ),
-                      ],
+                    _BottomSheetTile(
+                      icon: Icons.upload_file,
+                      label: "Upload Image",
+                      color: Colors.orange.shade600,
+                      onTap: _openImagePickerSheetForAnswer,
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -279,21 +492,24 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
           child: Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [
-                  Color(0xFFFFC107),
-                  Color.fromARGB(255, 236, 87, 87),
-                ],
+                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
               borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFC107).withOpacity(0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: FloatingActionButton.extended(
-              backgroundColor: Colors.transparent, // important
-              elevation: 0, // let container shadow handle elevation
+              backgroundColor: Colors.transparent,
+              elevation: 0,
               onPressed: () {
                 debugPrint("✅ Submit pressed");
-                // TODO: Add your submit logic
               },
               icon: const Icon(Icons.check, color: Colors.white),
               label: Text(
@@ -314,13 +530,13 @@ class _QuestionAnswerPageState extends State<QuestionAnswerPage> {
   }
 }
 
-class _ThemedButton extends StatelessWidget {
+class _BottomSheetTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
 
-  const _ThemedButton({
+  const _BottomSheetTile({
     required this.icon,
     required this.label,
     required this.color,
@@ -330,26 +546,24 @@ class _ThemedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: color.withOpacity(0.1),
       borderRadius: BorderRadius.circular(12),
-      color: color,
-      elevation: 1,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          height: 45,
-          alignment: Alignment.center,
+          height: 54,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
+              Icon(icon, color: color),
+              const SizedBox(width: 10),
               Text(
                 label,
                 style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  color: color,
                 ),
               ),
             ],

@@ -18,6 +18,23 @@ class _AnalysisState extends State<Analysis> {
   late AnalysisController controller;
   String _selectedLanguage = 'english';
 
+  bool _hasHindiEvaluationAvailable(MainAnalyticsController mainCtrl) {
+    final hindiEval =
+        mainCtrl.answerAnalysis.value?.data?.answer?.hindiEvaluation;
+    if (hindiEval == null) return false;
+    final analysis = hindiEval.analysis;
+    final hasAnyAnalysis =
+        (analysis?.introduction?.isNotEmpty ?? false) ||
+        (analysis?.body?.isNotEmpty ?? false) ||
+        (analysis?.conclusion?.isNotEmpty ?? false) ||
+        (analysis?.strengths?.isNotEmpty ?? false) ||
+        (analysis?.weaknesses?.isNotEmpty ?? false) ||
+        (analysis?.suggestions?.isNotEmpty ?? false) ||
+        (analysis?.feedback?.isNotEmpty ?? false);
+    final hasComments = hindiEval.comments?.isNotEmpty ?? false;
+    return hasAnyAnalysis || hasComments;
+  }
+
   final Map<String, Color> ratingColors = {
     "Excellent": Colors.green,
     "Good": Colors.lightGreen,
@@ -823,6 +840,10 @@ class _AnalysisState extends State<Analysis> {
   @override
   void initState() {
     controller = Get.put(AnalysisController());
+    // Decide default language based on availability of Hindi evaluation data
+    final mainCtrl = Get.find<MainAnalyticsController>();
+    final hasHindi = _hasHindiEvaluationAvailable(mainCtrl);
+    _selectedLanguage = hasHindi ? 'hindi' : 'english';
     super.initState();
   }
 
@@ -1473,20 +1494,13 @@ class _AnalysisState extends State<Analysis> {
 
   Widget _buildLanguageToggle() {
     final bool isHindi = _selectedLanguage == 'hindi';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ChoiceChip(
-          label: Text(
-            'English',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-          ),
-          selected: !isHindi,
-          onSelected: (v) {
-            if (v) setState(() => _selectedLanguage = 'english');
-          },
-        ),
-        const SizedBox(width: 12),
+    final mainCtrl = Get.find<MainAnalyticsController>();
+    final bool hasHindi = _hasHindiEvaluationAvailable(mainCtrl);
+
+    // Build chips dynamically: if Hindi available → show Hindi first, then English.
+    final List<Widget> chips = [];
+    if (hasHindi) {
+      chips.addAll([
         ChoiceChip(
           label: Text(
             'हिन्दी',
@@ -1497,7 +1511,32 @@ class _AnalysisState extends State<Analysis> {
             if (v) setState(() => _selectedLanguage = 'hindi');
           },
         ),
-      ],
-    );
+        const SizedBox(width: 12),
+        ChoiceChip(
+          label: Text(
+            'English',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+          selected: !isHindi,
+          onSelected: (v) {
+            if (v) setState(() => _selectedLanguage = 'english');
+          },
+        ),
+      ]);
+    } else {
+      // Only English available
+      chips.add(
+        ChoiceChip(
+          label: Text(
+            'English',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+          selected: true,
+          onSelected: (_) {},
+        ),
+      );
+    }
+
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: chips);
   }
 }

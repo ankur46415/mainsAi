@@ -68,6 +68,7 @@ dependencies:
   exif:
   image:
   cached_network_image:
+  syncfusion_flutter_pdfviewer: ^31.1.19
 
 flutter_launcher_icons:
   android: "launcher_icon"
