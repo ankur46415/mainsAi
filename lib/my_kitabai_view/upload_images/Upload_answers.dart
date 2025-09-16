@@ -25,7 +25,7 @@ class _UploadAnswersState extends State<UploadAnswers> {
   @override
   void initState() {
     super.initState();
-    controller = Get.put(UploadAnswersController());
+    controller = Get.put(UploadAnswersController(), permanent: true);
     print("widget.questionId : ${widget.questionId}");
     if (widget.questionId != null) {
       controller.setQuestionId(widget.questionId);

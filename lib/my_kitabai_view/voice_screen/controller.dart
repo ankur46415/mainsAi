@@ -673,6 +673,24 @@ class VoiceController extends GetxController {
     }
   }
 
+  // Helper to split text into safe chunks (~400 characters each)
+  List<String> _splitTextIntoChunks(String text, {int maxLength = 400}) {
+    final words = text.split(' ');
+    List<String> chunks = [];
+    String current = '';
+
+    for (final word in words) {
+      if ((current + ' ' + word).trim().length > maxLength) {
+        chunks.add(current.trim());
+        current = word;
+      } else {
+        current += ' $word';
+      }
+    }
+    if (current.isNotEmpty) chunks.add(current.trim());
+    return chunks;
+  }
+
   Future<void> callSarvamForTTS(String text) async {
     if (ttsMode.value == 'flutter') {
       await callFlutterTts(text);
@@ -683,80 +701,81 @@ class VoiceController extends GetxController {
 
     // Always use a male voice for Sarvam
     selectedVoice.value = 'karun';
-
     const apiUrl = "https://api.sarvam.ai/text-to-speech";
     apiKey = servamKey;
 
-    final requestBody = {
-      "text": text,
-      "speaker": selectedVoice.value,
-      "model": "bulbul:v2",
-      "target_language_code": selectedLanguageLabel.value,
-    };
+    // Break text into smaller chunks
+    final chunks = _splitTextIntoChunks(text);
+    debugPrint("🔊 [Sarvam] Total chunks to send: ${chunks.length}");
 
     try {
       isFetchingTts.value = true;
-      debugPrint("🔊 [Sarvam] Sending request to Sarvam API...");
-      debugPrint("🔊 [Sarvam] Text to convert: $text");
-      debugPrint("🔊 [Sarvam] Speaker: ${selectedVoice.value}");
-      debugPrint("🔊 [Sarvam] Language: ${selectedLanguageLabel.value}");
-      debugPrint(
-        "🔊 [Sarvam] API Key: ${apiKey != null ? 'Present' : 'Missing'}",
-      );
+      isPlayingResponse.value = true;
 
-      final response = await http
-          .post(
-            Uri.parse(apiUrl),
-            headers: {
-              "Content-Type": "application/json",
-              "api-subscription-key": apiKey.toString(),
-            },
-            body: jsonEncode(requestBody),
-          )
-          .timeout(const Duration(seconds: 10));
+      for (int i = 0; i < chunks.length; i++) {
+        final chunk = chunks[i];
+        final requestBody = {
+          "text": chunk,
+          "speaker": selectedVoice.value,
+          "model": "bulbul:v2",
+          "target_language_code": selectedLanguageLabel.value,
+        };
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        // 🖨️ Log request body
+        debugPrint("🔊 [Sarvam] Sending chunk ${i + 1}/${chunks.length}");
+        debugPrint("🔊 [Sarvam] Request Body: ${jsonEncode(requestBody)}");
 
-        if (responseData['audios'] != null &&
-            responseData['audios'].isNotEmpty) {
-          final audioBase64 = responseData['audios'][0];
-          try {
+        final response = await http
+            .post(
+              Uri.parse(apiUrl),
+              headers: {
+                "Content-Type": "application/json",
+                "api-subscription-key": apiKey.toString(),
+              },
+              body: jsonEncode(requestBody),
+            )
+            .timeout(const Duration(seconds: 20));
+
+        debugPrint("🔊 [Sarvam] Response Status: ${response.statusCode}");
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          if (responseData['audios'] != null &&
+              responseData['audios'].isNotEmpty) {
+            final audioBase64 = responseData['audios'][0];
             final audioBytes = base64Decode(audioBase64);
             final directory = await getTemporaryDirectory();
             final tempFile = File(
               '${directory.path}/audio_${DateTime.now().millisecondsSinceEpoch}.wav',
             );
             await tempFile.writeAsBytes(audioBytes);
+
             await _clearTemporaryFiles();
             await player?.setFilePath(tempFile.path);
-            isFetchingTts.value = false;
-            isPlayingResponse.value = true;
             await player?.play();
-          } catch (e) {
-            debugPrint("Error processing audio data: $e");
-            isFetchingTts.value = false;
-            await callFlutterTts(text); // Fallback to Flutter TTS
+            await player?.playerStateStream.firstWhere(
+              (s) => s.processingState == ProcessingState.completed,
+            );
+          } else {
+            debugPrint("No audio data found for chunk ${i + 1}");
           }
+        } else if (response.statusCode == 401) {
+          debugPrint("Sarvam API key exhausted (401)");
+          await sendIsExpiredFlagLLM();
+          await callFlutterTts(chunk); // Fallback for this chunk
         } else {
-          debugPrint("No audio data found in response");
-          isFetchingTts.value = false;
-          await callFlutterTts(text); // Fallback to Flutter TTS
+          debugPrint("Sarvam API Error: ${response.statusCode}");
+          await callFlutterTts(chunk); // Fallback for this chunk
         }
-      } else if (response.statusCode == 401) {
-        debugPrint("Sarvam API key exhausted (401)");
-        await sendIsExpiredFlagLLM();
-        isFetchingTts.value = false;
-        await callFlutterTts(text); // Fallback to Flutter TTS
-      } else {
-        debugPrint("Sarvam API Error: ${response.statusCode}");
-        isFetchingTts.value = false;
-        await callFlutterTts(text); // Fallback to Flutter TTS
       }
+
+      isFetchingTts.value = false;
+      isPlayingResponse.value = false;
     } catch (e) {
       debugPrint("Sarvam API Exception: $e");
       isFetchingTts.value = false;
-      await callFlutterTts(text); // Fallback to Flutter TTS
+      isPlayingResponse.value = false;
+      await callFlutterTts(text); // Fallback for full text
     }
   }
 

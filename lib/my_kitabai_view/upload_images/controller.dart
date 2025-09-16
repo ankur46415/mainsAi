@@ -196,7 +196,9 @@ class UploadAnswersController extends GetxController {
         final fileSize = await tempFile.length();
         if (fileSize > 10 * 1024 * 1024) {
           Get.snackbar('Warning', 'Image file is too large. Skipped.');
-          await tempFile.delete().catchError((_) {});
+          try {
+            await tempFile.delete();
+          } catch (_) {}
           continue;
         }
 
@@ -474,9 +476,8 @@ class UploadAnswersController extends GetxController {
               isError: false,
             );
             Get.find<MainTestScreenController>().getAllSubmittedAnswers();
-            Future.delayed(const Duration(milliseconds: 2000), () {
-              if (Get.isDialogOpen ?? false) Get.back(closeOverlays: true);
-            });
+            // Keep the progress card visible until _clearStatusAfterDelay clears it
+            // Do not immediately close any dialog here
             // Clear status after 5 seconds
             _clearStatusAfterDelay();
             break;
