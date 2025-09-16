@@ -118,14 +118,28 @@ class MessageBubble extends StatelessWidget {
                     Positioned(
                       right: -30,
                       child: Obx(() {
+                        final vc = controller;
+                        if (vc == null) {
+                          return const SizedBox.shrink();
+                        }
                         final isSame =
-                            controller!.currentPlayingMessage.value == message;
-                        final isPlaying =
-                            controller!.isPlayingResponse.value && isSame;
+                            vc.currentPlayingMessage.value == message;
+                        final isPlaying = vc.isPlayingResponse.value && isSame;
+                        final isFetching = vc.isFetchingTts.value && isSame;
+                        if (isFetching) {
+                          return SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.blue,
+                            ),
+                          );
+                        }
                         return Icon(
                           isPlaying
                               ? Icons.stop_circle_outlined
-                              : Icons.play_circle_fill,
+                              : Icons.volume_up,
                           color: isPlaying ? Colors.red : Colors.blue,
                           size: 28,
                         );

@@ -147,7 +147,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                 CachedNetworkImage(
                                                   imageUrl:
                                                       book.image_url ?? '',
-                                                  fit: BoxFit.cover,
+                                                  fit: BoxFit.fill,
                                                   width: double.infinity,
                                                   errorWidget:
                                                       (
@@ -172,11 +172,55 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         ),
                                                       ),
                                                 ),
-                                                // Enrollment/Paid indicator
+                                                // Paid/Enrolled indicator
                                                 if ((book as dynamic)
-                                                            .isEnrolled ==
-                                                        true ||
-                                                    book.isPaid == true)
+                                                        .isEnrolled ==
+                                                    true)
+                                                  Positioned(
+                                                    bottom: 8,
+                                                    left: 8,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withValues(
+                                                                  alpha: 0.3,
+                                                                ),
+                                                            blurRadius: 4,
+                                                            offset:
+                                                                const Offset(
+                                                                  0,
+                                                                  2,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Text(
+                                                        'ENROLLED',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                else if (book.isPaid == true)
                                                   Positioned(
                                                     bottom: 8,
                                                     left: 8,
@@ -208,11 +252,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                         ],
                                                       ),
                                                       child: Text(
-                                                        ((book as dynamic)
-                                                                    .isEnrolled ==
-                                                                true)
-                                                            ? 'ENROLLED'
-                                                            : 'PAID',
+                                                        'PAID',
                                                         style:
                                                             GoogleFonts.poppins(
                                                               fontSize: 10,
@@ -329,7 +369,12 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                           vertical: 4,
                                                         ),
                                                     decoration: BoxDecoration(
-                                                      color: Colors.red,
+                                                      color:
+                                                          ((book as dynamic)
+                                                                      .isEnrolled ==
+                                                                  true)
+                                                              ? Colors.green
+                                                              : Colors.red,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                             12,
@@ -784,8 +829,12 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                                                                     ),
                                                                     decoration: BoxDecoration(
                                                                       color:
-                                                                          Colors
-                                                                              .red,
+                                                                          ((book
+                                                                                          as dynamic)
+                                                                                      .isEnrolled ==
+                                                                                  true)
+                                                                              ? Colors.green
+                                                                              : Colors.red,
                                                                       borderRadius:
                                                                           BorderRadius.circular(
                                                                             12,

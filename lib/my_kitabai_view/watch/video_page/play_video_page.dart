@@ -52,7 +52,7 @@ class _PlayVideoPageState extends State<PlayVideoPage> {
               length: 3,
               child: Column(
                 children: [
-                SizedBox(height: Get.width*0.02,),
+                  SizedBox(height: Get.width * 0.02),
                   Stack(
                     children: [
                       AspectRatio(

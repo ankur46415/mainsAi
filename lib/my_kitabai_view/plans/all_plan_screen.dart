@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/common/loading_widget.dart';
-
 import '../../app_routes.dart';
 import '../../model/course_plans.dart';
 import 'controller/all_plan_controller.dart';
@@ -111,9 +110,15 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
             : 0;
 
     return InkWell(
-      onTap: () {
-        Get.toNamed(AppRoutes.specificCourse, arguments: {'planId': plan.sId});
-      },
+      onTap:
+          (plan.isEnrolled == true)
+              ? null
+              : () {
+                Get.toNamed(
+                  AppRoutes.specificCourse,
+                  arguments: {'planId': plan.sId},
+                );
+              },
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
@@ -314,38 +319,60 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                     const SizedBox(height: 16),
 
                     // Buy Now button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.toNamed(
-                            AppRoutes.specificCourse,
-                            arguments: {'planId': plan.sId},
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            165,
-                            159,
-                            143,
+                    (plan.isEnrolled == true)
+                        ? SizedBox(
+                          width: double.infinity,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Already purchased',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green[800],
+                                ),
+                              ),
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        )
+                        : SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Get.toNamed(
+                                AppRoutes.specificCourse,
+                                arguments: {'planId': plan.sId},
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                165,
+                                159,
+                                143,
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'View Details',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                          elevation: 0,
                         ),
-                        child: Text(
-                          'View Details',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

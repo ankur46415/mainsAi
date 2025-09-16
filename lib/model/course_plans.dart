@@ -41,6 +41,7 @@ class Data {
   int? duration;
   String? imageKey;
   String? videoKey;
+  bool? isEnrolled;
 
   Data(
       {this.category,
@@ -58,7 +59,8 @@ class Data {
       this.iV,
       this.duration,
       this.imageKey,
-      this.videoKey});
+      this.videoKey,
+      this.isEnrolled});
 
   Data.fromJson(Map<String, dynamic> json) {
     category = json['category'];
@@ -82,6 +84,7 @@ class Data {
     duration = json['duration'];
     imageKey = json['imageKey'];
     videoKey = json['videoKey'];
+    isEnrolled = json['isEnrolled'];
   }
 
   Map<String, dynamic> toJson() {
@@ -104,6 +107,7 @@ class Data {
     data['duration'] = this.duration;
     data['imageKey'] = this.imageKey;
     data['videoKey'] = this.videoKey;
+    data['isEnrolled'] = this.isEnrolled;
     return data;
   }
 }

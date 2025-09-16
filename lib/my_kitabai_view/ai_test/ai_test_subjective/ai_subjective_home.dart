@@ -289,7 +289,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                             itemBuilder: (context, imgIndex) {
                                               return Image.network(
                                                 images[imgIndex],
-                                                fit: BoxFit.cover,
+                                                fit: BoxFit.fill,
                                               );
                                             },
                                           ),
@@ -297,7 +297,9 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.4),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.4,
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -330,6 +332,8 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                       test.imageUrl ??
                                       'https://picsum.photos/300/200',
                                   isPaid: test.isPaid,
+                                  isEnrolled:
+                                      test.userTestStatus?.status == 'enrolled',
                                 ),
                               );
                             },
@@ -357,7 +361,11 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
     );
   }
 
-  Widget _buildTestCard({required String imageUrl, bool? isPaid}) {
+  Widget _buildTestCard({
+    required String imageUrl,
+    bool? isPaid,
+    bool? isEnrolled,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Stack(
@@ -367,7 +375,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
             imageUrl: imageUrl,
             height: double.infinity,
             width: double.infinity,
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
             placeholder:
                 (context, url) => Container(
                   color: Colors.grey[300],
@@ -386,13 +394,43 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset("assets/images/bookb.png", color: Colors.grey),
+                      Image.asset(
+                        "assets/images/bookb.png",
+                        color: Colors.grey,
+                      ),
                     ],
                   ),
                 ),
           ),
-          // Paid indicator - only show when isPaid is true
-          if (isPaid == true)
+          // Paid indicator - only show when isEnrolled or isPaid is true
+          if (isEnrolled == true)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'ENROLLED',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            )
+          else if (isPaid == true)
             Positioned(
               bottom: 8,
               left: 8,

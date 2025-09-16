@@ -231,7 +231,7 @@ class _TestCategoriesObjectivePageState
                                               itemBuilder: (context, imgIndex) {
                                                 return Image.network(
                                                   images[imgIndex],
-                                                  fit: BoxFit.cover,
+                                                  fit: BoxFit.fill,
                                                 );
                                               },
                                             ),
@@ -303,7 +303,7 @@ class _TestCategoriesObjectivePageState
             imageUrl ?? 'https://picsum.photos/200/300',
             height: double.infinity,
             width: double.infinity,
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
             errorBuilder:
                 (context, error, stackTrace) => Container(
                   color: Colors.grey[300],

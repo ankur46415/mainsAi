@@ -32,6 +32,7 @@ class WorkBookBookDetailes {
 class Workbook {
   String? language;
   bool? isPaid;
+  bool? isEnrolled;
   num? rating;
   num? ratingCount;
   List<dynamic>? conversations;
@@ -136,6 +137,7 @@ class Workbook {
     this.trendingByUser,
     this.categoryOrderByUser,
     this.isMyWorkbookAdded,
+    this.isEnrolled,
   });
 
   Workbook.fromJson(Map<String, dynamic> json) {
@@ -143,6 +145,7 @@ class Workbook {
     publisher = json['publisher'];
     author = json['author'];
     isPaid = json['isPaid'] as bool?;
+    isEnrolled = json['isEnrolled'] as bool?;
     rating = json['rating'];
     ratingCount = json['ratingCount'];
     conversations = json['conversations'];
@@ -210,6 +213,7 @@ class Workbook {
     'language': language,
     'publisher': publisher,
     'isPaid': isPaid,
+    'isEnrolled': isEnrolled,
     'author': author,
     'rating': rating,
     'ratingCount': ratingCount,

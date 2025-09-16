@@ -165,7 +165,9 @@ class WorkBookPagesForTest extends StatelessWidget {
         body: TabBarView(
           children: [
             Obx(() {
-              final uploadController = Get.find<UploadAnswersController>();
+              final uploadController = Get.isRegistered<UploadAnswersController>()
+                  ? Get.find<UploadAnswersController>()
+                  : null;
               if (controller.isLoading.value) {
                 return Center(
                   child: CircularProgressIndicator(color: primaryRed),
@@ -203,18 +205,18 @@ class WorkBookPagesForTest extends StatelessWidget {
                       .values
                       .toList();
 
-              final shouldShowProgressCard =
-                  uploadController.isUploadingToServer.value ||
-                  (uploadController.uploadStatus.value.isNotEmpty &&
-                      (uploadController.uploadStatus.value
-                              .toLowerCase()
-                              .contains('success') ||
-                          uploadController.uploadStatus.value
-                              .toLowerCase()
-                              .contains('fail') ||
-                          uploadController.uploadStatus.value
-                              .toLowerCase()
-                              .contains('error')));
+              final bool shouldShowProgressCard = uploadController != null &&
+                  (uploadController.isUploadingToServer.value ||
+                      (uploadController.uploadStatus.value.isNotEmpty &&
+                          (uploadController.uploadStatus.value
+                                  .toLowerCase()
+                                  .contains('success') ||
+                              uploadController.uploadStatus.value
+                                  .toLowerCase()
+                                  .contains('fail') ||
+                              uploadController.uploadStatus.value
+                                  .toLowerCase()
+                                  .contains('error'))));
 
               final totalCount =
                   uniqueWorkbooks.length + (shouldShowProgressCard ? 1 : 0);

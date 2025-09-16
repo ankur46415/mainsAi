@@ -344,7 +344,34 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
           Row(
             children: [
               Spacer(),
-              if (bookData.isPaid == true) ...[
+              if (bookData.isEnrolled == true) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'ENROLLED',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: Get.width * 0.02),
+              ] else if (bookData.isPaid == true) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,

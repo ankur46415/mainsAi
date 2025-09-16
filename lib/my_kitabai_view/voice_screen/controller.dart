@@ -32,6 +32,7 @@ class VoiceController extends GetxController {
   final RxBool isPlayingResponse = false.obs;
   final RxString currentPlayingMessage = ''.obs;
   final RxDouble currentSoundLevel = 0.0.obs;
+  final RxBool isFetchingTts = false.obs;
   String userTextInput = '';
   String aiReply = '';
   bool _isSpeechInitialized = false;
@@ -582,6 +583,7 @@ class VoiceController extends GetxController {
 
   Future<void> callLmntForTTS(String text) async {
     await stopCurrentResponse();
+    isFetchingTts.value = true;
 
     const String apiKey = 'ak_k5oc5g5R5QQ6GvfntiwYcn';
     const String voice = 'nova';
@@ -628,6 +630,7 @@ class VoiceController extends GetxController {
         onError: (error) async {
           debugPrint("🛑 LMNT WS error: $error");
           await sink.close();
+          isFetchingTts.value = false;
           if (!playbackAttempted) {
             playbackAttempted = true;
             await callFlutterTts(text);
@@ -642,14 +645,17 @@ class VoiceController extends GetxController {
             await _clearTemporaryFiles();
             if (await outFile.exists() && await outFile.length() > 44) {
               await ttsPlayer.setFilePath(outFile.path);
+              isFetchingTts.value = false;
               isPlayingResponse.value = true;
               await ttsPlayer.play();
             } else {
               debugPrint("❌ Audio empty or corrupted");
+              isFetchingTts.value = false;
               await callFlutterTts(text);
             }
           } catch (e) {
             debugPrint("🎧 Playback error: $e");
+            isFetchingTts.value = false;
             await callFlutterTts(text);
           }
           _reinitializeSpeech();
@@ -660,6 +666,7 @@ class VoiceController extends GetxController {
       debugPrint("❌ Exception: $e");
       if (!playbackAttempted) {
         playbackAttempted = true;
+        isFetchingTts.value = false;
         await callFlutterTts(text);
       }
       _reinitializeSpeech();
@@ -674,6 +681,9 @@ class VoiceController extends GetxController {
 
     await stopCurrentResponse();
 
+    // Always use a male voice for Sarvam
+    selectedVoice.value = 'karun';
+
     const apiUrl = "https://api.sarvam.ai/text-to-speech";
     apiKey = servamKey;
 
@@ -685,6 +695,7 @@ class VoiceController extends GetxController {
     };
 
     try {
+      isFetchingTts.value = true;
       debugPrint("🔊 [Sarvam] Sending request to Sarvam API...");
       debugPrint("🔊 [Sarvam] Text to convert: $text");
       debugPrint("🔊 [Sarvam] Speaker: ${selectedVoice.value}");
@@ -719,32 +730,39 @@ class VoiceController extends GetxController {
             await tempFile.writeAsBytes(audioBytes);
             await _clearTemporaryFiles();
             await player?.setFilePath(tempFile.path);
+            isFetchingTts.value = false;
             isPlayingResponse.value = true;
             await player?.play();
           } catch (e) {
             debugPrint("Error processing audio data: $e");
+            isFetchingTts.value = false;
             await callFlutterTts(text); // Fallback to Flutter TTS
           }
         } else {
           debugPrint("No audio data found in response");
+          isFetchingTts.value = false;
           await callFlutterTts(text); // Fallback to Flutter TTS
         }
       } else if (response.statusCode == 401) {
         debugPrint("Sarvam API key exhausted (401)");
         await sendIsExpiredFlagLLM();
+        isFetchingTts.value = false;
         await callFlutterTts(text); // Fallback to Flutter TTS
       } else {
         debugPrint("Sarvam API Error: ${response.statusCode}");
+        isFetchingTts.value = false;
         await callFlutterTts(text); // Fallback to Flutter TTS
       }
     } catch (e) {
       debugPrint("Sarvam API Exception: $e");
+      isFetchingTts.value = false;
       await callFlutterTts(text); // Fallback to Flutter TTS
     }
   }
 
   Future<void> callFlutterTts(String text) async {
     await stopCurrentResponse();
+    isFetchingTts.value = false;
     try {
       await flutterTts.setLanguage(selectedLanguageLabel.value);
       await flutterTts.speak(text);

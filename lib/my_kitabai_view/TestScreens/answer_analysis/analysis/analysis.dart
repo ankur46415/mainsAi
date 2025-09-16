@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// charts import removed as not used
 import 'analysis_controller.dart';
 import '../main_analysis/main_analytics_controller.dart';
 
@@ -1069,15 +1069,12 @@ class _AnalysisState extends State<Analysis> {
           final evaluation = isHindi ? null : answer?.evaluation;
           final hindiEvaluation = isHindi ? answer?.hindiEvaluation : null;
 
-          final accuracy = isHindi ? 0 : (evaluation?.accuracy ?? 0);
+          // accuracy not used in current UI
           final score =
               isHindi
                   ? (hindiEvaluation?.score ?? 0)
                   : (evaluation?.score ?? 0);
-          final relevency =
-              isHindi
-                  ? (hindiEvaluation?.relevancy ?? 0)
-                  : (evaluation?.relevancy ?? 0);
+          // relevency not used in current UI
           final maximumMarks =
               controller
                   .answerAnalysis
@@ -1088,20 +1085,9 @@ class _AnalysisState extends State<Analysis> {
                   ?.metadata
                   ?.maximumMarks ??
               0;
-          final scoreNum =
-              score is num ? score : num.tryParse(score.toString()) ?? 0;
-          final maxMarksNum =
-              maximumMarks is num
-                  ? maximumMarks
-                  : num.tryParse(maximumMarks.toString()) ?? 1;
+          final scoreNum = num.tryParse(score.toString()) ?? 0;
+          final maxMarksNum = num.tryParse(maximumMarks.toString()) ?? 1;
           final progressValue = (scoreNum / maxMarksNum).clamp(0.0, 1.0);
-
-          String getRatingText(int accuracy) {
-            if (accuracy >= 90) return 'Excellent';
-            if (accuracy >= 75) return 'Good';
-            if (accuracy >= 60) return 'Average';
-            return 'Needs Improvement';
-          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1229,156 +1215,7 @@ class _AnalysisState extends State<Analysis> {
     return Colors.red;
   }
 
-  Widget _buildBarChart() {
-    return Obx(() {
-      final controller = Get.find<MainAnalyticsController>();
-      final answer = controller.answerAnalysis.value?.data?.answer;
-      final bool isHindi = _selectedLanguage == 'hindi';
-      final evaluation = isHindi ? null : answer?.evaluation;
-      final hindiEvaluation = isHindi ? answer?.hindiEvaluation : null;
-
-      // Create chart data from evaluation
-      final List<MapEntry<String, Map<String, dynamic>>> chartData = [];
-
-      if (!isHindi && evaluation != null) {
-        final analysis = evaluation.analysis;
-        if (analysis?.strengths?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Strengths', {
-              'rating': 'Excellent',
-              'marks': '${analysis!.strengths!.length}/5',
-              'comment': analysis.strengths!.join('\n'),
-            }),
-          );
-        }
-        if (analysis?.weaknesses?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Weaknesses', {
-              'rating': 'Needs Improvement',
-              'marks': '${analysis!.weaknesses!.length}/5',
-              'comment': analysis.weaknesses!.join('\n'),
-            }),
-          );
-        }
-        if (analysis?.suggestions?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('Suggestions', {
-              'rating': 'Good',
-              'marks': '${analysis!.suggestions!.length}/5',
-              'comment': analysis.suggestions!.join('\n'),
-            }),
-          );
-        }
-      } else if (isHindi && hindiEvaluation != null) {
-        final analysis = hindiEvaluation.analysis;
-        if (analysis?.strengths?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('मजबूतियाँ', {
-              'rating': 'Excellent',
-              'marks': '${analysis!.strengths!.length}/5',
-              'comment': analysis.strengths!.join('\n'),
-            }),
-          );
-        }
-        if (analysis?.weaknesses?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('कमज़ोरियाँ', {
-              'rating': 'Needs Improvement',
-              'marks': '${analysis!.weaknesses!.length}/5',
-              'comment': analysis.weaknesses!.join('\n'),
-            }),
-          );
-        }
-        if (analysis?.suggestions?.isNotEmpty ?? false) {
-          chartData.add(
-            MapEntry('सुझाव', {
-              'rating': 'Good',
-              'marks': '${analysis!.suggestions!.length}/5',
-              'comment': analysis.suggestions!.join('\n'),
-            }),
-          );
-        }
-      }
-
-      if (chartData.isEmpty) {
-        return SizedBox(
-          height: 300,
-          child: Center(
-            child: Text(
-              'No data available',
-              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
-            ),
-          ),
-        );
-      }
-
-      return SizedBox(
-        height: 300,
-        child: SfCartesianChart(
-          plotAreaBorderWidth: 0,
-          tooltipBehavior: TooltipBehavior(
-            enable: true,
-            format:
-                'point.x\nRating: point.y\nMarks: point.series.dataLabelMapper',
-            header: '',
-          ),
-          primaryXAxis: CategoryAxis(
-            labelPlacement: LabelPlacement.betweenTicks,
-            labelStyle: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 8,
-              color: Colors.grey[800],
-            ),
-            majorGridLines: MajorGridLines(width: 0),
-          ),
-          primaryYAxis: NumericAxis(
-            minimum: 0,
-            maximum: 5,
-            interval: 1,
-            labelStyle: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 8,
-              color: Colors.black,
-            ),
-            axisLine: AxisLine(width: 0),
-            majorTickLines: MajorTickLines(size: 0),
-          ),
-          series: <CartesianSeries>[
-            ColumnSeries<MapEntry<String, dynamic>, String>(
-              dataSource: chartData,
-              dataLabelMapper: (entry, _) {
-                final parts = (entry.value['marks'] as String).split('/');
-                final obtained = double.tryParse(parts[0]) ?? 0;
-                final total =
-                    double.tryParse(parts.length > 1 ? parts[1] : '5') ?? 5;
-                final percent = (obtained / total * 100).toStringAsFixed(0);
-                return '$percent%';
-              },
-              dataLabelSettings: DataLabelSettings(
-                isVisible: true,
-                labelPosition: ChartDataLabelPosition.outside,
-                labelAlignment: ChartDataLabelAlignment.outer,
-                textStyle: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-              xValueMapper: (entry, _) => entry.key,
-              yValueMapper: (entry, _) {
-                final parts = (entry.value['marks'] as String).split('/');
-                return double.tryParse(parts[0]) ?? 0;
-              },
-              pointColorMapper:
-                  (entry, _) => ratingColors[entry.value['rating'] as String],
-              width: 0.6,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ],
-        ),
-      );
-    });
-  }
+  // _buildBarChart removed as unused
 
   Widget Remark() {
     final controller = Get.find<MainAnalyticsController>();
@@ -1497,45 +1334,36 @@ class _AnalysisState extends State<Analysis> {
     final mainCtrl = Get.find<MainAnalyticsController>();
     final bool hasHindi = _hasHindiEvaluationAvailable(mainCtrl);
 
+    // If only English evaluation is available, hide the toggle completely
+    if (!hasHindi) {
+      return const SizedBox.shrink();
+    }
+
     // Build chips dynamically: if Hindi available → show Hindi first, then English.
     final List<Widget> chips = [];
-    if (hasHindi) {
-      chips.addAll([
-        ChoiceChip(
-          label: Text(
-            'हिन्दी',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-          ),
-          selected: isHindi,
-          onSelected: (v) {
-            if (v) setState(() => _selectedLanguage = 'hindi');
-          },
+    chips.addAll([
+      ChoiceChip(
+        label: Text(
+          'हिन्दी',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(width: 12),
-        ChoiceChip(
-          label: Text(
-            'English',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-          ),
-          selected: !isHindi,
-          onSelected: (v) {
-            if (v) setState(() => _selectedLanguage = 'english');
-          },
+        selected: isHindi,
+        onSelected: (v) {
+          if (v) setState(() => _selectedLanguage = 'hindi');
+        },
+      ),
+      const SizedBox(width: 12),
+      ChoiceChip(
+        label: Text(
+          'English',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
-      ]);
-    } else {
-      // Only English available
-      chips.add(
-        ChoiceChip(
-          label: Text(
-            'English',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-          ),
-          selected: true,
-          onSelected: (_) {},
-        ),
-      );
-    }
+        selected: !isHindi,
+        onSelected: (v) {
+          if (v) setState(() => _selectedLanguage = 'english');
+        },
+      ),
+    ]);
 
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: chips);
   }

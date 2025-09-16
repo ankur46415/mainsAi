@@ -237,6 +237,17 @@ class _SpecificCourseState extends State<SpecificCourse> {
                   final int currentIndex =
                       computedIndex >= 0 ? computedIndex : 0;
 
+                  // Initialize selection post-frame to avoid mutating during build
+                  if (selectedSubCategory.value.isEmpty && subCats.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (selectedSubCategory.value.isEmpty &&
+                          subCats.isNotEmpty) {
+                        selectedSubCategory.value = subCats.first;
+                        selectedTabIndex.value = 0;
+                      }
+                    });
+                  }
+
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -284,15 +295,30 @@ class _SpecificCourseState extends State<SpecificCourse> {
 
                 Obx(() {
                   final allItems = controller.plan.value?.items ?? [];
-                  final filter = selectedSubCategory.value;
+
+                  // Build subcategories list to compute effective filter
+                  final List<String> subCats =
+                      <String>{
+                        for (final it in allItems)
+                          if (it.referencedItem?.subCategory != null &&
+                              it.referencedItem!.subCategory.isNotEmpty)
+                            it.referencedItem!.subCategory,
+                      }.toList();
+
+                  // Use first subcategory by default if none selected
+                  final String effectiveFilter =
+                      (selectedSubCategory.value.isEmpty && subCats.isNotEmpty)
+                          ? subCats.first
+                          : selectedSubCategory.value;
+
                   final items =
-                      filter.isEmpty
+                      effectiveFilter.isEmpty
                           ? allItems
                           : allItems
                               .where(
                                 (it) =>
                                     (it.referencedItem?.subCategory ?? '') ==
-                                    filter,
+                                    effectiveFilter,
                               )
                               .toList();
                   return GridView.builder(
@@ -345,7 +371,7 @@ class _SpecificCourseState extends State<SpecificCourse> {
                     },
                   );
                 }),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
               ],
             ),
           );

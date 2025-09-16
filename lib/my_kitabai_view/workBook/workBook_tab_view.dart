@@ -157,7 +157,41 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                       ),
                                     ),
                                     // Paid indicator - only show when isPaid is true
-                                    if (book.isPaid == true)
+                                    if (book.isEnrolled == true)
+                                      Positioned(
+                                        bottom: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Text(
+                                            'ENROLLED',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    else if (book.isPaid == true)
                                       Positioned(
                                         bottom: 8,
                                         left: 8,
@@ -257,7 +291,41 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                     ),
                                   ),
-                                  if (book.isPaid == true)
+                                  if (book.isEnrolled == true)
+                                    Positioned(
+                                      bottom: 18,
+                                      left: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          'ENROLLED',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  else if (book.isPaid == true)
                                     Positioned(
                                       bottom: 18,
                                       left: 8,
@@ -681,7 +749,37 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                       ),
             ),
             // Paid indicator - only show when isPaid is true
-            if (book.isPaid == true)
+            if (book.isEnrolled == true)
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'ENROLLED',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            else if (book.isPaid == true)
               Positioned(
                 bottom: 8,
                 left: 8,

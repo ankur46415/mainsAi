@@ -271,93 +271,92 @@ class _VoiceScreenState extends State<VoiceScreen>
   }
 
   Widget _buildDrawer() {
-    // Now using the controller from the state class directly
-
-    return Drawer(
-      backgroundColor: Colors.white,
-      elevation: 16,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
-      ),
-      child: Container(
-        // Match VoiceScreen gradient
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [const Color.fromARGB(255, 247, 201, 127), Colors.white],
-          ),
+    return SafeArea(
+      child: Drawer(
+        backgroundColor: Colors.white,
+        elevation: 16,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
         ),
-        child: Column(
-          children: [
-            // Header
-            Container(
-              width: Get.width,
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [const Color.fromARGB(255, 247, 201, 127), Colors.white],
+            ),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                width: Get.width,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.red.shade100,
+                      radius: 32,
+                      child: Icon(
+                        Icons.person,
+                        size: 32,
+                        color: Colors.orange.shade800,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Settings',
+                      style: GoogleFonts.poppins(
+                        color: Colors.red.shade900,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Customize your experience',
+                      style: GoogleFonts.poppins(
+                        color: Colors.orange.shade700,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.red.shade100,
-                    radius: 32,
-                    child: Icon(
-                      Icons.person,
-                      size: 32,
-                      color: Colors.orange.shade800,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Settings',
-                    style: GoogleFonts.poppins(
-                      color: Colors.red.shade900,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Customize your experience',
-                    style: GoogleFonts.poppins(
-                      color: Colors.orange.shade700,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            // Remove tab bar, add heading instead
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 16.0,
-                horizontal: 16.0,
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.history, color: Colors.red.shade600, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'History',
-                    style: GoogleFonts.poppins(
-                      color: Colors.red.shade800,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
+              // Remove tab bar, add heading instead
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16.0,
+                  horizontal: 16.0,
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.history, color: Colors.red.shade600, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'History',
+                      style: GoogleFonts.poppins(
+                        color: Colors.red.shade800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Tab Content - Only show History content
-            Expanded(child: _buildHistoryContent()),
-          ],
+              // Tab Content - Only show History content
+              Expanded(child: _buildHistoryContent()),
+            ],
+          ),
         ),
       ),
     );

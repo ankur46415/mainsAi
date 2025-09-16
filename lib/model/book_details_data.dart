@@ -1,3 +1,5 @@
+import 'workBookData.dart';
+
 class BookDetailsData {
   bool? success;
   int? responseCode;
@@ -51,12 +53,14 @@ class BookDetails {
   bool? is_added_to_my_books;
   bool? isVideoAvailable;
   bool? isPaid;
+  bool? isEnrolled;
   List<Chapter>? chapters;
   List<Review>? reviews;
   List<IndexChapter>? index;
   AiGuidelines? aiGuidelines;
   bool? bookEmbedded;
   bool? chatAvailable;
+  List<PlanDetails>? planDetails;
 
   BookDetails({
     this.id,
@@ -69,6 +73,7 @@ class BookDetails {
     this.ratingCount,
     this.isVideoAvailable,
     this.isPaid,
+    this.isEnrolled,
     this.mainCategory,
     this.subCategory,
     this.effectiveSubCategory,
@@ -91,6 +96,7 @@ class BookDetails {
     this.aiGuidelines,
     this.bookEmbedded,
     this.chatAvailable,
+    this.planDetails,
   });
 
   factory BookDetails.fromJson(Map<String, dynamic> json) {
@@ -103,6 +109,7 @@ class BookDetails {
       language: json['language'],
       isVideoAvailable: json['isVideoAvailable'],
       isPaid: json['isPaid'],
+      isEnrolled: json['isEnrolled'],
       rating: json['rating']?.toDouble(),
       ratingCount: json['rating_count'],
       mainCategory: json['mainCategory'],
@@ -147,6 +154,12 @@ class BookDetails {
           json['aiGuidelines'] != null
               ? AiGuidelines.fromJson(json['aiGuidelines'])
               : null,
+      planDetails:
+          json['planDetails'] != null
+              ? List<PlanDetails>.from(
+                json['planDetails'].map((x) => PlanDetails.fromJson(x)),
+              )
+              : null,
     );
   }
 
@@ -160,6 +173,7 @@ class BookDetails {
     data['language'] = language;
     data['isVideoAvailable'] = isVideoAvailable;
     data['isPaid'] = isPaid;
+    data['isEnrolled'] = isEnrolled;
     data['rating'] = rating;
     data['rating_count'] = ratingCount;
     data['mainCategory'] = mainCategory;
@@ -191,6 +205,9 @@ class BookDetails {
     }
     if (this.aiGuidelines != null) {
       data['aiGuidelines'] = this.aiGuidelines!.toJson();
+    }
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
     }
     return data;
   }

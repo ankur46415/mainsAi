@@ -189,14 +189,15 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               ],
 
               Spacer(),
-              if (bookData.isPaid == true) ...[
+              if (bookData.isEnrolled == true || bookData.isPaid == true) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color:
+                        bookData.isEnrolled == true ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -207,7 +208,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                     ],
                   ),
                   child: Text(
-                    'PAID',
+                    bookData.isEnrolled == true ? 'ENROLLED' : 'PAID',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -440,36 +441,49 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
           () => SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed:
-                  bookData.isPaid == true
-                      ? () {
-                        Get.toNamed(AppRoutes.specificCourse);
-                      }
-                      : controller.isSaved == true ||
-                          controller.isActionLoading.value
-                      ? () async {
-                        if (!Get.isRegistered<MyLibraryController>()) {
-                          Get.put(MyLibraryController(), permanent: true);
-                        }
+              onPressed: () {
+                final bool isEnrolled = bookData.isEnrolled == true;
+                final bool isPaid = bookData.isPaid == true;
+                final bool showPurchase = isPaid && !isEnrolled;
 
-                        final myLibraryController =
-                            Get.find<MyLibraryController>();
-                        await myLibraryController.loadBooks();
+                if (showPurchase) {
+                  String? planId;
+                  if (bookData.planDetails != null &&
+                      bookData.planDetails.isNotEmpty) {
+                    planId = bookData.planDetails[0].id;
+                  }
+                  Get.toNamed(
+                    AppRoutes.specificCourse,
+                    arguments: {'planId': planId},
+                  );
+                } else if (controller.isSaved == true ||
+                    controller.isActionLoading.value) {
+                  if (!Get.isRegistered<MyLibraryController>()) {
+                    Get.put(MyLibraryController(), permanent: true);
+                  }
 
-                        final bottomNavController =
-                            Get.find<BottomNavController>();
-                        bottomNavController.changeIndex(1);
-                        Get.offAll(() => MyHomePage());
-                      }
-                      : () => controller.addToMyBooks(widget.bookId.toString()),
+                  final myLibraryController = Get.find<MyLibraryController>();
+                  myLibraryController.loadBooks();
+
+                  final bottomNavController = Get.find<BottomNavController>();
+                  bottomNavController.changeIndex(1);
+                  Get.offAll(() => MyHomePage());
+                } else {
+                  controller.addToMyBooks(widget.bookId.toString());
+                }
+              },
 
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    bookData.isPaid == true
-                        ? Colors.orange
-                        : controller.isSaved == true
-                        ? Colors.green
-                        : Colors.blue,
+                    (() {
+                      final bool isEnrolled = bookData.isEnrolled == true;
+                      final bool isPaid = bookData.isPaid == true;
+                      final bool showPurchase = isPaid && !isEnrolled;
+
+                      if (showPurchase) return Colors.orange;
+                      if (controller.isSaved == true) return Colors.green;
+                      return Colors.blue;
+                    })(),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -491,14 +505,19 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                         ),
                       )
                       : Text(
-                        bookData.isPaid == true
-                            ? 'Purchase Plan'
-                            : controller.isSaved == true
-                            ? 'Go to My Library'
-                            : 'Add To My Library',
+                        (() {
+                          final bool isEnrolled = bookData.isEnrolled == true;
+                          final bool isPaid = bookData.isPaid == true;
+                          final bool showPurchase = isPaid && !isEnrolled;
+
+                          if (showPurchase) return 'Purchase Plan';
+                          if (controller.isSaved == true)
+                            return 'Go to My Library';
+                          return 'Add To My Library';
+                        })(),
                         style: GoogleFonts.poppins(
-                          fontSize: 16, // Larger font
-                          fontWeight: FontWeight.w500, // Medium weight
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
