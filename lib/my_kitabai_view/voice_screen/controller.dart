@@ -539,10 +539,7 @@ class VoiceController extends GetxController {
 
         aiReply = aiText;
         addMessage({"sender": "ai", "message": aiText});
-        showThinkingBubble.value =
-            false; // Hide thinking as soon as response arrives
-
-        // Do not auto-play TTS; playback happens only when user taps the icon
+        showThinkingBubble.value = false;
       } else if (response.statusCode == 503) {
         debugPrint("[AI] Server overloaded (503)");
         addMessage({
@@ -562,7 +559,6 @@ class VoiceController extends GetxController {
               "We’re experiencing high traffic. Our servers are currently overloaded. Please try again shortly.",
         });
         showThinkingBubble.value = false;
-        // No auto TTS on errors
       }
     } catch (e) {
       debugPrint("[AI] Exception: $e");
@@ -573,7 +569,6 @@ class VoiceController extends GetxController {
             "We’re experiencing high traffic. Our servers are currently overloaded. Please try again shortly.",
       });
       showThinkingBubble.value = false;
-      // No auto TTS on exceptions
     } finally {
       isLoading.value = false;
       textController.clear();
@@ -673,7 +668,6 @@ class VoiceController extends GetxController {
     }
   }
 
-  // Helper to split text into safe chunks (~400 characters each)
   List<String> _splitTextIntoChunks(String text, {int maxLength = 400}) {
     final words = text.split(' ');
     List<String> chunks = [];
@@ -699,12 +693,9 @@ class VoiceController extends GetxController {
 
     await stopCurrentResponse();
 
-    // Always use a male voice for Sarvam
     selectedVoice.value = 'karun';
     const apiUrl = "https://api.sarvam.ai/text-to-speech";
     apiKey = servamKey;
-
-    // Break text into smaller chunks
     final chunks = _splitTextIntoChunks(text);
     debugPrint("🔊 [Sarvam] Total chunks to send: ${chunks.length}");
 

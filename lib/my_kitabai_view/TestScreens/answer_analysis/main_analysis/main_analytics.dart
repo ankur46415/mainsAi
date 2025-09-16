@@ -155,6 +155,8 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) {
+                                                    bool isLandscape =
+                                                        false; // <-- Persist for the dialog session
                                                     return Dialog(
                                                       backgroundColor:
                                                           Colors.black87,
@@ -194,51 +196,115 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                 ) {
                                                                   final popupImageUrl =
                                                                       images[popupIndex];
-                                                                  return InteractiveViewer(
-                                                                    panEnabled:
-                                                                        true,
-                                                                    minScale: 1,
-                                                                    maxScale: 4,
-                                                                    child: Center(
-                                                                      child: Image.network(
-                                                                        popupImageUrl,
+                                                                  print(
+                                                                    'Transform.rotate: isLandscape = '
+                                                                    ' [32m$isLandscape [0m, angle = '
+                                                                    ' [32m${isLandscape ? 1.5708 : 0} [0m',
+                                                                  );
+                                                                  final screenSize =
+                                                                      MediaQuery.of(
+                                                                        context,
+                                                                      ).size;
+                                                                  final double
+                                                                  boxWidth =
+                                                                      isLandscape
+                                                                          ? screenSize
+                                                                              .height
+                                                                          : screenSize
+                                                                              .width;
+                                                                  final double
+                                                                  boxHeight =
+                                                                      isLandscape
+                                                                          ? screenSize
+                                                                              .width
+                                                                          : screenSize
+                                                                              .height;
+                                                                  return Center(
+                                                                    child: SizedBox(
+                                                                      width:
+                                                                          boxWidth,
+                                                                      height:
+                                                                          boxHeight,
+                                                                      child: FittedBox(
                                                                         fit:
                                                                             BoxFit.contain,
-                                                                        errorBuilder: (
-                                                                          context,
-                                                                          error,
-                                                                          stackTrace,
-                                                                        ) {
-                                                                          return Icon(
-                                                                            Icons.menu_book_rounded,
-                                                                            size:
-                                                                                80,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          );
-                                                                        },
+                                                                        child: RotatedBox(
+                                                                          quarterTurns:
+                                                                              isLandscape
+                                                                                  ? 1
+                                                                                  : 0,
+                                                                          child: Image.network(
+                                                                            popupImageUrl,
+                                                                            fit:
+                                                                                BoxFit.contain,
+                                                                            errorBuilder: (
+                                                                              context,
+                                                                              error,
+                                                                              stackTrace,
+                                                                            ) {
+                                                                              return Icon(
+                                                                                Icons.menu_book_rounded,
+                                                                                size:
+                                                                                    80,
+                                                                                color:
+                                                                                    Colors.white,
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   );
                                                                 },
                                                               ),
-                                                              // Close button
+                                                              // Close and rotate buttons
                                                               Positioned(
                                                                 top: 40,
                                                                 right: 20,
-                                                                child: IconButton(
-                                                                  icon: const Icon(
-                                                                    Icons.close,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    size: 30,
-                                                                  ),
-                                                                  onPressed:
-                                                                      () =>
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(),
+                                                                child: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    IconButton(
+                                                                      icon: const Icon(
+                                                                        Icons
+                                                                            .screen_rotation,
+                                                                        color:
+                                                                            Colors.white,
+                                                                        size:
+                                                                            30,
+                                                                      ),
+                                                                      onPressed: () {
+                                                                        isLandscape =
+                                                                            !isLandscape;
+                                                                        print(
+                                                                          'Rotate icon tapped. isLandscape now: '
+                                                                          ' [33m$isLandscape [0m',
+                                                                        );
+                                                                        setStateDialog(
+                                                                          () {},
+                                                                        );
+                                                                      },
+                                                                      tooltip:
+                                                                          'Rotate image',
+                                                                    ),
+                                                                    IconButton(
+                                                                      icon: const Icon(
+                                                                        Icons
+                                                                            .close,
+                                                                        color:
+                                                                            Colors.red,
+                                                                        size:
+                                                                            30,
+                                                                      ),
+                                                                      onPressed:
+                                                                          () =>
+                                                                              Navigator.of(
+                                                                                context,
+                                                                              ).pop(),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ),
                                                               // Page indicator
@@ -915,14 +981,11 @@ Widget _buildQuestionBox() {
                   ),
                 ],
               ),
-
               const SizedBox(height: 14),
-
               Obx(() {
                 final isExpanded = controller.isSeeMoreExpanded.value;
                 final questionText =
                     question?.text ?? 'No question text available';
-
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,

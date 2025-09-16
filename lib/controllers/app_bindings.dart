@@ -7,9 +7,9 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
-    Get.lazyPut<UploadAnswersController>(
-      () => UploadAnswersController(),
-      fenix: true,
-    );
+    // Always register UploadAnswersController eagerly and permanently
+    if (!Get.isRegistered<UploadAnswersController>()) {
+      Get.put(UploadAnswersController(), permanent: true);
+    }
   }
 }

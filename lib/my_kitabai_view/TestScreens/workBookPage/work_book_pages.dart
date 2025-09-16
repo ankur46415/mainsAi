@@ -5,111 +5,202 @@ import 'package:mains/my_kitabai_view/upload_images/controller.dart';
 
 class WorkBookPagesForTest extends StatelessWidget {
   const WorkBookPagesForTest({super.key});
-  Widget _buildUploadProgressCard(UploadAnswersController uploadController) {
-    final status = uploadController.uploadStatus.value.toLowerCase();
+
+  // Widget _buildUploadProgressCard(UploadAnswersController uploadController) {
+  //   final status = uploadController.uploadStatus.value.toLowerCase();
+  //   final isUploading = uploadController.isUploadingToServer.value;
+  //   final isSuccess =
+  //       status.contains('success') || status.contains('completed');
+  //   final isFailed =
+  //       status.contains('fail') ||
+  //       status.contains('error') ||
+  //       status.contains('invalid');
+  //   Color cardColor = Colors.redAccent;
+  //   IconData icon = Icons.cloud_upload;
+  //   String title = 'Uploading Images...';
+  //   if (!isUploading) {
+  //     if (isSuccess) {
+  //       cardColor = Colors.green;
+  //       icon = Icons.check_circle_outline_rounded;
+  //       title = 'Upload Successful!';
+  //     } else if (isFailed) {
+  //       cardColor = Colors.red;
+  //       icon = Icons.error_outline_rounded;
+  //       title = 'Upload Failed!';
+  //     }
+  //   }
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.05),
+  //           blurRadius: 8,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //       border: Border.all(color: cardColor.withOpacity(0.15)),
+  //     ),
+  //     padding: const EdgeInsets.all(16),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Icon(icon, color: cardColor, size: 28),
+  //             const SizedBox(width: 12),
+  //             Text(
+  //               title,
+  //               style: GoogleFonts.poppins(
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: cardColor,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 12),
+  //         Obx(() {
+  //           final progress = uploadController.uploadProgress.value;
+  //           final status = uploadController.uploadStatus.value;
+
+  //           final isWaitingForServer =
+  //               progress == 100 && status.contains("Uploading Your Answers");
+
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Transform(
+  //                 alignment: Alignment.center,
+  //                 transform: Matrix4.identity()..scale(-1.0, 1.0),
+  //                 child:
+  //                     isWaitingForServer
+  //                         ? LinearProgressIndicator(
+  //                           backgroundColor: Colors.grey[200],
+  //                           valueColor: const AlwaysStoppedAnimation<Color>(
+  //                             Colors.red,
+  //                           ),
+  //                         )
+  //                         : LinearProgressIndicator(
+  //                           value: progress / 100,
+  //                           backgroundColor: Colors.grey[200],
+  //                           valueColor: const AlwaysStoppedAnimation<Color>(
+  //                             Colors.red,
+  //                           ),
+  //                         ),
+  //               ),
+  //               const SizedBox(height: 8),
+  //               Text(
+  //                 status,
+  //                 style: GoogleFonts.poppins(
+  //                   fontSize: 13,
+  //                   color: Colors.grey[700],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 4),
+  //               if (!isWaitingForServer)
+  //                 Text(
+  //                   '$progress%',
+  //                   style: GoogleFonts.poppins(
+  //                     fontSize: 13,
+  //                     fontWeight: FontWeight.w500,
+  //                     color: Colors.red,
+  //                   ),
+  //                 ),
+  //             ],
+  //           );
+  //         }),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildUploadProgressCardWithImage(
+    String? imageUrl,
+    String? bookTitle,
+    UploadAnswersController uploadController,
+  ) {
     final isUploading = uploadController.isUploadingToServer.value;
-    final isSuccess =
-        status.contains('success') || status.contains('completed');
-    final isFailed =
-        status.contains('fail') ||
-        status.contains('error') ||
-        status.contains('invalid');
-    Color cardColor = Colors.redAccent;
-    IconData icon = Icons.cloud_upload;
-    String title = 'Uploading Images...';
-    if (!isUploading) {
-      if (isSuccess) {
-        cardColor = Colors.green;
-        icon = Icons.check_circle_outline_rounded;
-        title = 'Upload Successful!';
-      } else if (isFailed) {
-        cardColor = Colors.red;
-        icon = Icons.error_outline_rounded;
-        title = 'Upload Failed!';
-      }
-    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: cardColor.withOpacity(0.15)),
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(12),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, color: cardColor, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: cardColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Obx(() {
-            final progress = uploadController.uploadProgress.value;
-            final status = uploadController.uploadStatus.value;
-
-            final isWaitingForServer =
-                progress == 100 && status.contains("Uploading Your Answers");
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()..scale(-1.0, 1.0),
-                  child:
-                      isWaitingForServer
-                          ? LinearProgressIndicator(
-                            backgroundColor: Colors.grey[200],
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.red,
-                            ),
-                          )
-                          : LinearProgressIndicator(
-                            value: progress / 100,
-                            backgroundColor: Colors.grey[200],
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.red,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child:
+                imageUrl != null && imageUrl.isNotEmpty
+                    ? Image.network(
+                      imageUrl,
+                      height: 120,
+                      width: 100,
+                      fit: BoxFit.fill,
+                      errorBuilder:
+                          (context, error, stackTrace) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
                             ),
                           ),
-                ),
-                const SizedBox(height: 8),
+                    )
+                    : Container(
+                      height: 120,
+                      width: 100,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image, color: Colors.grey),
+                    ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  status,
+                  bookTitle ?? 'No Title',
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.grey[700],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                if (!isWaitingForServer)
-                  Text(
-                    '$progress%',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red,
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    _buildInfoChip(
+                      icon: Icons.cloud_upload,
+                      text: '1 upload is in progress',
+                      color: Colors.blueAccent,
                     ),
-                  ),
+                  ],
+                ),
+                Lottie.asset(
+                  'assets/lottie/image_uplaod_animations.json',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.contain,
+                  repeat: true,
+                  animate: true,
+                ),
               ],
-            );
-          }),
+            ),
+          ),
         ],
       ),
     );
@@ -117,6 +208,13 @@ class WorkBookPagesForTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get arguments passed from previous navigation (e.g., UploadAnswers)
+    final args = Get.arguments as Map<String, dynamic>?;
+    final String? imageUrl = args?['imageUrl'];
+    final String? bookTitle = args?['bookTitle'];
+    print(
+      'WorkBookPagesForTest received imageUrl: $imageUrl, bookTitle: $bookTitle',
+    );
     final MainTestScreenController controller = Get.put(
       MainTestScreenController(),
     );
@@ -157,7 +255,10 @@ class WorkBookPagesForTest extends StatelessWidget {
               ),
               Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
               Tab(
-                child: Text('MyQuestions', style: TextStyle(color: Colors.white,fontSize: 13)),
+                child: Text(
+                  'MyQuestions',
+                  style: TextStyle(color: Colors.white, fontSize: 13),
+                ),
               ),
             ],
           ),
@@ -165,9 +266,10 @@ class WorkBookPagesForTest extends StatelessWidget {
         body: TabBarView(
           children: [
             Obx(() {
-              final uploadController = Get.isRegistered<UploadAnswersController>()
-                  ? Get.find<UploadAnswersController>()
-                  : null;
+              final uploadController =
+                  Get.isRegistered<UploadAnswersController>()
+                      ? Get.find<UploadAnswersController>()
+                      : null;
               if (controller.isLoading.value) {
                 return Center(
                   child: CircularProgressIndicator(color: primaryRed),
@@ -205,18 +307,15 @@ class WorkBookPagesForTest extends StatelessWidget {
                       .values
                       .toList();
 
-              final bool shouldShowProgressCard = uploadController != null &&
-                  (uploadController.isUploadingToServer.value ||
-                      (uploadController.uploadStatus.value.isNotEmpty &&
-                          (uploadController.uploadStatus.value
-                                  .toLowerCase()
-                                  .contains('success') ||
-                              uploadController.uploadStatus.value
-                                  .toLowerCase()
-                                  .contains('fail') ||
-                              uploadController.uploadStatus.value
-                                  .toLowerCase()
-                                  .contains('error'))));
+              final bool shouldShowProgressCard =
+                  uploadController != null &&
+                  uploadController.isUploadingToServer.value;
+              print(
+                'DEBUG: shouldShowProgressCard: '
+                ' [32m$shouldShowProgressCard [0m, '
+                'isUploading: ${uploadController?.isUploadingToServer.value}, '
+                'uploadStatus: ${uploadController?.uploadStatus.value}',
+              );
 
               final totalCount =
                   uniqueWorkbooks.length + (shouldShowProgressCard ? 1 : 0);
@@ -231,7 +330,11 @@ class WorkBookPagesForTest extends StatelessWidget {
                   itemCount: totalCount,
                   itemBuilder: (context, index) {
                     if (shouldShowProgressCard && index == 0) {
-                      return _buildUploadProgressCard(uploadController);
+                      return _buildUploadProgressCardWithImage(
+                        imageUrl,
+                        bookTitle,
+                        uploadController,
+                      );
                     }
 
                     final realIndex =

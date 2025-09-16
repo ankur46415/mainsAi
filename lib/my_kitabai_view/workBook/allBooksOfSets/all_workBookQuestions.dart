@@ -17,6 +17,8 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
   late SetsOfQuestions controller;
   late String sid;
   String? bookId;
+  String? imageUrl;
+  String? bookTitle;
   var expandedMap = <int, RxBool>{};
 
   @override
@@ -25,8 +27,12 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
     final args = Get.arguments as Map<String, dynamic>?;
     sid = args?['sid'] ?? '';
     bookId = args?['bookId'] ?? '';
+    imageUrl = args?['imageUrl'] ?? '';
+    bookTitle = args?['title'] ?? '';
     controller = Get.put(SetsOfQuestions());
     controller.initialize(sid: sid, bookId: bookId.toString());
+    print(imageUrl);
+    print(bookTitle);
   }
 
   @override
@@ -96,6 +102,8 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
                     UploadAnswers(
                       questionId: q.sId ?? '',
                       questionsText: q.question ?? '',
+                      bookTitle: bookTitle ?? '',
+                      imageUrl: imageUrl ?? '',
                     ),
                   );
                 },

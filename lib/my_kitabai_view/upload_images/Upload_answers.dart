@@ -12,7 +12,15 @@ import 'controller.dart';
 class UploadAnswers extends StatefulWidget {
   final String? questionId;
   final String? questionsText;
-  const UploadAnswers({super.key, this.questionId, this.questionsText});
+  final String? bookTitle;
+  final String? imageUrl;
+  const UploadAnswers({
+    super.key,
+    this.questionId,
+    this.questionsText,
+    this.bookTitle,
+    this.imageUrl,
+  });
 
   @override
   State<UploadAnswers> createState() => _UploadAnswersState();
@@ -33,6 +41,8 @@ class _UploadAnswersState extends State<UploadAnswers> {
     } else {
       print("Warning: widget.questionId is null");
     }
+    print(widget.bookTitle);
+    print(widget.imageUrl);
   }
 
   Widget _buildQuestionBox() {
@@ -349,7 +359,7 @@ class _UploadAnswersState extends State<UploadAnswers> {
                   _buildActionButton(
                     context: context,
                     icon: Icons.cloud_upload_rounded,
-                    label: 'Submit All Images',
+                    label: ' Submit ',
                     color: Colors.green[600]!,
                     onTap: () {
                       if (controller.capturedImages.isEmpty) {
@@ -751,7 +761,13 @@ class _UploadAnswersState extends State<UploadAnswers> {
                                 final bottomNavController =
                                     Get.find<BottomNavController>();
                                 bottomNavController.changeIndex(3);
-                                Get.offAll(() => MyHomePage());
+                                Get.offAll(
+                                  () => MyHomePage(),
+                                  arguments: {
+                                    'imageUrl': widget.imageUrl ?? '',
+                                    'bookTitle': widget.bookTitle ?? '',
+                                  },
+                                );
                                 await Future.delayed(
                                   const Duration(milliseconds: 300),
                                 );

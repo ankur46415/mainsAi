@@ -61,7 +61,7 @@ class _MainTestScreenState extends State<MainTestScreen>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(96),
+        preferredSize: const Size.fromHeight(120),
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -79,7 +79,12 @@ class _MainTestScreenState extends State<MainTestScreen>
                   children: [
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: SizedBox(width: 24),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          Get.back();
+                        },
+                      ),
                     ),
                     Text(
                       "Result",

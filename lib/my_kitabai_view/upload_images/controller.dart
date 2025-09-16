@@ -476,9 +476,6 @@ class UploadAnswersController extends GetxController {
               isError: false,
             );
             Get.find<MainTestScreenController>().getAllSubmittedAnswers();
-            // Keep the progress card visible until _clearStatusAfterDelay clears it
-            // Do not immediately close any dialog here
-            // Clear status after 5 seconds
             _clearStatusAfterDelay();
             break;
           default:

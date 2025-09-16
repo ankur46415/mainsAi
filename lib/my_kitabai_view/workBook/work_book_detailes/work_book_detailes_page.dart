@@ -265,6 +265,9 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           arguments: {
                                             'sid': set.sId,
                                             'bookId': widget.bookId,
+                                            'imageUrl':
+                                                bookData.coverImageUrl ?? '',
+                                            'title': bookData.title ?? '',
                                           },
                                         );
                                       },
