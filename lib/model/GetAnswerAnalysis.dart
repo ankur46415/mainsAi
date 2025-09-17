@@ -147,6 +147,7 @@ class Question {
   String? text;
   String? detailedAnswer;
   String? modalAnswer;
+  List<ModalAnswerPdf>? modalAnswerPdf;
   List<dynamic>? answerVideoUrls;
   Metadata? metadata;
   String? languageMode;
@@ -157,6 +158,7 @@ class Question {
     this.text,
     this.detailedAnswer,
     this.modalAnswer,
+    this.modalAnswerPdf,
     this.answerVideoUrls,
     this.metadata,
     this.languageMode,
@@ -168,6 +170,12 @@ class Question {
     text = json['text'];
     detailedAnswer = json['detailedAnswer'];
     modalAnswer = json['modalAnswer'];
+    if (json['modalAnswerPdf'] != null) {
+      modalAnswerPdf =
+          (json['modalAnswerPdf'] as List)
+              .map((e) => ModalAnswerPdf.fromJson(e))
+              .toList();
+    }
     if (json['answerVideoUrls'] != null) {
       answerVideoUrls = json['answerVideoUrls'].cast<dynamic>();
     }
@@ -185,6 +193,10 @@ class Question {
     data['text'] = this.text;
     data['detailedAnswer'] = this.detailedAnswer;
     data['modalAnswer'] = this.modalAnswer;
+    if (this.modalAnswerPdf != null) {
+      data['modalAnswerPdf'] =
+          this.modalAnswerPdf!.map((e) => e.toJson()).toList();
+    }
     data['answerVideoUrls'] = this.answerVideoUrls;
     if (this.metadata != null) {
       data['metadata'] = this.metadata!.toJson();
@@ -192,6 +204,21 @@ class Question {
     data['languageMode'] = this.languageMode;
     data['evaluationMode'] = this.evaluationMode;
     return data;
+  }
+}
+
+class ModalAnswerPdf {
+  String? key;
+  String? url;
+
+  ModalAnswerPdf({this.key, this.url});
+
+  factory ModalAnswerPdf.fromJson(Map<String, dynamic> json) {
+    return ModalAnswerPdf(key: json['key'], url: json['url']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'key': key, 'url': url};
   }
 }
 

@@ -1,4 +1,12 @@
+import 'package:http/http.dart' as http;
+
 import '../../../../app_imports.dart';
+import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:share_plus/share_plus.dart';
 import 'main_analytics_controller.dart';
 
 class MainAnalytics extends StatefulWidget {
@@ -23,6 +31,137 @@ class _MainAnalyticsState extends State<MainAnalytics>
   late MainAnalyticsController controller;
   late TabController _tabController;
   late List<String> _tabs;
+
+  Future<void> _exportAllImagesAsPdf(List<String> imageUrls) async {
+    try {
+      final urls = imageUrls.where((u) => u.isNotEmpty).toList();
+      if (urls.isEmpty) {
+        Get.snackbar(
+          'Export',
+          'No images to export',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      final logoBytes = await rootBundle.load('assets/images/mains-logo.png');
+      final pwLogo = pw.MemoryImage(logoBytes.buffer.asUint8List());
+      final pdf = pw.Document();
+
+      for (final url in urls) {
+        final resp = await http.get(Uri.parse(url));
+        if (resp.statusCode != 200) {
+          // Skip bad image, continue
+          continue;
+        }
+        final pwImage = pw.MemoryImage(resp.bodyBytes);
+
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            margin: const pw.EdgeInsets.all(24),
+            build: (context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                children: [
+                  pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Row(
+                        crossAxisAlignment: pw.CrossAxisAlignment.center,
+                        children: [
+                          pw.Container(
+                            width: 36,
+                            height: 36,
+                            child: pw.Image(pwLogo, fit: pw.BoxFit.contain),
+                          ),
+                          pw.SizedBox(width: 10),
+                          pw.Text(
+                            'mAIns',
+                            style: pw.TextStyle(
+                              fontSize: 16,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      pw.Text(
+                        'Assessment Image',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Divider(color: PdfColors.grey400),
+                  pw.SizedBox(height: 12),
+                  pw.Expanded(
+                    child: pw.Center(
+                      child: pw.Container(
+                        decoration: pw.BoxDecoration(
+                          border: pw.Border.all(
+                            color: PdfColors.grey300,
+                            width: 1,
+                          ),
+                        ),
+                        child: pw.FittedBox(
+                          fit: pw.BoxFit.contain,
+                          child: pw.Image(pwImage),
+                        ),
+                      ),
+                    ),
+                  ),
+                  pw.SizedBox(height: 12),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        'Generated: ${DateTime.now().toLocal().toString().split('.')
+                          ..removeLast()
+                          ..join()}',
+                        style: pw.TextStyle(
+                          fontSize: 9,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                      pw.Text(
+                        'Powered by mAIns',
+                        style: pw.TextStyle(
+                          fontSize: 9,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      }
+
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/mains_images_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
+      await file.writeAsBytes(await pdf.save());
+
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'mAIns Assessment Images');
+    } catch (e) {
+      Get.snackbar(
+        'Export',
+        'Failed to export PDF: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -67,479 +206,416 @@ class _MainAnalyticsState extends State<MainAnalytics>
                       children: [
                         Card(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: 4,
+                          elevation: 3,
                           color: Colors.white,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Obx(() {
-                                  final controller =
-                                      Get.find<MainAnalyticsController>();
-                                  final mainAnnotated =
-                                      controller.annotatedImages;
-                                  final expertReviewAnnotated =
-                                      controller
-                                          .answerAnalysis
-                                          .value
-                                          ?.data
-                                          ?.answer
-                                          ?.feedback
-                                          ?.expertReview
-                                          ?.annotatedImages;
-                                  final answerImages =
-                                      controller.answerImagesList;
-                                  List<String> images;
-                                  if (expertReviewAnnotated != null &&
-                                      expertReviewAnnotated.isNotEmpty) {
-                                    images =
-                                        expertReviewAnnotated
-                                            .map((a) => a.downloadUrl ?? '')
-                                            .where((url) => url.isNotEmpty)
-                                            .toList();
-                                  } else if (mainAnnotated.isNotEmpty) {
-                                    images =
-                                        mainAnnotated
-                                            .map((a) => a.downloadUrl ?? '')
-                                            .where((url) => url.isNotEmpty)
-                                            .toList();
-                                  } else {
-                                    images =
-                                        answerImages
-                                            .map((a) => a.imageUrl ?? '')
-                                            .where((url) => url.isNotEmpty)
-                                            .toList();
-                                  }
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.arrow_back_ios,
-                                          color: Colors.black54,
-                                        ),
-                                        onPressed: () {
-                                          if (controller.currentPage.value >
-                                              0) {
-                                            controller.currentPage.value--;
-                                            controller.pageController
-                                                .animateToPage(
-                                                  controller.currentPage.value,
-                                                  duration: const Duration(
-                                                    milliseconds: 300,
-                                                  ),
-                                                  curve: Curves.easeInOut,
-                                                );
-                                          }
-                                        },
-                                      ),
-                                      SizedBox(
-                                        height: Get.width * 0.6,
-                                        width: Get.width * 0.6,
-                                        child: PageView.builder(
-                                          controller: controller.pageController,
-                                          itemCount: images.length,
-                                          onPageChanged:
-                                              (index) =>
-                                                  controller.currentPage.value =
-                                                      index,
-                                          itemBuilder: (context, index) {
-                                            final imageUrl = images[index];
-                                            return GestureDetector(
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    bool isLandscape =
-                                                        false; // <-- Persist for the dialog session
-                                                    return Dialog(
-                                                      backgroundColor:
-                                                          Colors.black87,
-                                                      insetPadding:
-                                                          EdgeInsets.zero,
-                                                      child: StatefulBuilder(
-                                                        builder: (
-                                                          context,
-                                                          setStateDialog,
-                                                        ) {
-                                                          int popupPageIndex =
-                                                              index;
-                                                          final popupPageController =
-                                                              PageController(
-                                                                initialPage:
-                                                                    index,
-                                                              );
-                                                          return Stack(
-                                                            children: [
-                                                              PageView.builder(
-                                                                controller:
-                                                                    popupPageController,
-                                                                itemCount:
-                                                                    images
-                                                                        .length,
-                                                                onPageChanged: (
-                                                                  newIndex,
-                                                                ) {
-                                                                  setStateDialog(() {
-                                                                    popupPageIndex =
-                                                                        newIndex;
-                                                                  });
-                                                                },
-                                                                itemBuilder: (
-                                                                  context,
-                                                                  popupIndex,
-                                                                ) {
-                                                                  final popupImageUrl =
-                                                                      images[popupIndex];
-                                                                  print(
-                                                                    'Transform.rotate: isLandscape = '
-                                                                    ' [32m$isLandscape [0m, angle = '
-                                                                    ' [32m${isLandscape ? 1.5708 : 0} [0m',
-                                                                  );
-                                                                  final screenSize =
-                                                                      MediaQuery.of(
-                                                                        context,
-                                                                      ).size;
-                                                                  final double
-                                                                  boxWidth =
-                                                                      isLandscape
-                                                                          ? screenSize
-                                                                              .height
-                                                                          : screenSize
-                                                                              .width;
-                                                                  final double
-                                                                  boxHeight =
-                                                                      isLandscape
-                                                                          ? screenSize
-                                                                              .width
-                                                                          : screenSize
-                                                                              .height;
-                                                                  return Center(
-                                                                    child: SizedBox(
-                                                                      width:
-                                                                          boxWidth,
-                                                                      height:
-                                                                          boxHeight,
-                                                                      child: FittedBox(
-                                                                        fit:
-                                                                            BoxFit.contain,
-                                                                        child: RotatedBox(
-                                                                          quarterTurns:
-                                                                              isLandscape
-                                                                                  ? 1
-                                                                                  : 0,
-                                                                          child: Image.network(
-                                                                            popupImageUrl,
-                                                                            fit:
-                                                                                BoxFit.contain,
-                                                                            errorBuilder: (
-                                                                              context,
-                                                                              error,
-                                                                              stackTrace,
-                                                                            ) {
-                                                                              return Icon(
-                                                                                Icons.menu_book_rounded,
-                                                                                size:
-                                                                                    80,
+                          child: Obx(() {
+                            final controller =
+                                Get.find<MainAnalyticsController>();
+
+                            final mainAnnotated = controller.annotatedImages;
+                            final expertReviewAnnotated =
+                                controller
+                                    .answerAnalysis
+                                    .value
+                                    ?.data
+                                    ?.answer
+                                    ?.feedback
+                                    ?.expertReview
+                                    ?.annotatedImages;
+                            final answerImages = controller.answerImagesList;
+
+                            List<String> images;
+                            if (expertReviewAnnotated != null &&
+                                expertReviewAnnotated.isNotEmpty) {
+                              images =
+                                  expertReviewAnnotated
+                                      .map((a) => a.downloadUrl ?? '')
+                                      .where((e) => e.isNotEmpty)
+                                      .toList();
+                            } else if (mainAnnotated.isNotEmpty) {
+                              images =
+                                  mainAnnotated
+                                      .map((a) => a.downloadUrl ?? '')
+                                      .where((e) => e.isNotEmpty)
+                                      .toList();
+                            } else {
+                              images =
+                                  answerImages
+                                      .map((a) => a.imageUrl ?? '')
+                                      .where((e) => e.isNotEmpty)
+                                      .toList();
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: AspectRatio(
+                                aspectRatio: 4 / 3,
+                                child: Stack(
+                                  children: [
+                                    // --- IMAGE SLIDER ---
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: PageView.builder(
+                                        controller: controller.pageController,
+                                        itemCount: images.length,
+                                        onPageChanged:
+                                            (i) =>
+                                                controller.currentPage.value =
+                                                    i,
+                                        itemBuilder: (context, index) {
+                                          final url = images[index];
+                                          return GestureDetector(
+                                            onTap: () {
+                                              showGeneralDialog(
+                                                context: context,
+                                                barrierLabel: 'Close',
+                                                barrierDismissible: true,
+                                                barrierColor: Colors.black87,
+                                                transitionDuration:
+                                                    const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                pageBuilder: (_, __, ___) {
+                                                  bool isLandscape = false;
+                                                  int currentIndex = index;
+                                                  final popupController =
+                                                      PageController(
+                                                        initialPage: index,
+                                                      );
+
+                                                  return StatefulBuilder(
+                                                    builder: (
+                                                      context,
+                                                      setStateDialog,
+                                                    ) {
+                                                      final screenSize =
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size;
+                                                      return Scaffold(
+                                                        backgroundColor:
+                                                            Colors.black,
+                                                        body: Stack(
+                                                          children: [
+                                                            PageView.builder(
+                                                              controller:
+                                                                  popupController,
+                                                              itemCount:
+                                                                  images.length,
+                                                              onPageChanged: (
+                                                                newIndex,
+                                                              ) {
+                                                                setStateDialog(() {
+                                                                  currentIndex =
+                                                                      newIndex;
+                                                                });
+                                                              },
+                                                              itemBuilder: (
+                                                                _,
+                                                                i,
+                                                              ) {
+                                                                final popupUrl =
+                                                                    images[i];
+                                                                final double
+                                                                boxWidth =
+                                                                    isLandscape
+                                                                        ? screenSize
+                                                                            .height
+                                                                        : screenSize
+                                                                            .width;
+                                                                final double
+                                                                boxHeight =
+                                                                    isLandscape
+                                                                        ? screenSize
+                                                                            .width
+                                                                        : screenSize
+                                                                            .height;
+
+                                                                return Center(
+                                                                  child: SizedBox(
+                                                                    width:
+                                                                        boxWidth,
+                                                                    height:
+                                                                        boxHeight,
+                                                                    child: FittedBox(
+                                                                      fit:
+                                                                          BoxFit
+                                                                              .contain,
+                                                                      child: RotatedBox(
+                                                                        quarterTurns:
+                                                                            isLandscape
+                                                                                ? 1
+                                                                                : 0,
+                                                                        child: Image.network(
+                                                                          popupUrl,
+                                                                          fit:
+                                                                              BoxFit.contain,
+                                                                          errorBuilder:
+                                                                              (
+                                                                                _,
+                                                                                __,
+                                                                                ___,
+                                                                              ) => const Icon(
+                                                                                Icons.broken_image,
                                                                                 color:
                                                                                     Colors.white,
-                                                                              );
-                                                                            },
-                                                                          ),
+                                                                                size:
+                                                                                    80,
+                                                                              ),
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                              // Close and rotate buttons
-                                                              Positioned(
-                                                                top: 40,
-                                                                right: 20,
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    IconButton(
-                                                                      icon: const Icon(
-                                                                        Icons
-                                                                            .screen_rotation,
-                                                                        color:
-                                                                            Colors.white,
-                                                                        size:
-                                                                            30,
-                                                                      ),
-                                                                      onPressed: () {
-                                                                        isLandscape =
-                                                                            !isLandscape;
-                                                                        print(
-                                                                          'Rotate icon tapped. isLandscape now: '
-                                                                          ' [33m$isLandscape [0m',
-                                                                        );
-                                                                        setStateDialog(
-                                                                          () {},
-                                                                        );
-                                                                      },
-                                                                      tooltip:
-                                                                          'Rotate image',
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                            Positioned(
+                                                              top: 40,
+                                                              right: 20,
+                                                              child: Row(
+                                                                children: [
+                                                                  IconButton(
+                                                                    icon: const Icon(
+                                                                      Icons
+                                                                          .screen_rotation,
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                      size: 30,
                                                                     ),
-                                                                    IconButton(
-                                                                      icon: const Icon(
-                                                                        Icons
-                                                                            .close,
-                                                                        color:
-                                                                            Colors.red,
-                                                                        size:
-                                                                            30,
-                                                                      ),
-                                                                      onPressed:
-                                                                          () =>
-                                                                              Navigator.of(
-                                                                                context,
-                                                                              ).pop(),
+                                                                    onPressed: () {
+                                                                      isLandscape =
+                                                                          !isLandscape;
+                                                                      setStateDialog(
+                                                                        () {},
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 10,
+                                                                  ),
+                                                                  IconButton(
+                                                                    icon: const Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                      color:
+                                                                          Colors
+                                                                              .red,
+                                                                      size: 30,
                                                                     ),
-                                                                  ],
-                                                                ),
+                                                                    onPressed:
+                                                                        () => Navigator.pop(
+                                                                          context,
+                                                                        ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                              // Page indicator
-                                                              Positioned(
-                                                                bottom: 30,
-                                                                left: 0,
-                                                                right: 0,
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: List.generate(
-                                                                    images
-                                                                        .length,
-                                                                    (
-                                                                      dotIndex,
-                                                                    ) => AnimatedContainer(
-                                                                      duration: const Duration(
-                                                                        milliseconds:
-                                                                            300,
-                                                                      ),
-                                                                      margin: const EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            4,
-                                                                      ),
-                                                                      height: 8,
-                                                                      width:
-                                                                          popupPageIndex ==
+                                                            ),
+                                                            Positioned(
+                                                              bottom: 30,
+                                                              left: 0,
+                                                              right: 0,
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: List.generate(images.length, (
+                                                                  dotIndex,
+                                                                ) {
+                                                                  return AnimatedContainer(
+                                                                    duration: const Duration(
+                                                                      milliseconds:
+                                                                          300,
+                                                                    ),
+                                                                    margin: const EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                    ),
+                                                                    height: 8,
+                                                                    width:
+                                                                        currentIndex ==
+                                                                                dotIndex
+                                                                            ? 20
+                                                                            : 8,
+                                                                    decoration: BoxDecoration(
+                                                                      color:
+                                                                          currentIndex ==
                                                                                   dotIndex
-                                                                              ? 20
-                                                                              : 8,
-                                                                      decoration: BoxDecoration(
-                                                                        color:
-                                                                            popupPageIndex ==
-                                                                                    dotIndex
-                                                                                ? Colors.white
-                                                                                : Colors.grey,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                              4,
-                                                                            ),
-                                                                      ),
+                                                                              ? Colors.white
+                                                                              : Colors.grey,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            4,
+                                                                          ),
                                                                     ),
-                                                                  ),
-                                                                ),
+                                                                  );
+                                                                }),
                                                               ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              child: Container(
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                  color: Colors.grey[300],
-                                                ),
-                                                child:
-                                                    imageUrl.isNotEmpty
-                                                        ? ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                          child: Image.network(
-                                                            imageUrl,
-                                                            fit: BoxFit.cover,
-                                                            errorBuilder: (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) {
-                                                              return Container(
-                                                                color:
-                                                                    Colors
-                                                                        .grey[300],
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .broken_image,
-                                                                  size: 40,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
-                                                                ),
-                                                              );
-                                                            },
-                                                            loadingBuilder: (
-                                                              context,
-                                                              child,
-                                                              loadingProgress,
-                                                            ) {
-                                                              if (loadingProgress ==
-                                                                  null)
-                                                                return child;
-                                                              return Container(
-                                                                color:
-                                                                    Colors
-                                                                        .grey[300],
-                                                                child: Center(
-                                                                  child: CircularProgressIndicator(
-                                                                    value:
-                                                                        loadingProgress.expectedTotalBytes !=
-                                                                                null
-                                                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                                                loadingProgress.expectedTotalBytes!
-                                                                            : null,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ),
-                                                        )
-                                                        : Container(
-                                                          color:
-                                                              Colors.grey[300],
-                                                          child: Icon(
-                                                            Icons.image,
-                                                            size: 40,
-                                                            color: Colors.grey,
-                                                          ),
+                                                            ),
+                                                          ],
                                                         ),
-                                              ),
-                                            );
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Image.network(
+                                              url,
+                                              fit: BoxFit.fill,
+                                              errorBuilder:
+                                                  (_, __, ___) => const Icon(
+                                                    Icons.broken_image,
+                                                    color: Colors.grey,
+                                                    size: 40,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+
+                                    // ---- LEFT ARROW ----
+                                    Positioned(
+                                      left: 8,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Center(
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.arrow_back_ios,
+                                            color: Colors.black,
+                                            size: 24,
+                                          ),
+                                          onPressed: () {
+                                            if (controller.currentPage.value >
+                                                0) {
+                                              controller.currentPage.value--;
+                                              controller.pageController
+                                                  .animateToPage(
+                                                    controller
+                                                        .currentPage
+                                                        .value,
+                                                    duration: const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                            }
                                           },
                                         ),
                                       ),
-                                      // Right arrow
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.arrow_forward_ios,
-                                          color: Colors.black54,
-                                        ),
-                                        onPressed: () {
-                                          if (controller.currentPage.value <
-                                              images.length - 1) {
-                                            controller.currentPage.value++;
-                                            controller.pageController
-                                                .animateToPage(
-                                                  controller.currentPage.value,
-                                                  duration: const Duration(
-                                                    milliseconds: 300,
-                                                  ),
-                                                  curve: Curves.easeInOut,
-                                                );
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                }),
+                                    ),
 
-                                const SizedBox(height: 16),
-
-                                // Dots Indicator
-                                Obx(() {
-                                  final controller =
-                                      Get.find<MainAnalyticsController>();
-                                  final mainAnnotated =
-                                      controller.annotatedImages;
-                                  final expertReviewAnnotated =
-                                      controller
-                                          .answerAnalysis
-                                          .value
-                                          ?.data
-                                          ?.answer
-                                          ?.feedback
-                                          ?.expertReview
-                                          ?.annotatedImages;
-                                  final answerImages =
-                                      controller.answerImagesList;
-                                  List<String> images;
-                                  if (mainAnnotated.isNotEmpty) {
-                                    images =
-                                        mainAnnotated
-                                            .map((a) => a.downloadUrl ?? '')
-                                            .toList();
-                                  } else if (expertReviewAnnotated != null &&
-                                      expertReviewAnnotated.isNotEmpty) {
-                                    images =
-                                        expertReviewAnnotated
-                                            .map((a) => a.downloadUrl ?? '')
-                                            .toList();
-                                  } else {
-                                    images =
-                                        answerImages
-                                            .map((a) => a.imageUrl ?? '')
-                                            .toList();
-                                  }
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: List.generate(images.length, (
-                                      index,
-                                    ) {
-                                      return AnimatedContainer(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 4,
-                                        ),
-                                        height: 8,
-                                        width:
-                                            controller.currentPage.value ==
-                                                    index
-                                                ? 20
-                                                : 8,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              controller.currentPage.value ==
-                                                      index
-                                                  ? Colors.blue
-                                                  : Colors.grey,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
+                                    // ---- RIGHT ARROW ----
+                                    Positioned(
+                                      right: 8,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Center(
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.black,
+                                            size: 24,
                                           ),
+                                          onPressed: () {
+                                            if (controller.currentPage.value <
+                                                images.length - 1) {
+                                              controller.currentPage.value++;
+                                              controller.pageController
+                                                  .animateToPage(
+                                                    controller
+                                                        .currentPage
+                                                        .value,
+                                                    duration: const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                            }
+                                          },
                                         ),
-                                      );
-                                    }),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
+                                      ),
+                                    ),
+
+                                    // ---- DOTS indicator ----
+                                    Positioned(
+                                      bottom: 8,
+                                      left: 0,
+                                      right: 64, // icons के लिए space
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(images.length, (
+                                          index,
+                                        ) {
+                                          return Obx(() {
+                                            return AnimatedContainer(
+                                              duration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 3,
+                                                  ),
+                                              height: 6,
+                                              width:
+                                                  controller
+                                                              .currentPage
+                                                              .value ==
+                                                          index
+                                                      ? 18
+                                                      : 6,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    controller
+                                                                .currentPage
+                                                                .value ==
+                                                            index
+                                                        ? Colors.blue
+                                                        : Colors.white70,
+                                                borderRadius:
+                                                    BorderRadius.circular(3),
+                                              ),
+                                            );
+                                          });
+                                        }),
+                                      ),
+                                    ),
+
+                                    // ---- PDF icons ----
+                                    Positioned(
+                                      bottom: 8,
+                                      right: 8,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(width: 6),
+                                          _buildCircleIcon(
+                                            icon: Icons.library_books,
+                                            onTap:
+                                                () => _exportAllImagesAsPdf(
+                                                  images,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
                         ),
+                        const SizedBox(height: 12),
                         _buildQuestionBox(),
                       ],
                     ),
                   ),
+
+                  // helper
                   SliverPersistentHeader(
                     delegate: _SliverAppBarDelegate(
                       minHeight: 48,
@@ -565,7 +641,6 @@ class _MainAnalyticsState extends State<MainAnalytics>
                             reviewSatus?.trim() == "review_accepted") {
                           return Container();
                         }
-                        final isExpertReview = widget.isExpertReview == true;
                         return Container(
                           decoration: BoxDecoration(
                             color: controller.currentColor.value,
@@ -1033,5 +1108,26 @@ Widget _buildQuestionBox() {
         ),
       );
     }),
+  );
+}
+
+Widget _buildCircleIcon({required IconData icon, required VoidCallback onTap}) {
+  return Container(
+    padding: const EdgeInsets.all(3),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: IconButton(
+      icon: Icon(icon, color: Colors.red, size: 22),
+      onPressed: onTap,
+    ),
   );
 }

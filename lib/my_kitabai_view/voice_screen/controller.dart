@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class VoiceController extends GetxController {
+class VoiceController extends GetxController with WidgetsBindingObserver {
   final FlutterTts flutterTts = FlutterTts();
 
   final RxString ttsMode = 'sarvam'.obs;
@@ -33,6 +33,8 @@ class VoiceController extends GetxController {
   final RxString currentPlayingMessage = ''.obs;
   final RxDouble currentSoundLevel = 0.0.obs;
   final RxBool isFetchingTts = false.obs;
+  final RxBool isManuallyStopped = false.obs;
+  final RxBool isAppInForeground = true.obs;
   String userTextInput = '';
   String aiReply = '';
   bool _isSpeechInitialized = false;
@@ -44,8 +46,10 @@ class VoiceController extends GetxController {
   RxBool showFaqOptions = true.obs;
   final bool? isRagChatAvailable;
   String? currentChatId;
+  bool _isControllerDisposed = false;
 
   void sendMessage(String text) {
+    isManuallyStopped.value = false; // Reset flag when sending message
     addMessage({'message': text, 'sender': 'user'});
     showFaqOptions.value = false;
     getHybridAIResponse(text);
@@ -97,6 +101,8 @@ class VoiceController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+    _isControllerDisposed = false;
+    WidgetsBinding.instance.addObserver(this);
     prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString(Constants.authToken);
     await fetchAppVoiceConfigAndSetGlobals();
@@ -105,6 +111,7 @@ class VoiceController extends GetxController {
     isListening.value = false;
     isLoading.value = false;
     isPlayingResponse.value = false;
+    isManuallyStopped.value = false;
     aiReply = '';
     userTextInput = '';
     currentChatId = null; // Reset chat session
@@ -124,7 +131,11 @@ class VoiceController extends GetxController {
       if (state.processingState == ProcessingState.completed) {
         isPlayingResponse.value = false;
         player?.stop();
-        _reinitializeSpeech();
+        // Only reinitialize speech if not manually stopped
+        if (!isManuallyStopped.value) {
+          _reinitializeSpeech();
+        }
+        isManuallyStopped.value = false; // Reset flag
       }
     });
 
@@ -163,6 +174,7 @@ class VoiceController extends GetxController {
 
   void selectTab(String tab) {
     selectedTab.value = tab;
+    isManuallyStopped.value = false; // Reset flag when selecting tab
     if (tab == 'History' && !isLoadingHistory.value) {
       fetchChatHistory();
     }
@@ -171,6 +183,7 @@ class VoiceController extends GetxController {
   void selectVoice(String voiceName) {
     if (voiceMapping.containsKey(voiceName)) {
       selectedVoice.value = voiceMapping[voiceName]!;
+      isManuallyStopped.value = false; // Reset flag when selecting voice
       debugPrint('Selected voice ID: ${selectedVoice.value}');
     } else {
       debugPrint('voiceMapping does not contain key: $voiceName');
@@ -180,6 +193,7 @@ class VoiceController extends GetxController {
   void selectLanguage(String languageLabel) {
     if (languageMapping.containsKey(languageLabel)) {
       selectedLanguageLabel.value = languageMapping[languageLabel]!;
+      isManuallyStopped.value = false; // Reset flag when selecting language
       debugPrint('Selected language: ${selectedLanguageLabel.value}');
       _initializeFlutterTts(); // Reinitialize Flutter TTS with new language
     } else {
@@ -189,19 +203,23 @@ class VoiceController extends GetxController {
 
   void toggleChatMode() {
     isChatMode.value = !isChatMode.value;
+    isManuallyStopped.value = false; // Reset flag when toggling chat mode
   }
 
   void markFirstInteractionDone() {
     isFirstInteraction.value = false;
+    isManuallyStopped.value = false; // Reset flag when marking first interaction done
   }
 
   void selectItem(String item) {
     selectedItem.value = item;
+    isManuallyStopped.value = false; // Reset flag when selecting item
   }
 
   Future<void> _initAudioSession() async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
+    isManuallyStopped.value = false; // Reset flag when initializing audio session
   }
 
   Future<void> _initializeSpeech() async {
@@ -214,6 +232,7 @@ class VoiceController extends GetxController {
         isListening.value = false;
       },
     );
+    isManuallyStopped.value = false; // Reset flag when initializing speech
   }
 
   Future<void> toggleListening() async {
@@ -239,6 +258,7 @@ class VoiceController extends GetxController {
         }
 
         userTextInput = '';
+        isManuallyStopped.value = false; // Reset flag when starting listening
         isListening.value = true;
 
         await speech.listen(
@@ -269,6 +289,7 @@ class VoiceController extends GetxController {
     if (userTextInput.isEmpty) return;
 
     isListening.value = false;
+    isManuallyStopped.value = false; // Reset flag when processing speech input
     await stopCurrentResponse();
     addMessage({'message': userTextInput, 'sender': 'user'});
     await getHybridAIResponse(userTextInput);
@@ -277,6 +298,7 @@ class VoiceController extends GetxController {
 
   Future<void> stopCurrentResponse() async {
     try {
+      isManuallyStopped.value = true; // Mark as manually stopped
       if (player?.playing ?? false) {
         await player?.stop();
       }
@@ -290,6 +312,8 @@ class VoiceController extends GetxController {
 
   Future<RagChatForBook> ragChatApi(String question) async {
     debugPrint("📡 [ragChatApi] Preparing request (NEW API)...");
+
+    isManuallyStopped.value = false; // Reset flag when calling RAG chat API
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
@@ -387,6 +411,8 @@ class VoiceController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
+    isManuallyStopped.value = false; // Reset flag when fetching app voice config
+
     final url = Uri.parse(ApiUrls.appConfig);
 
     try {
@@ -437,6 +463,8 @@ class VoiceController extends GetxController {
     final authToken = prefs.getString('authToken');
     final String url = ApiUrls.appExpireConfigLlm;
 
+    isManuallyStopped.value = false; // Reset flag when sending expired flag
+
     final Map<String, dynamic> payload = {"isExpired": true};
 
     debugPrint('📡 Preparing to send PUT request to: $url');
@@ -468,6 +496,8 @@ class VoiceController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
     final String url = ApiUrls.appExpireConfigTts;
+
+    isManuallyStopped.value = false; // Reset flag when sending expired flag
 
     final Map<String, dynamic> payload = {"isExpired": true};
 
@@ -501,6 +531,7 @@ class VoiceController extends GetxController {
 
     debugPrint("[AI] User input: $input");
     isLoading.value = true;
+    isManuallyStopped.value = false; // Reset flag when getting AI response
     try {
       apiKey = googleKey;
       final apiUrl =
@@ -577,8 +608,10 @@ class VoiceController extends GetxController {
   }
 
   Future<void> callLmntForTTS(String text) async {
-    await stopCurrentResponse();
+    // Don't call stopCurrentResponse here to avoid setting isManuallyStopped
+    // await stopCurrentResponse();
     isFetchingTts.value = true;
+    isManuallyStopped.value = false; // Reset flag when calling LMNT TTS
 
     const String apiKey = 'ak_k5oc5g5R5QQ6GvfntiwYcn';
     const String voice = 'nova';
@@ -626,11 +659,13 @@ class VoiceController extends GetxController {
           debugPrint("🛑 LMNT WS error: $error");
           await sink.close();
           isFetchingTts.value = false;
-          if (!playbackAttempted) {
+          if (!playbackAttempted && !isManuallyStopped.value) {
             playbackAttempted = true;
             await callFlutterTts(text);
           }
-          _reinitializeSpeech();
+          if (!isManuallyStopped.value) {
+            _reinitializeSpeech();
+          }
         },
         onDone: () async {
           await sink.close();
@@ -646,25 +681,33 @@ class VoiceController extends GetxController {
             } else {
               debugPrint("❌ Audio empty or corrupted");
               isFetchingTts.value = false;
-              await callFlutterTts(text);
+              if (!isManuallyStopped.value) {
+                await callFlutterTts(text);
+              }
             }
           } catch (e) {
             debugPrint("🎧 Playback error: $e");
             isFetchingTts.value = false;
-            await callFlutterTts(text);
+            if (!isManuallyStopped.value) {
+              await callFlutterTts(text);
+            }
           }
-          _reinitializeSpeech();
+          if (!isManuallyStopped.value) {
+            _reinitializeSpeech();
+          }
         },
         cancelOnError: true,
       );
     } catch (e) {
       debugPrint("❌ Exception: $e");
-      if (!playbackAttempted) {
+      if (!playbackAttempted && !isManuallyStopped.value) {
         playbackAttempted = true;
         isFetchingTts.value = false;
         await callFlutterTts(text);
       }
-      _reinitializeSpeech();
+      if (!isManuallyStopped.value) {
+        _reinitializeSpeech();
+      }
     }
   }
 
@@ -687,11 +730,14 @@ class VoiceController extends GetxController {
 
   Future<void> callSarvamForTTS(String text) async {
     if (ttsMode.value == 'flutter') {
-      await callFlutterTts(text);
+      if (isAppInForeground.value && !isManuallyStopped.value && !_isControllerDisposed) {
+        await callFlutterTts(text);
+      }
       return;
     }
 
-    await stopCurrentResponse();
+    // Don't call stopCurrentResponse here to avoid setting isManuallyStopped
+    // await stopCurrentResponse();
 
     selectedVoice.value = 'karun';
     const apiUrl = "https://api.sarvam.ai/text-to-speech";
@@ -704,6 +750,9 @@ class VoiceController extends GetxController {
       isPlayingResponse.value = true;
 
       for (int i = 0; i < chunks.length; i++) {
+        if (!isAppInForeground.value || isManuallyStopped.value || _isControllerDisposed) {
+          break; // Do not proceed if app not in foreground or manually stopped
+        }
         final chunk = chunks[i];
         final requestBody = {
           "text": chunk,
@@ -742,8 +791,10 @@ class VoiceController extends GetxController {
             await tempFile.writeAsBytes(audioBytes);
 
             await _clearTemporaryFiles();
-            await player?.setFilePath(tempFile.path);
-            await player?.play();
+            if (isAppInForeground.value && !isManuallyStopped.value && !_isControllerDisposed) {
+              await player?.setFilePath(tempFile.path);
+              await player?.play();
+            }
             await player?.playerStateStream.firstWhere(
               (s) => s.processingState == ProcessingState.completed,
             );
@@ -753,10 +804,16 @@ class VoiceController extends GetxController {
         } else if (response.statusCode == 401) {
           debugPrint("Sarvam API key exhausted (401)");
           await sendIsExpiredFlagLLM();
-          await callFlutterTts(chunk); // Fallback for this chunk
+          // Only fallback to Flutter TTS if not manually stopped
+          if (!isManuallyStopped.value && isAppInForeground.value && !_isControllerDisposed) {
+            await callFlutterTts(chunk);
+          }
         } else {
           debugPrint("Sarvam API Error: ${response.statusCode}");
-          await callFlutterTts(chunk); // Fallback for this chunk
+          // Only fallback to Flutter TTS if not manually stopped
+          if (!isManuallyStopped.value && isAppInForeground.value && !_isControllerDisposed) {
+            await callFlutterTts(chunk);
+          }
         }
       }
 
@@ -766,30 +823,48 @@ class VoiceController extends GetxController {
       debugPrint("Sarvam API Exception: $e");
       isFetchingTts.value = false;
       isPlayingResponse.value = false;
-      await callFlutterTts(text); // Fallback for full text
+      // Only fallback to Flutter TTS if not manually stopped and app in foreground
+      if (!isManuallyStopped.value && isAppInForeground.value && !_isControllerDisposed) {
+        await callFlutterTts(text);
+      }
     }
   }
 
   Future<void> callFlutterTts(String text) async {
-    await stopCurrentResponse();
+    // Don't call stopCurrentResponse here to avoid setting isManuallyStopped
     isFetchingTts.value = false;
     try {
+      if (!isAppInForeground.value || isManuallyStopped.value || _isControllerDisposed) {
+        return; // Do not start TTS if app not foreground or manually stopped
+      }
       await flutterTts.setLanguage(selectedLanguageLabel.value);
       await flutterTts.speak(text);
       isPlayingResponse.value = true;
       flutterTts.setCompletionHandler(() {
         isPlayingResponse.value = false;
-        _reinitializeSpeech();
+        // Only reinitialize speech if not manually stopped
+        if (!isManuallyStopped.value && isAppInForeground.value) {
+          _reinitializeSpeech();
+        }
+        isManuallyStopped.value = false; // Reset flag
       });
       flutterTts.setErrorHandler((msg) {
         debugPrint("Flutter TTS Error: $msg");
         isPlayingResponse.value = false;
-        _reinitializeSpeech();
+        // Only reinitialize speech if not manually stopped
+        if (!isManuallyStopped.value && isAppInForeground.value) {
+          _reinitializeSpeech();
+        }
+        isManuallyStopped.value = false; // Reset flag
       });
     } catch (e) {
       debugPrint("Flutter TTS Exception: $e");
       isPlayingResponse.value = false;
-      _reinitializeSpeech();
+      // Only reinitialize speech if not manually stopped
+      if (!isManuallyStopped.value && isAppInForeground.value) {
+        _reinitializeSpeech();
+      }
+      isManuallyStopped.value = false; // Reset flag
     }
   }
 
@@ -803,6 +878,7 @@ class VoiceController extends GetxController {
         "name": "en-in-x-ene-network",
         "locale": "en-IN",
       });
+      isManuallyStopped.value = false; // Reset flag when initializing Flutter TTS
       debugPrint("Flutter TTS initialized successfully");
     } catch (e) {
       debugPrint("Error initializing Flutter TTS: $e");
@@ -817,6 +893,7 @@ class VoiceController extends GetxController {
     } else {
       ttsMode.value = 'sarvam'; // Mode 1
     }
+    isManuallyStopped.value = false; // Reset flag when changing TTS mode
     debugPrint('Selected mode: $mode, TTS mode: ${ttsMode.value}');
   }
 
@@ -824,6 +901,7 @@ class VoiceController extends GetxController {
     try {
       await player?.stop();
       isPlayingResponse.value = false;
+      isManuallyStopped.value = false; // Reset flag when playing voice response
 
       final directory = await getTemporaryDirectory();
       final tempFile = File('${directory.path}/audio.mp3');
@@ -832,6 +910,9 @@ class VoiceController extends GetxController {
       debugPrint("Saved audio file to: ${tempFile.path}");
       debugPrint("File size: ${await tempFile.length()} bytes");
 
+      if (!isAppInForeground.value || isManuallyStopped.value) {
+        return;
+      }
       await player?.setFilePath(tempFile.path);
       isPlayingResponse.value = true;
       await player?.play();
@@ -840,12 +921,20 @@ class VoiceController extends GetxController {
         if (state.processingState == ProcessingState.completed) {
           isPlayingResponse.value = false;
           player?.stop();
+          // Only reinitialize speech if not manually stopped
+          if (!isManuallyStopped.value) {
+            _reinitializeSpeech();
+          }
         }
       });
     } catch (e) {
       debugPrint('Error playing audio: $e');
       isPlayingResponse.value = false;
       await player?.stop();
+      // Only reinitialize speech if not manually stopped
+      if (!isManuallyStopped.value) {
+        _reinitializeSpeech();
+      }
     }
   }
 
@@ -854,6 +943,7 @@ class VoiceController extends GetxController {
     if (text.isEmpty) return;
 
     isLoading.value = true;
+    isManuallyStopped.value = false; // Reset flag when sending chat message
     chatTextController.clear();
     addMessage({'message': text, 'sender': 'user'});
     await getHybridAIResponse(text);
@@ -862,6 +952,8 @@ class VoiceController extends GetxController {
   @override
   void onClose() {
     try {
+      _isControllerDisposed = true;
+      WidgetsBinding.instance.removeObserver(this);
       _playerStateSubscription?.cancel();
       _audioSessionSubscription?.cancel();
 
@@ -884,6 +976,7 @@ class VoiceController extends GetxController {
       isListening.value = false;
       isPlayingResponse.value = false;
       isLoading.value = false;
+      isManuallyStopped.value = false;
       messages.clear();
 
       _isSpeechInitialized = false;
@@ -895,6 +988,27 @@ class VoiceController extends GetxController {
     super.onClose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    // Stop any audio/TTS as soon as app is not in foreground
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        // Hidden is for web; harmless elsewhere
+        state.toString() == 'AppLifecycleState.hidden') {
+      isAppInForeground.value = false;
+      isManuallyStopped.value = true;
+      try {
+        if (speech.isListening) {
+          await speech.stop();
+        }
+      } catch (_) {}
+      await stopCurrentResponse();
+    } else if (state == AppLifecycleState.resumed) {
+      isAppInForeground.value = true;
+    }
+  }
+
   Future<void> _clearTemporaryFiles() async {
     try {
       final directory = await getTemporaryDirectory();
@@ -904,6 +1018,7 @@ class VoiceController extends GetxController {
           await file.delete();
         }
       }
+      isManuallyStopped.value = false; // Reset flag when clearing temporary files
     } catch (e) {
       debugPrint('Error clearing temporary files: $e');
     }
@@ -928,20 +1043,28 @@ class VoiceController extends GetxController {
         onError: (error) async {
           debugPrint('Speech recognition error: $error');
           isListening.value = false;
-          await Future.delayed(const Duration(seconds: 1));
-          await _reinitializeSpeech();
+          // Only reinitialize if not manually stopped
+          if (!isManuallyStopped.value) {
+            await Future.delayed(const Duration(seconds: 1));
+            await _reinitializeSpeech();
+          }
         },
       );
 
+      isManuallyStopped.value = false; // Reset flag when reinitializing speech
       debugPrint('Speech recognition reinitialized: $_isSpeechInitialized');
     } catch (e) {
       debugPrint('Error reinitializing speech: $e');
-      await Future.delayed(const Duration(seconds: 1));
-      await _reinitializeSpeech();
+      // Only reinitialize if not manually stopped
+      if (!isManuallyStopped.value) {
+        await Future.delayed(const Duration(seconds: 1));
+        await _reinitializeSpeech();
+      }
     }
   }
 
   void openBottomSheet() {
+    isManuallyStopped.value = false; // Reset flag when opening bottom sheet
     Get.bottomSheet(
       Container(
         constraints: BoxConstraints(
@@ -1056,6 +1179,7 @@ class VoiceController extends GetxController {
             initiallyExpanded: expandedChapters[chapterIndex] ?? false,
             onExpansionChanged: (expanded) {
               expandedChapters[chapterIndex] = expanded;
+              isManuallyStopped.value = false; // Reset flag when expanding/collapsing chapter
             },
             title: Text(
               'Chapter ${chapterIndex + 1}',
@@ -1076,6 +1200,7 @@ class VoiceController extends GetxController {
                   child: GestureDetector(
                     onTap: () {
                       selectedTopics[chapterIndex] = topicIndex;
+                      isManuallyStopped.value = false; // Reset flag when selecting topic
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(
@@ -1129,10 +1254,12 @@ class VoiceController extends GetxController {
 
   void resetMode(bool chatMode) {
     isChatMode.value = chatMode;
+    isManuallyStopped.value = false; // Reset flag when resetting mode
   }
 
   void resetChatSession() {
     currentChatId = null;
+    isManuallyStopped.value = false; // Reset flag when resetting chat session
     debugPrint("🔄 [Chat] Chat session reset");
   }
 
@@ -1145,6 +1272,8 @@ class VoiceController extends GetxController {
       debugPrint("❌ questionId is null or empty");
       return;
     }
+
+    isManuallyStopped.value = false; // Reset flag when fetching book details
 
     isLoadingBookDetails.value = true;
     debugPrint("⏳ isLoadingBookDetails set to true");
@@ -1215,6 +1344,7 @@ class VoiceController extends GetxController {
     }
 
     isLoading.value = true;
+    isManuallyStopped.value = false; // Reset flag when getting AI response
     showThinkingBubble.value = true;
 
     try {
@@ -1245,6 +1375,8 @@ class VoiceController extends GetxController {
   Future<void> playSarvamTTS(String message) async {
     if (message.trim().isEmpty) return;
     try {
+      if (!isAppInForeground.value) return;
+      isManuallyStopped.value = false; // Reset flag before starting
       isPlayingResponse.value = true;
       await callSarvamForTTS(message);
     } catch (e) {
@@ -1262,6 +1394,8 @@ class VoiceController extends GetxController {
       debugPrint("⏳ [History] Already loading, skipping duplicate call");
       return;
     }
+
+    isManuallyStopped.value = false; // Reset flag when fetching chat history
 
     if (bookDetails.value?.id == null || bookDetails.value!.id!.isEmpty) {
       debugPrint("❌ [History] No book ID available for fetching history");
@@ -1355,6 +1489,8 @@ class VoiceController extends GetxController {
     debugPrint("🚀 [Delete] deleteChat() called");
     debugPrint("🗑️ [Delete] ChatId to delete: $chatId");
 
+    isManuallyStopped.value = false; // Reset flag when deleting chat
+
     final prefs = await SharedPreferences.getInstance();
     debugPrint("🔑 [Delete] SharedPreferences loaded");
 
@@ -1437,6 +1573,7 @@ class VoiceController extends GetxController {
   Future<void> getChatDetails(String chatId) async {
     try {
       isLoadingChatDetails.value = true;
+      isManuallyStopped.value = false; // Reset flag when getting chat details
       print('🚀 [ChatDetails] getChatDetails() called');
       print('💬 [ChatDetails] ChatId: $chatId');
 
@@ -1498,6 +1635,7 @@ class VoiceController extends GetxController {
 
           // Clear current messages and load the chat messages
           messages.clear();
+          isManuallyStopped.value = false; // Reset flag when loading chat details
           for (final message in chatMessages) {
             final role = message['role'] ?? '';
             final content = message['content'] ?? '';

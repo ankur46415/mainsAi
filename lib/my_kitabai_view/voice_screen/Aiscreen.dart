@@ -288,7 +288,6 @@ class _VoiceScreenState extends State<VoiceScreen>
           ),
           child: Column(
             children: [
-              // Header
               Container(
                 width: Get.width,
                 padding: EdgeInsets.all(20),

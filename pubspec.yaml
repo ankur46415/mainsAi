@@ -69,6 +69,7 @@ dependencies:
   image:
   cached_network_image:
   syncfusion_flutter_pdfviewer: ^31.1.19
+  pdf: ^3.10.7
 
 flutter_launcher_icons:
   android: "launcher_icon"

@@ -3,6 +3,11 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../main_analysis/main_analytics_controller.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'dart:io';
+import 'package:share_plus/share_plus.dart';
 
 class ModelAnswerPage extends StatefulWidget {
   const ModelAnswerPage({super.key});
@@ -18,6 +23,15 @@ class _ModelAnswerPageState extends State<ModelAnswerPage> {
     final modalAnswer =
         controller.answerAnalysis.value?.data?.answer?.question?.modalAnswer ??
         'No model answer available';
+    final pdfList =
+        controller
+            .answerAnalysis
+            .value
+            ?.data
+            ?.answer
+            ?.question
+            ?.modalAnswerPdf ??
+        [];
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -27,86 +41,194 @@ class _ModelAnswerPageState extends State<ModelAnswerPage> {
           child: Column(
             children: [
               const SizedBox(height: 12),
-              SizedBox(
-                height: 40,
-                child: TabBar(
-                  indicatorColor: Colors.blueAccent,
-                  labelColor: Colors.blueAccent,
-                  unselectedLabelColor: Colors.grey[600],
-                  isScrollable: false, // 👈 full width equally divide
-                  tabs: [
-                    Tab(
-                      iconMargin: EdgeInsets.zero,
-                      child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center, // 👈 center inside tab
-                        children: [
-                          Icon(
-                            Icons.picture_as_pdf,
-                            color: Colors.red[600],
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          const Text('PDF', style: TextStyle(fontSize: 13)),
-                        ],
+              // Keep TabBar pinned/sticky by not placing it inside scrollable content
+              Material(
+                color: Colors.white,
+                elevation: 1,
+                child: SizedBox(
+                  height: 40,
+                  child: TabBar(
+                    indicatorColor: Colors.blueAccent,
+                    labelColor: Colors.blueAccent,
+                    unselectedLabelColor: Colors.grey[600],
+                    isScrollable: false, // 👈 full width equally divide
+                    tabs: [
+                      Tab(
+                        iconMargin: EdgeInsets.zero,
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center, // 👈 center inside tab
+                          children: [
+                            Icon(
+                              Icons.picture_as_pdf,
+                              color: Colors.red[600],
+                              size: 18,
+                            ),
+                            const SizedBox(width: 4),
+                            const Text('PDF', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
                       ),
-                    ),
-                    Tab(
-                      iconMargin: EdgeInsets.zero,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.text_snippet_outlined, size: 18),
-                          SizedBox(width: 4),
-                          Text('Text', style: TextStyle(fontSize: 13)),
-                        ],
+                      Tab(
+                        iconMargin: EdgeInsets.zero,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.text_snippet_outlined, size: 18),
+                            SizedBox(width: 4),
+                            Text('Text', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(
                 child: TabBarView(
                   children: [
-                    // PDF TAB (opens static PDF on tap)
-                    Center(
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const _StaticPdfViewerPage(),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.picture_as_pdf,
-                              size: 64,
-                              color: Colors.red[600],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'View PDF',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Tap to open a sample PDF',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
+                    // PDF TAB: show available PDFs as buttons
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
+                      child:
+                          pdfList.isEmpty
+                              ? Center(
+                                child: Text(
+                                  'No PDF available',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              )
+                              : Center(
+                                child: Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: List.generate(pdfList.length, (i) {
+                                    final url = pdfList[i].url ?? '';
+                                    final label = 'PDF ${i + 1}';
+                                    final fileName = () {
+                                      try {
+                                        final p = Uri.parse(url).pathSegments;
+                                        final last = p.isNotEmpty ? p.last : '';
+                                        return last.split('?').first;
+                                      } catch (_) {
+                                        return '';
+                                      }
+                                    }();
+
+                                    return Tooltip(
+                                      message:
+                                          fileName.isEmpty ? label : fileName,
+                                      child: InkWell(
+                                        onTap: () {
+                                          if (url.isNotEmpty) {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => _PdfViewerPage(
+                                                      title: label,
+                                                      url: url,
+                                                    ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                            minWidth: 160,
+                                            maxWidth: 240,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.06,
+                                                ),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                            border: Border.all(
+                                              color: Colors.red.shade200,
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 30,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red.shade50,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  Icons.picture_as_pdf,
+                                                  color: Colors.red[600],
+                                                  size: 18,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      label,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                    ),
+                                                    if (fileName.isNotEmpty)
+                                                      Text(
+                                                        fileName,
+                                                        maxLines: 1,
+                                                        overflow:
+                                                            TextOverflow
+                                                                .ellipsis,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 11,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                            ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
                     ),
 
                     // TEXT TAB (existing content)
@@ -277,21 +399,74 @@ class _ModelAnswerPageState extends State<ModelAnswerPage> {
   }
 }
 
-class _StaticPdfViewerPage extends StatelessWidget {
-  const _StaticPdfViewerPage({super.key});
+class _PdfViewerPage extends StatelessWidget {
+  final String title;
+  final String url;
+  const _PdfViewerPage({super.key, required this.title, required this.url});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'PDF',
+          title,
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Share',
+            icon: const Icon(Icons.share_rounded),
+            onPressed: () async {
+              await _sharePdf(context);
+            },
+          ),
+        ],
       ),
-      body: SfPdfViewer.network(
-        'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      ),
+      body: SfPdfViewer.network(url),
     );
+  }
+
+  Future<void> _sharePdf(BuildContext context) async {
+    try {
+      final uri = Uri.parse(url);
+      final response = await http.get(uri);
+      if (response.statusCode != 200) {
+        Get.snackbar(
+          'Share',
+          'Failed to fetch PDF (${response.statusCode})',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      String fileName = '';
+      try {
+        fileName =
+            uri.pathSegments.isNotEmpty
+                ? uri.pathSegments.last
+                : 'document.pdf';
+        fileName = fileName.split('?').first;
+        if (!fileName.toLowerCase().endsWith('.pdf')) {
+          fileName = '$fileName.pdf';
+        }
+      } catch (_) {
+        fileName = 'document.pdf';
+      }
+
+      final dir = await getTemporaryDirectory();
+      final filePath = p.join(dir.path, fileName);
+      final file = await File(filePath).writeAsBytes(response.bodyBytes);
+      await Share.shareXFiles([XFile(file.path)], text: title);
+    } catch (e) {
+      Get.snackbar(
+        'Share',
+        'Error: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }
