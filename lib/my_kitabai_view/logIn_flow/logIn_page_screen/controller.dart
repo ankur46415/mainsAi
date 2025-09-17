@@ -8,6 +8,7 @@ class UserLogInOption extends GetxController {
   var isTermsAccepted = false.obs;
 
   final TextEditingController phoneController = TextEditingController();
+
   Future<void> getOtp(TickerProvider tickerProvider, String phone) async {
     if (!isTermsAccepted.value) {
       Get.snackbar(

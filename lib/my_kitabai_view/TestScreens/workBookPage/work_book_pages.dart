@@ -49,7 +49,17 @@ class WorkBookPagesForTest extends StatelessWidget {
                       height: 120,
                       width: 100,
                       color: Colors.grey[200],
-                      child: const Icon(Icons.image, color: Colors.grey),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.image, color: Colors.grey),
+                          SizedBox(height: 6),
+                          Text(
+                            'Title',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
           ),
           const SizedBox(width: 16),
@@ -58,7 +68,9 @@ class WorkBookPagesForTest extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  bookTitle ?? 'No Title',
+                  (bookTitle != null && bookTitle.trim().isNotEmpty)
+                      ? bookTitle
+                      : 'Title',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
