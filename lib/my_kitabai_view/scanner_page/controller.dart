@@ -81,16 +81,108 @@ class ScannerController extends GetxController {
 
       if (value != null && value.isNotEmpty) {
         print('ScannerController: QR Code detected');
+
+        final uri = Uri.tryParse(value);
+
+        if (uri == null) {
+          print('ScannerController: Invalid URI');
+          return;
+        }
+
+        // ✅ Step 1: Validate clientId from query params
+        final clientId = uri.queryParameters['clientId'];
+        print('ScannerController: clientId from QR = $clientId');
+
+        if (clientId != 'CLI147189HIGB') {
+          print('ScannerController: Invalid clientId, rejecting QR scan');
+
+          // 🚨 Show popup for unauthorized access and go back after OK
+          isDialogShowing = true;
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (ctx) => Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: 70,
+                          width: 70,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFFFEBEE), // soft red background
+                          ),
+                          child: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.redAccent,
+                            size: 40,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Access Denied',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'You are not authorized to access this content.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 16, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                              Navigator.of(context).pop();
+                              isDialogShowing = false;
+                            },
+                            child: const Text(
+                              'OK',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          );
+
+          return; // ❌ Stop further processing
+        }
+
         hasNavigated.value = true;
         isScanning.value = false;
         isDialogShowing = true;
 
         try {
-          // Extract question ID from the scanned URL
-          final uri = Uri.tryParse(value);
+          // ✅ Step 2: Extract question ID from path
           String? questionId;
-          if (uri != null && uri.pathSegments.isNotEmpty) {
-            // Look for 'question' in the path, then get the next segment as ID
+          if (uri.pathSegments.isNotEmpty) {
             final idx = uri.pathSegments.indexOf('question');
             if (idx != -1 && idx + 1 < uri.pathSegments.length) {
               questionId = uri.pathSegments[idx + 1];
@@ -104,6 +196,7 @@ class ScannerController extends GetxController {
             return;
           }
 
+          // ✅ Step 3: Call API
           final apiUrl = '${ApiUrls.viewQRQuestionBase}$questionId/view';
           print('ScannerController: Hitting API: $apiUrl');
           await callWebApiGet(
@@ -134,7 +227,7 @@ class ScannerController extends GetxController {
           print('ScannerController: Error while calling API: $e');
         }
 
-        break; // Only handle the first QR
+        break;
       }
     }
   }
