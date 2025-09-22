@@ -322,7 +322,7 @@ class _TestCategoriesObjectivePageState
               bottom: 8,
               left: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.all(6), // padding around the icon
                 decoration: BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(12),
@@ -334,13 +334,10 @@ class _TestCategoriesObjectivePageState
                     ),
                   ],
                 ),
-                child: Text(
-                  (offerPrice != null) ? '₹ ${offerPrice}' : 'PAID',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: const Icon(
+                  Icons.lock,
+                  size: 12, // adjust size as needed
+                  color: Colors.white,
                 ),
               ),
             ),
