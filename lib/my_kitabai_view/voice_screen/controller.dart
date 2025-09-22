@@ -1348,22 +1348,11 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     showThinkingBubble.value = true;
 
     try {
-      if (isRagChatAvailable == true) {
-        final ragResponse = await ragChatApi(input);
-
-        final aiText = ragResponse.answer ?? '';
-        debugPrint("🎯 [RAG] Extracted AI Text: $aiText");
-        debugPrint("🎯 [RAG] TTS Mode:  ttsMode.value");
-
-        aiReply = aiText;
-        addMessage({"sender": "ai", "message": aiText});
-        showThinkingBubble.value = false;
-        // REMOVE AUTO-PLAY: Do not call TTS here
-      } else {
-        await getAIResponse(input);
-        showThinkingBubble.value = false;
-      }
+      // Always use Gemini (getAIResponse) and skip RAG logic
+      await getAIResponse(input);
+      showThinkingBubble.value = false;
     } catch (e) {
+      // Fallback still uses Gemini
       await getAIResponse(input);
       showThinkingBubble.value = false;
     } finally {

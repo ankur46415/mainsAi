@@ -45,10 +45,7 @@ class _VoiceScreenState extends State<VoiceScreen>
     super.initState();
     print(widget.questionId);
     _initializeController();
-    // Load chat history immediately after controller is ready
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      controller.fetchChatHistory();
-    });
+    // Do not auto-fetch RAG chat history; Gemini-only logic
   }
 
   void _initializeController() {
@@ -116,9 +113,7 @@ class _VoiceScreenState extends State<VoiceScreen>
         backgroundColor: Colors.white,
         drawer: _buildDrawer(),
         onDrawerChanged: (isOpened) {
-          if (isOpened) {
-            controller.fetchChatHistory();
-          }
+          // Skip auto RAG history fetch; keep Gemini-only
         },
         body: SafeArea(
           child: Container(

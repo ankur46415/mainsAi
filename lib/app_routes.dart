@@ -12,7 +12,6 @@ import 'package:mains/my_kitabai_view/plans/specific_course_plans/specific_cours
 import 'package:mains/my_kitabai_view/watch/video_page/play_video_controller.dart';
 import 'package:mains/my_kitabai_view/yt_reel/binding.dart';
 import 'package:mains/my_kitabai_view/yt_reel/yt_reel.dart';
-
 import 'my_kitabai_view/creidt/history/payment_history.dart';
 
 class AppRoutes {
@@ -103,14 +102,14 @@ final List<GetPage> appPages = [
     name: AppRoutes.voiceScreen,
     page: () => VoiceScreen(initialChatMode: true),
   ),
-  GetPage(
-    name: AppRoutes.bookDetails,
-    page: () {
-      final args = Get.arguments as Map<String, dynamic>;
-      return BookDetailsPage(bookId: args['bookId']);
-    },
-  ),
 
+  // GetPage(
+  //   name: AppRoutes.bookDetails,
+  //   page: () {
+  //     final args = Get.arguments as Map<String, dynamic>;
+  //     return BookDetailsPage(bookId: args['bookId']);
+  //   },
+  // ),
   GetPage(name: AppRoutes.analytics, page: () => MainAnalytics()),
   GetPage(name: AppRoutes.getAsset, page: () => AssetQrScanner()),
   GetPage(name: AppRoutes.chapterDetails, page: () => ChapterDetails()),

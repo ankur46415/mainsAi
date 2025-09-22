@@ -1,5 +1,4 @@
 import 'app_imports.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'common/app_update_checker.dart';
 
 void main() async {
@@ -61,7 +60,6 @@ class _AppWithUpdateCheckerState extends State<AppWithUpdateChecker> {
   @override
   void initState() {
     super.initState();
-    // Check for updates after a short delay
     Future.delayed(const Duration(seconds: 2), () {
       AppUpdateChecker.checkForUpdates(context);
     });
