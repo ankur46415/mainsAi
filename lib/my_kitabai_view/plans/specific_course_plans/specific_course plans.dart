@@ -47,6 +47,36 @@ class _SpecificCourseState extends State<SpecificCourse> {
           if (controller.isLoading.value) {
             return const LoadingWidget(message: "Loading plan...");
           }
+
+          // Show error message if no plan data
+          if (controller.plan.value == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No plan data available',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please try again later',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -55,11 +85,10 @@ class _SpecificCourseState extends State<SpecificCourse> {
                 // ---------- Plan Card (Dynamic) ----------
                 Obx(() {
                   final plan = controller.plan.value;
-                  final String title =
-                      plan?.name.isNotEmpty == true ? plan!.name : "";
-                  final int durationDays = plan?.duration ?? 365;
-                  final num mrp = plan?.mrp ?? 18000;
-                  final num offer = plan?.offerPrice ?? 10000;
+                  final String title = plan?.name ?? "Plan Details";
+                  final int durationDays = plan?.duration ?? 0;
+                  final num mrp = plan?.mrp ?? 0;
+                  final num offer = plan?.offerPrice ?? 0;
                   final int discountPct =
                       (mrp > 0) ? (((mrp - offer) / mrp) * 100).round() : 0;
                   return Container(
@@ -103,7 +132,9 @@ class _SpecificCourseState extends State<SpecificCourse> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Validity : ${durationDays ~/ 365} Year${durationDays >= 730 ? 's' : ''}",
+                                durationDays > 0
+                                    ? "Validity : ${durationDays ~/ 365} Year${durationDays >= 730 ? 's' : ''}"
+                                    : "Validity : Not specified",
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -111,42 +142,63 @@ class _SpecificCourseState extends State<SpecificCourse> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Plan validity is ${durationDays} days total",
+                                durationDays > 0
+                                    ? "Plan validity is ${durationDays} days total"
+                                    : "Plan validity information not available",
                                 style: GoogleFonts.poppins(
                                   color: Colors.grey,
                                   fontSize: 13,
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Text(
-                                    "₹ $mrp",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    "Discount: ${discountPct.clamp(0, 100)}%",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                "Fees : ₹ $offer",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.green.shade700,
+                              if (mrp > 0 || offer > 0) ...[
+                                Row(
+                                  children: [
+                                    if (mrp > 0) ...[
+                                      Text(
+                                        "₹ $mrp",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                    ],
+                                    if (discountPct > 0)
+                                      Text(
+                                        "Discount: ${discountPct.clamp(0, 100)}%",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                  ],
                                 ),
-                              ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  offer > 0
+                                      ? "Fees : ₹ $offer"
+                                      : "Fees : Not specified",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        offer > 0
+                                            ? Colors.green.shade700
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ] else ...[
+                                Text(
+                                  "Pricing information not available",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -160,10 +212,26 @@ class _SpecificCourseState extends State<SpecificCourse> {
                 // ---------- Description ----------
                 Obx(() {
                   final plan = controller.plan.value;
-                  final String desc =
-                      plan?.description.isNotEmpty == true
-                          ? plan!.description
-                          : "";
+                  final String desc = plan?.description ?? "";
+
+                  if (desc.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "No description available for this plan",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    );
+                  }
+
                   return Text(
                     desc,
                     style: GoogleFonts.poppins(
@@ -227,6 +295,10 @@ class _SpecificCourseState extends State<SpecificCourse> {
                               it.referencedItem!.subCategory.isNotEmpty)
                             it.referencedItem!.subCategory,
                       }.toList();
+
+                  if (subCats.isEmpty) {
+                    return const SizedBox.shrink(); // Hide subcategory tabs if no subcategories
+                  }
 
                   // Compute current selection without mutating reactive state during build
                   final String currentSelection =
@@ -321,6 +393,40 @@ class _SpecificCourseState extends State<SpecificCourse> {
                                     effectiveFilter,
                               )
                               .toList();
+
+                  if (items.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No content available',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'This plan does not include any content yet',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
                   return GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -371,7 +477,8 @@ class _SpecificCourseState extends State<SpecificCourse> {
                     },
                   );
                 }),
-                const SizedBox(height: 30),
+                // Add bottom padding to prevent content from going under floating action button
+                const SizedBox(height: 100),
               ],
             ),
           );
@@ -411,16 +518,27 @@ class _SpecificCourseState extends State<SpecificCourse> {
                   ),
                   onPressed: () {
                     final plan = controller.plan.value;
+                    if (plan == null) {
+                      Get.snackbar(
+                        'Error',
+                        'Plan information is not available. Please try again.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                      return;
+                    }
+
                     Get.toNamed(
                       AppRoutes.makePayment,
                       arguments: {
-                        'planId': plan?.id,
-                        'name': plan?.name,
-                        'description': plan?.description,
-                        'duration': plan?.duration,
-                        'mrp': plan?.mrp,
-                        'offerPrice': plan?.offerPrice,
-                        'category': plan?.category,
+                        'planId': plan.id,
+                        'name': plan.name,
+                        'description': plan.description,
+                        'duration': plan.duration,
+                        'mrp': plan.mrp,
+                        'offerPrice': plan.offerPrice,
+                        'category': plan.category,
                       },
                     );
                   },

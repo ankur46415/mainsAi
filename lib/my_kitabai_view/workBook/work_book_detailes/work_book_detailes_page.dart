@@ -528,29 +528,37 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed:
-                bookData.isPaid == true
-                    ? () {
-                      Get.toNamed(AppRoutes.specificCourse);
-                    }
-                    : bookData.isMyWorkbookAdded == true
-                    ? () async {
-                      if (!Get.isRegistered<MyLibraryController>()) {
-                        Get.put(MyLibraryController(), permanent: true);
-                      }
+            onPressed: () {
+              final bool isEnrolled = bookData.isEnrolled == true;
+              final bool isPaid = bookData.isPaid == true;
+              final bool showPurchase = isPaid && !isEnrolled;
 
-                      final myLibraryController =
-                          Get.find<MyLibraryController>();
-                      await myLibraryController.loadBooks();
+              if (showPurchase) {
+                String? planId;
+                if (bookData.planDetails != null &&
+                    bookData.planDetails!.isNotEmpty) {
+                  planId = bookData.planDetails![0].id;
+                }
+                Get.toNamed(
+                  AppRoutes.specificCourse,
+                  arguments: {'planId': planId},
+                );
+              } else if (controller.isSaved == true ||
+                  controller.isActionLoading.value) {
+                if (!Get.isRegistered<MyLibraryController>()) {
+                  Get.put(MyLibraryController(), permanent: true);
+                }
 
-                      final bottomNavController =
-                          Get.find<BottomNavController>();
-                      bottomNavController.changeIndex(1);
-                      Get.offAll(() => MyHomePage(initialLibraryTabIndex: 1));
-                    }
-                    : () {
-                      controller.addToMyBooks(widget.bookId.toString());
-                    },
+                final myLibraryController = Get.find<MyLibraryController>();
+                myLibraryController.loadBooks();
+
+                final bottomNavController = Get.find<BottomNavController>();
+                bottomNavController.changeIndex(1);
+                Get.offAll(() => MyHomePage());
+              } else {
+                controller.addToMyBooks(widget.bookId.toString());
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   bookData.isPaid == true
@@ -591,68 +599,68 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
       ],
     );
   }
-}
 
-Widget _buildStatItem(
-  BuildContext context, {
-  required String label,
-  required String value,
-  required IconData icon,
-}) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+  Widget _buildStatItem(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).primaryColor,
           ),
-        ],
-      ),
-      const SizedBox(height: 4),
-      Text(
-        value,
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).primaryColor,
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-Widget _buildMetaDataItem({required String label, required String value}) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Text(
-        label.toUpperCase(),
-        style: GoogleFonts.poppins(
-          fontSize: 10,
-          color: Colors.grey[500],
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
+  Widget _buildMetaDataItem({required String label, required String value}) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.poppins(
+            fontSize: 10,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
         ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        value,
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: Colors.grey[800],
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[800],
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

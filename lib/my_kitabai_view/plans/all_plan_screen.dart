@@ -24,79 +24,160 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: Text(
-          'Plans',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 18),
-        ),
-        backgroundColor: const Color.fromARGB(255, 236, 87, 87),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const LoadingWidget(message: "Loading plans...");
-        }
-
-        if (controller.hasError.value) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  controller.errorMessage.value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => controller.refreshPlans(),
-                  child: const Text('Retry'),
-                ),
-              ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        appBar: AppBar(
+          title: Text(
+            'Plans',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
             ),
-          );
-        }
-
-        if (controller.plans.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'No plans available',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => controller.refreshPlans(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.plans.length,
-            itemBuilder: (context, index) {
-              final plan = controller.plans[index];
-              return _buildPlanCard(plan, index);
-            },
           ),
-        );
-      }),
+          backgroundColor: const Color.fromARGB(255, 236, 87, 87),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          bottom: TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: const [Tab(text: 'All Plans'), Tab(text: 'Enrolled')],
+          ),
+        ),
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const LoadingWidget();
+          }
+
+          if (controller.hasError.value) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    controller.errorMessage.value,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => controller.refreshPlans(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Create filtered lists for tabs
+          final enrolledPlans =
+              controller.plans.where((p) => p.isEnrolled == true).toList();
+          final notEnrolledPlans =
+              controller.plans.where((p) => p.isEnrolled != true).toList();
+
+          return TabBarView(
+            children: [
+              // All Plans tab (not enrolled)
+              RefreshIndicator(
+                onRefresh: () => controller.refreshPlans(),
+                child:
+                    notEnrolledPlans.isEmpty
+                        ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.55,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.inbox_outlined,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'No plans available',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                        : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: notEnrolledPlans.length,
+                          itemBuilder: (context, index) {
+                            final plan = notEnrolledPlans[index];
+                            return _buildPlanCard(plan, index);
+                          },
+                        ),
+              ),
+
+              // Enrolled tab
+              RefreshIndicator(
+                onRefresh: () => controller.refreshPlans(),
+                child:
+                    enrolledPlans.isEmpty
+                        ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.55,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.school_outlined,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'No enrolled plans',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                        : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: enrolledPlans.length,
+                          itemBuilder: (context, index) {
+                            final plan = enrolledPlans[index];
+                            return _buildPlanCard(plan, index);
+                          },
+                        ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
@@ -315,27 +396,32 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    // Buy Now button
                     (plan.isEnrolled == true)
                         ? SizedBox(
                           width: double.infinity,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.green),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Already purchased',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.green[800],
+                          child: InkWell(
+                            onTap: () {
+                              Get.toNamed(
+                                AppRoutes.specificCourse,
+                                arguments: {'planId': plan.sId},
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.green),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Already purchased',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green[800],
+                                  ),
                                 ),
                               ),
                             ),

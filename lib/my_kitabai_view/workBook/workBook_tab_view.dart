@@ -191,7 +191,8 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                         ),
                                       )
-                                    else if (book.isPaid == true)
+                                    else if ((book.isEnrolled != true) &&
+                                        (book.isPaid == true))
                                       Positioned(
                                         bottom: 8,
                                         left: 8,
@@ -325,7 +326,8 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                         ),
                                       ),
                                     )
-                                  else if (book.isPaid == true)
+                                  else if ((book.isEnrolled != true) &&
+                                      (book.isPaid == true))
                                     Positioned(
                                       bottom: 18,
                                       left: 8,
@@ -532,7 +534,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                     );
                                   }
 
-                                  // Limit to 5 + 1 "See More" card
                                   final showMore = filteredBooks.length > 5;
                                   final displayBooks =
                                       showMore
@@ -561,7 +562,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                       itemBuilder: (context, index) {
                                         if (showMore &&
                                             index == displayBooks.length) {
-                                          // Last card = See More
                                           final bgImages =
                                               displayBooks.take(4).toList();
                                           return InkWell(
@@ -779,7 +779,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                   ),
                 ),
               )
-            else if (book.isPaid == true)
+            else if ((book.isEnrolled != true) && (book.isPaid == true))
               Positioned(
                 bottom: 8,
                 left: 8,

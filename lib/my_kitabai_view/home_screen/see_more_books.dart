@@ -15,7 +15,7 @@ class WorkBookCategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:     CustomAppBar( title:"$mainCategory - $subCategory"),
+      appBar: CustomAppBar(title: "$mainCategory - $subCategory"),
 
       body: GridView.builder(
         padding: const EdgeInsets.all(12),
@@ -43,26 +43,97 @@ class WorkBookCategoryPage extends StatelessWidget {
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: CachedNetworkImage(
-            imageUrl: book.coverImageUrl ?? '',
-            fit: BoxFit.fill,
-            placeholder: (context, url) => Center(
-              child: Image.asset("assets/images/mains-logo.png", height: 50),
-            ),
-            errorWidget: (context, url, error) => Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: Image.asset(
-                  "assets/images/nophoto.png",
-                  fit: BoxFit.contain,
-                  height: 60,
-                  color: Colors.grey,
-                ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: CachedNetworkImage(
+                imageUrl: book.coverImageUrl ?? '',
+                fit: BoxFit.fill,
+                placeholder:
+                    (context, url) => Center(
+                      child: Image.asset(
+                        "assets/images/mains-logo.png",
+                        height: 50,
+                      ),
+                    ),
+                errorWidget:
+                    (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: Image.asset(
+                          "assets/images/nophoto.png",
+                          fit: BoxFit.contain,
+                          height: 60,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
               ),
             ),
-          ),
+
+            if (book.isEnrolled == true)
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'ENROLLED',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            else if ((book.isEnrolled != true) && (book.isPaid == true))
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'PAID',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

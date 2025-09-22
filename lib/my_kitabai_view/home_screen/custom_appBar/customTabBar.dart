@@ -59,30 +59,30 @@ class CustomTabBar extends StatelessWidget {
                 label: 'AI Tests',
               ),
             ),
-            Expanded(
-              child: CustomTabButton(
-                isSelected: tabControllerManager.selectedIndex.value == 2,
-                onTap: () => tabControllerManager.animateTo(2),
-                icon: Lottie.asset(
-                  'assets/lottie/book_loading.json',
-                  height: 48,
-                  width: 48,
-                  fit: BoxFit.contain,
-                  delegates: LottieDelegates(
-                    values: [
-                      ValueDelegate.color(
-                        const ['**'],
-                        value:
-                            tabControllerManager.selectedIndex.value == 2
-                                ? CustomColors.meeting
-                                : Colors.grey,
-                      ),
-                    ],
-                  ),
-                ),
-                label: 'AI Books',
-              ),
-            ),
+
+            // Expanded(
+            //   child: CustomTabButton(
+            //     isSelected: tabControllerManager.selectedIndex.value == 2,
+            //     onTap: () => tabControllerManager.animateTo(2),
+            //     icon: Lottie.asset(
+            //       'assets/lottie/book_loading.json',
+            //       height: 48,
+            //       width: 48,
+            //       fit: BoxFit.contain,
+            //       delegates: LottieDelegates(
+            //         values: [
+            //           ValueDelegate.color(
+            //             const ['**'],
+            //             value:
+            //                 tabControllerManager.selectedIndex.value == 2
+            //                     ? CustomColors.meeting
+            //                     : Colors.grey,
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //     label: 'AI Books',
+            //   ),)
           ],
         ),
       ),
