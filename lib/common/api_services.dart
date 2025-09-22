@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mains/common/utils.dart';
-import 'package:mains/my_kitabai_view/logIn_flow/logIn_page_screen/User_Login_option.dart';
+import 'package:mains/my_mains_view/logIn_flow/logIn_page_screen/User_Login_option.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'exception.dart';
 

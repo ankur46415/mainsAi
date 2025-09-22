@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mains/base/text_style.dart';
-import 'package:mains/my_kitabai_view/voice_screen/controller.dart';
+import 'package:mains/my_mains_view/voice_screen/controller.dart';
 
 class MessageBubble extends StatelessWidget {
   final String message;

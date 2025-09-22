@@ -1,5 +1,5 @@
 import 'package:mains/app_imports.dart';
-import 'package:mains/model/ai_test_subjective.dart';
+import 'package:mains/models/ai_test_subjective.dart';
 
 class NavigationUtils {
   static Future<T?> safeNavigate<T>({
