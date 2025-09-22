@@ -1,5 +1,5 @@
 import 'package:mains/app_imports.dart';
-import 'package:mains/models/models.dart';
+import 'package:mains/models/Specific_Plan.dart';
 
 class SpecificCourseController extends GetxController {
   late SharedPreferences prefs;

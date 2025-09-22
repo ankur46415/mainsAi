@@ -26,6 +26,7 @@ class PlanData {
   final String imageKey;
   final String videoKey;
   final List<PlanItem> items;
+  final bool isEnrolled;
 
   PlanData({
     required this.id,
@@ -41,6 +42,7 @@ class PlanData {
     required this.imageKey,
     required this.videoKey,
     required this.items,
+    required this.isEnrolled,
   });
 
   factory PlanData.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,7 @@ class PlanData {
       items: (json['items'] as List<dynamic>? ?? <dynamic>[])
           .map((e) => PlanItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isEnrolled: json['isEnrolled'] as bool? ?? false,
     );
   }
 }

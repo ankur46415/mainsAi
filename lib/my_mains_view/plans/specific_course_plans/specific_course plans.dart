@@ -501,48 +501,56 @@ class _SpecificCourseState extends State<SpecificCourse> {
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 56,
-                child: FloatingActionButton.extended(
-                  backgroundColor: Colors.green,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  icon: const Icon(Icons.payment, color: Colors.white),
-                  label: Text(
-                    'MAKE PAYMENT',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                child: Obx(() {
+                  final plan = controller.plan.value;
+                  final bool isEnrolled = plan?.isEnrolled ?? false;
+                  return FloatingActionButton.extended(
+                    backgroundColor: isEnrolled ? Colors.grey : Colors.green,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  onPressed: () {
-                    final plan = controller.plan.value;
-                    if (plan == null) {
-                      Get.snackbar(
-                        'Error',
-                        'Plan information is not available. Please try again.',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                      );
-                      return;
-                    }
-
-                    Get.toNamed(
-                      AppRoutes.makePayment,
-                      arguments: {
-                        'planId': plan.id,
-                        'name': plan.name,
-                        'description': plan.description,
-                        'duration': plan.duration,
-                        'mrp': plan.mrp,
-                        'offerPrice': plan.offerPrice,
-                        'category': plan.category,
-                      },
-                    );
-                  },
-                ),
+                    icon: Icon(
+                      isEnrolled ? Icons.check_circle : Icons.payment,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      isEnrolled ? 'ALREADY PURCHASED' : 'MAKE PAYMENT',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onPressed:
+                        isEnrolled
+                            ? null
+                            : () {
+                              if (plan == null) {
+                                Get.snackbar(
+                                  'Error',
+                                  'Plan information is not available. Please try again.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                                return;
+                              }
+                              Get.toNamed(
+                                AppRoutes.makePayment,
+                                arguments: {
+                                  'planId': plan.id,
+                                  'name': plan.name,
+                                  'description': plan.description,
+                                  'duration': plan.duration,
+                                  'mrp': plan.mrp,
+                                  'offerPrice': plan.offerPrice,
+                                  'category': plan.category,
+                                },
+                              );
+                            },
+                  );
+                }),
               ),
             ),
           ),
