@@ -33,10 +33,19 @@ class _SpecificCourseState extends State<SpecificCourse> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 236, 87, 87),
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Text(
           'Plan',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
@@ -111,9 +120,16 @@ class _SpecificCourseState extends State<SpecificCourse> {
                           padding: const EdgeInsets.all(14),
                           width: double.infinity,
                           decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 236, 87, 87),
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(12),
+                            ),
+                            gradient: LinearGradient(
+                              colors: [
+                                Color(0xFFFFC107),
+                                Color.fromARGB(255, 236, 87, 87),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
                           ),
                           child: Text(

@@ -36,10 +36,19 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
               fontSize: 18,
             ),
           ),
-          backgroundColor: const Color.fromARGB(255, 236, 87, 87),
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
           bottom: TabBar(
             indicatorColor: Colors.white,
             labelColor: Colors.white,
@@ -227,13 +236,10 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    const Color.fromARGB(255, 236, 87, 87),
-                    const Color.fromARGB(255, 219, 70, 70),
-                  ],
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
                 ),
               ),
               child: Row(
@@ -274,8 +280,23 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
 
             // Content section
             Container(
-              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-              child: Padding(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(16),
+                  ),
+                ),
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +410,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: const Color.fromARGB(255, 236, 87, 87),
+                                color: Color.fromARGB(255, 236, 87, 87),
                               ),
                             ),
                           ],
@@ -429,32 +450,28 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                         )
                         : SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
+                          child: OutlinedButton(
                             onPressed: () {
                               Get.toNamed(
                                 AppRoutes.specificCourse,
                                 arguments: {'planId': plan.sId},
                               );
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(
-                                255,
-                                165,
-                                159,
-                                143,
-                              ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color.fromARGB(255, 236, 87, 87), width: 1.2),
+                              foregroundColor: const Color.fromARGB(255, 236, 87, 87),
+                              backgroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              elevation: 0,
                             ),
                             child: Text(
                               'View Details',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: const Color.fromARGB(255, 236, 87, 87),
                               ),
                             ),
                           ),

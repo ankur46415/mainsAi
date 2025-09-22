@@ -2,14 +2,12 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'colors.dart';
 
@@ -17,15 +15,12 @@ class Utils {
   bool isSearchExpanded = false, isOpen = false;
   static late bool _dialogShown = false;
 
-  // static late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
   static void showToast(String text, [Color? bgColor]) {
     Fluttertoast.showToast(
       msg: text,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.SNACKBAR,
       timeInSecForIosWeb: 1,
-      // backgroundColor: bgColor,
       backgroundColor: Colors.grey.shade900,
       textColor: Colors.white,
       fontSize: 16.0,

@@ -44,7 +44,7 @@ class _MakePaymentState extends State<MakePayment> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 236, 87, 87),
+        backgroundColor: Colors.transparent,
         title: Text(
           title.isNotEmpty ? title : 'Plan',
           style: GoogleFonts.poppins(
@@ -55,6 +55,15 @@ class _MakePaymentState extends State<MakePayment> {
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -350,28 +359,48 @@ class _MakePaymentState extends State<MakePayment> {
           child: SizedBox(
             width: double.infinity,
             height: 56,
-            child: FloatingActionButton.extended(
-              backgroundColor: const Color.fromARGB(255, 236, 87, 87),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              icon: const Icon(Icons.lock_outline, color: Colors.white),
-              label: Text(
-                'Pay Now ₹ ${offerPrice.toStringAsFixed(2)}',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (planId == null || planId!.isEmpty) {
+                    Get.snackbar('Error', 'Missing plan id');
+                    return;
+                  }
+                  controller.initiatePayment(planId: planId!, context: context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  elevation: 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.lock_outline, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Pay Now \u20B9 ${offerPrice.toStringAsFixed(2)}',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () {
-                if (planId == null || planId!.isEmpty) {
-                  Get.snackbar('Error', 'Missing plan id');
-                  return;
-                }
-                controller.initiatePayment(planId: planId!, context: context);
-              },
             ),
           ),
         ),

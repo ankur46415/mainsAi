@@ -217,7 +217,11 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             ],
                                           ),
                                           child: Text(
-                                            'PAID',
+                                            (book.planDetails != null &&
+                                                    book.planDetails!.isNotEmpty &&
+                                                    book.planDetails![0].offerPrice != null)
+                                                ? '₹ ${book.planDetails![0].offerPrice}'
+                                                : 'PAID',
                                             style: GoogleFonts.poppins(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
@@ -352,7 +356,11 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ],
                                         ),
                                         child: Text(
-                                          'PAID',
+                                          (book.planDetails != null &&
+                                                  book.planDetails!.isNotEmpty &&
+                                                  book.planDetails![0].offerPrice != null)
+                                              ? '₹ ${book.planDetails![0].offerPrice}'
+                                              : 'PAID',
                                           style: GoogleFonts.poppins(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -800,7 +808,11 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                     ],
                   ),
                   child: Text(
-                    'PAID',
+                    (book.planDetails != null &&
+                            book.planDetails!.isNotEmpty &&
+                            book.planDetails![0].offerPrice != null)
+                        ? '₹ ${book.planDetails![0].offerPrice}'
+                        : 'PAID',
                     style: GoogleFonts.poppins(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,

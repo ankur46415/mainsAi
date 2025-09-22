@@ -35,7 +35,7 @@ class CustomTabBar extends StatelessWidget {
                           ? CustomColors.meeting
                           : Colors.grey,
                 ),
-                label: 'AI WorkBooks',
+                label: 'WorkBooks',
               ),
             ),
             Expanded(
@@ -56,7 +56,7 @@ class CustomTabBar extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
-                label: 'AI Tests',
+                label: 'Tests',
               ),
             ),
 

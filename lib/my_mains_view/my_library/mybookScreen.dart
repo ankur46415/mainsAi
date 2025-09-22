@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mains/app_routes.dart';
 import 'package:mains/my_mains_view/bottomBar/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/work_book_detailes_page.dart';
 import 'package:lottie/lottie.dart';
@@ -81,8 +82,55 @@ class _MyLibraryViewState extends State<MyLibraryView> {
             fontWeight: FontWeight.w600,
           ),
         ),
-      ),
 
+        // 👇 Add to Cart Icon
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 26,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.addToCart);
+                    },
+                  ),
+                ),
+
+                // 🔴 Badge (item count)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text(
+                      "3",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => controller.getworkbooks(),

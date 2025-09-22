@@ -123,7 +123,7 @@ class WorkBookPagesForTest extends StatelessWidget {
     final Color primaryRed = Colors.red[700]!;
 
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
@@ -156,12 +156,6 @@ class WorkBookPagesForTest extends StatelessWidget {
                 child: Text('WorkBook', style: TextStyle(color: Colors.white)),
               ),
               Tab(child: Text('Test', style: TextStyle(color: Colors.white))),
-              Tab(
-                child: Text(
-                  'MyQuestions',
-                  style: TextStyle(color: Colors.white, fontSize: 13),
-                ),
-              ),
             ],
           ),
         ),
@@ -514,8 +508,6 @@ class WorkBookPagesForTest extends StatelessWidget {
                 ),
               );
             }),
-
-            UserQuestionsPage(),
           ],
         ),
         floatingActionButton: Container(

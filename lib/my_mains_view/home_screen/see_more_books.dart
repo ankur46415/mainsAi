@@ -1,6 +1,6 @@
 import '../../app_imports.dart';
 
-class WorkBookCategoryPage extends StatelessWidget {
+class WorkBookCategoryPage extends StatefulWidget {
   final String mainCategory;
   final String subCategory;
   final List<Workbooks> books;
@@ -13,24 +13,81 @@ class WorkBookCategoryPage extends StatelessWidget {
   });
 
   @override
+  State<WorkBookCategoryPage> createState() => _WorkBookCategoryPageState();
+}
+
+class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
+  bool isGrid = true;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: "$mainCategory - $subCategory"),
-
-      body: GridView.builder(
-        padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.68,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
-        itemCount: books.length,
-        itemBuilder: (context, index) {
-          final book = books[index];
-          return _buildImageBox(book, height: Get.width * 0.55);
-        },
+        leading: InkWell(
+          onTap: () {
+            Get.back();
+          },
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
+        title: Text(
+          "${widget.mainCategory} - ${widget.subCategory}",
+          style: GoogleFonts.lato(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            tooltip: isGrid ? 'List view' : 'Grid view',
+            onPressed: () {
+              setState(() {
+                isGrid = !isGrid;
+              });
+            },
+            icon: Icon(
+              isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded,
+            ),
+            color: Colors.orange,
+          ),
+        ],
       ),
+
+      body:
+          isGrid
+              ? GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.68,
+                ),
+                itemCount: widget.books.length,
+                itemBuilder: (context, index) {
+                  final book = widget.books[index];
+                  return _buildImageBox(book, height: Get.width * 0.55);
+                },
+              )
+              : ListView.separated(
+                padding: const EdgeInsets.all(12),
+                itemCount: widget.books.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final book = widget.books[index];
+                  return _buildListItem(book);
+                },
+              ),
     );
   }
 
@@ -77,63 +134,123 @@ class WorkBookCategoryPage extends StatelessWidget {
               Positioned(
                 bottom: 8,
                 left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'ENROLLED',
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                child: _buildBadge('ENROLLED', Colors.green),
               )
             else if ((book.isEnrolled != true) && (book.isPaid == true))
               Positioned(
                 bottom: 8,
                 left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'PAID',
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                child: _buildBadge('PAID', Colors.red),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListItem(Workbooks book) {
+    return InkWell(
+      onTap: () => Get.to(() => WorkBookDetailesPage(bookId: book.sId)),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: CachedNetworkImage(
+                imageUrl: book.coverImageUrl ?? '',
+                width: 64,
+                height: 86,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => Container(
+                      width: 64,
+                      height: 86,
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        "assets/images/mains-logo.png",
+                        height: 28,
+                      ),
+                    ),
+                errorWidget:
+                    (context, url, error) => Container(
+                      width: 64,
+                      height: 86,
+                      color: Colors.grey[200],
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        "assets/images/nophoto.png",
+                        height: 28,
+                        color: Colors.grey,
+                      ),
+                    ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.title ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if (book.isEnrolled == true)
+                        _buildBadge('ENROLLED', Colors.green)
+                      else if ((book.isEnrolled != true) &&
+                          (book.isPaid == true))
+                        _buildBadge('PAID', Colors.red),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
     );

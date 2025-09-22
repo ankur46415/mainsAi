@@ -80,8 +80,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     onTap: () => Get.toNamed(AppRoutes.payHistory),
                   ),
 
-                 
-
                   _buildSettingsOption(
                     icon: Icons.feedback,
                     title: "Feedback",
@@ -205,6 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 12),
+
               _buildProfileDetailRow(
                 Icons.transgender,
                 "Gender",
@@ -237,7 +236,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
               shape: BoxShape.circle,
               boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
             ),
-            child: Icon(Icons.edit, size: 18, color: CustomColors.primaryColor),
+            child: Icon(
+              Icons.more_vert,
+              size: 18,
+              color: CustomColors.primaryColor,
+            ),
           ),
         ),
       ),

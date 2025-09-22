@@ -14,7 +14,6 @@ class TabControllerManager extends GetxController {
   }
 
   void setTabController(TabController controller) {
-    // Remove old listener if exists
     if (_listener != null && tabController != null) {
       tabController!.removeListener(_listener!);
     }
