@@ -39,41 +39,25 @@ class OtpVerificationController extends GetxController {
         hideLoader: false,
         onResponse: (response) async {
           final responseData = jsonDecode(response.body);
-          print("🔍 OTP Verification Response: $responseData");
 
           if (response.statusCode == 200 && responseData['code'] == 2300) {
             verificationSuccess.value = true;
             token.value = responseData['data']['token'];
 
-            // Save user data if available in response
             if (responseData['data'] != null) {
               final userData = responseData['data'];
-              print("🔍 User Data from OTP Response: $userData");
-
-              // Debug the specific values
-              print("🔍 Checking values:");
-              print("   user_id: '${userData['user_id']}' (type: ${userData['user_id'].runtimeType})");
-              print("   email: '${userData['email']}' (type: ${userData['email'].runtimeType})");
-              print("   first_name: '${userData['first_name']}'");
-              print("   last_name: '${userData['last_name']}'");
 
               if (userData['user_id'] != null && userData['email'] != null) {
-                print("✅ Condition met - Saving user data to AuthService...");
                 await _authService.setUserData(
                   userId: userData['user_id'],
                   userEmail: userData['email'],
-                  userName: "${userData['first_name'] ?? ''} ${userData['last_name'] ?? ''}".trim(),
+                  userName:
+                      "${userData['first_name'] ?? ''} ${userData['last_name'] ?? ''}"
+                          .trim(),
                   userPhone: mobile,
                 );
-                print("✅ User data saved successfully!");
-              } else {
-                print("❌ Condition not met - User data not found in OTP response");
-                print("   user_id is null: ${userData['user_id'] == null}");
-                print("   email is null: ${userData['email'] == null}");
-              }
-            } else {
-              print("❌ No data field in OTP response");
-            }
+              } else {}
+            } else {}
 
             await registerUser(
               tickerProvider: tickerProvider,
@@ -118,7 +102,6 @@ class OtpVerificationController extends GetxController {
       hideLoader: false,
       onResponse: (response) async {
         final responseData = jsonDecode(response.body);
-        print("🔍 Registration Response: $responseData");
 
         if (response.statusCode == 200) {
           String? token = responseData['token'];
@@ -128,24 +111,14 @@ class OtpVerificationController extends GetxController {
           if (token != null) {
             await _authService.setToken(token);
 
-            // Save user data if available in registration response
-            print("🔍 Registration data check:");
-            print("   user_id: '${responseData['user_id']}'");
-            print("   profile.name: '${responseData['profile']?['name']}'");
-
             if (responseData['user_id'] != null) {
-              print("✅ Saving user data from registration response...");
               await _authService.setUserData(
                 userId: responseData['user_id'],
-                userEmail: responseData['email'] ?? "mobishaala@gmail.com", // Use email from OTP response
+                userEmail: responseData['email'] ?? "mobishaala@gmail.com",
                 userName: responseData['profile']?['name'] ?? "User",
                 userPhone: mobile,
               );
-              print("✅ User data saved from registration!");
-            } else {
-              print("❌ User data not found in registration response");
-              print("   user_id is null: ${responseData['user_id'] == null}");
-            }
+            } else {}
 
             Utils.hideLoader();
 

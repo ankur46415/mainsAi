@@ -19,25 +19,19 @@ class CreditBalanceController extends GetxController {
   }
 
   void fetchCreditBalance() async {
-    print("Starting fetchCreditBalance...");
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    print("Retrieved authToken: $authToken");
 
     if (authToken == null) {
-      Get.snackbar("Error", "Auth token not found");
-      print("Auth token not found, aborting fetchCreditBalance.");
       return;
     }
 
     try {
       isLoading.value = true;
-      print("Sending GET request to fetch credit balance...");
 
       final url = "https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/account";
-      print("Request URL: $url");
 
       final response = await http.get(
         Uri.parse(url),
@@ -47,27 +41,18 @@ class CreditBalanceController extends GetxController {
         },
       );
 
-      print("Response status code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        print("Response JSON: $jsonData");
 
         creditData.value = CreditGetApi.fromJson(jsonData);
-        print("Parsed credit data: ${creditData.value}");
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to load credit data: ${response.statusCode}",
-        );
-        print("Failed to load data. Status: ${response.statusCode}, Body: ${response.body}");
+        
       }
     } catch (e) {
-      print("Exception occurred while fetching credit balance: $e");
       Get.snackbar("Error", "Something went wrong");
     } finally {
       isLoading.value = false;
-      print("Finished fetchCreditBalance.");
     }
   }
 

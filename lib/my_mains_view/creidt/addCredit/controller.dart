@@ -30,13 +30,10 @@ class PaymentController extends GetxController {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? authToken = prefs.getString(Constants.authToken);
 
-    print("🔄 Starting fetchRechargePlans...");
     isLoading.value = true;
 
     const url =
         'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/plans/without-items';
-    print("🌐 API URL: $url");
-    print("🛡️ Authorization Token: $authToken");
 
     try {
       final response = await http.get(
@@ -47,39 +44,22 @@ class PaymentController extends GetxController {
         },
       );
 
-      print("📥 Response Status Code: ${response.statusCode}");
-      print("📥 Response Body: ${response.body}");
-
+    
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        print("✅ JSON Decoded: $jsonData");
 
         final parsed = model.AddAmountResponse.fromJson(jsonData);
         plans.value = parsed.data ?? [];
 
-        print("✅ Parsed ${plans.length} plans:");
         for (var plan in plans) {
-          print("""
-🔹 Plan ID: ${plan.id}
-   Name: ${plan.name}
-   Description: ${plan.description}
-   Credits: ${plan.credits}
-   MRP: ₹${plan.mrp}
-   Offer Price: ₹${plan.offerPrice}
-   Status: ${plan.status}
-   Created At: ${plan.createdAt}
-""");
+   
         }
       } else {
-        print(
-          "❌ Failed to fetch plans: ${response.statusCode} - ${response.body}",
-        );
+      
       }
     } catch (e) {
-      print("💥 Exception occurred while fetching recharge plans: $e");
     } finally {
       isLoading.value = false;
-      print("✅ fetchRechargePlans finished. isLoading: ${isLoading.value}");
     }
   }
 
@@ -96,14 +76,6 @@ class PaymentController extends GetxController {
       String? userName = _authService.userName;
       String? userPhone = _authService.userPhone;
 
-      print("🔍 Debug - AuthService Values:");
-      print("   userId: $userId");
-      print("   userEmail: $userEmail");
-      print("   userName: $userName");
-      print("   userPhone: $userPhone");
-      print("   authToken: $authToken");
-
-      // Find the selected plan to get planId and credits
       final selectedPlan = plans.firstWhereOrNull(
         (plan) => plan.offerPrice == amount.toInt(),
       );
@@ -124,8 +96,6 @@ class PaymentController extends GetxController {
         "credits": selectedPlan.credits,
       };
 
-      print("Sending POST request to $backendUrl");
-      print("Request Body: ${jsonEncode(requestBody)}");
 
       final response = await http.post(
         Uri.parse(backendUrl),
@@ -136,20 +106,16 @@ class PaymentController extends GetxController {
         body: jsonEncode(requestBody),
       );
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("Decoded response: $data");
 
         final String? paytmUrl = data['paytmUrl'];
         final Map<String, dynamic>? paytmParams = Map<String, dynamic>.from(
           data['paytmParams'] ?? {},
         );
 
-        print("Paytm URL: $paytmUrl");
-        print("Paytm Params: $paytmParams");
+       
 
         if (paytmUrl != null && paytmParams != null && paytmParams.isNotEmpty) {
           // Convert all paytmParams values to String
@@ -167,7 +133,6 @@ class PaymentController extends GetxController {
         log("Failed Response: ${response.body}");
       }
     } catch (e, stack) {
-      print("Exception occurred: $e");
       log("Exception", error: e, stackTrace: stack);
       Get.snackbar("Error", e.toString());
     }

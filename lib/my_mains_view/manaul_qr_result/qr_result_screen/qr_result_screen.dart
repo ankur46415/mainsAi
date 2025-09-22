@@ -59,7 +59,6 @@ class _QrResultScreenState extends State<QrResultScreen>
   @override
   void initState() {
     controller = Get.put(QrResultController());
-    print(widget.qrresult);
     super.initState();
   }
 

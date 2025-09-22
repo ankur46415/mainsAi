@@ -1579,25 +1579,18 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  // Get individual chat details
   Future<void> getChatDetails(String chatId) async {
     try {
       isLoadingChatDetails.value = true;
-      isManuallyStopped.value = false; // Reset flag when getting chat details
-      print('🚀 [ChatDetails] getChatDetails() called');
-      print('💬 [ChatDetails] ChatId: $chatId');
+      isManuallyStopped.value = false;
 
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
       final userId = prefs.getString('userId');
 
       if (authToken == null || userId == null) {
-        print('❌ [ChatDetails] Auth token or user ID not found');
         return;
       }
-
-      print('🔑 [ChatDetails] AuthToken: Present');
-      print('👤 [ChatDetails] UserId: $userId');
 
       final url =
           'https://test.ailisher.com/api/mobile/public-chat/chat-history';
@@ -1612,41 +1605,24 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
         'user_id': userId,
       };
 
-      print('🌍 [ChatDetails] URL: $url');
-      print('📝 [ChatDetails] Request Body: $body');
-
       final response = await http.post(
         Uri.parse(url),
         headers: headers,
         body: jsonEncode(body),
       );
 
-      print('📬 [ChatDetails] Response Status Code: ${response.statusCode}');
-      print('📄 [ChatDetails] Raw Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true && data['chat'] != null) {
           final chat = data['chat'];
-          print('✅ [ChatDetails] Successfully loaded chat details');
-          print('📋 [ChatDetails] Chat Title: ${chat['title']}');
-          print(
-            '📊 [ChatDetails] Messages Count: ${chat['messages']?.length ?? 0}',
-          );
 
-          // Store chat details and messages
           selectedChatDetails.value = chat;
           chatMessages.value = List<Map<String, dynamic>>.from(
             chat['messages'] ?? [],
           );
-
-          // Set the current chat ID for continuing the conversation
           currentChatId = chatId;
-
-          // Clear current messages and load the chat messages
           messages.clear();
-          isManuallyStopped.value =
-              false; // Reset flag when loading chat details
+          isManuallyStopped.value = false;
           for (final message in chatMessages) {
             final role = message['role'] ?? '';
             final content = message['content'] ?? '';
@@ -1658,37 +1634,9 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
           }
 
           Get.back();
-        } else {
-          print('❌ [ChatDetails] Invalid response format');
-          Get.snackbar(
-            'Error',
-            'Invalid response format',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-      } else {
-        print(
-          '❌ [ChatDetails] Request failed with status: ${response.statusCode}',
-        );
-        Get.snackbar(
-          'Error',
-          'Failed to load chat details',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
+        } else {}
+      } else {}
     } catch (e) {
-      print('❌ [ChatDetails] Error: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to load chat details: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     } finally {
       isLoadingChatDetails.value = false;
     }

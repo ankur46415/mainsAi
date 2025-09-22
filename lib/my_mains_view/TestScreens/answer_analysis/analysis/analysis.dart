@@ -966,7 +966,6 @@ class _AnalysisState extends State<Analysis> {
                               ?.reviewStatus;
 
                       final bool shouldShowReview = reviewStatus == null;
-                      print('reviewStatus: $reviewStatus');
                       return shouldShowReview
                           ? InkWell(
                             onTap: _showReviewBottomSheet,

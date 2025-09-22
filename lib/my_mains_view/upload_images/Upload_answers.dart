@@ -34,15 +34,11 @@ class _UploadAnswersState extends State<UploadAnswers> {
   void initState() {
     super.initState();
     controller = Get.put(UploadAnswersController(), permanent: true);
-    print("widget.questionId : ${widget.questionId}");
     if (widget.questionId != null) {
       controller.setQuestionId(widget.questionId);
-      print("Setting questionId in initState: ${widget.questionId}");
     } else {
-      print("Warning: widget.questionId is null");
     }
-    print(widget.bookTitle);
-    print(widget.imageUrl);
+
   }
 
   Widget _buildQuestionBox() {
@@ -149,7 +145,6 @@ class _UploadAnswersState extends State<UploadAnswers> {
 
   @override
   Widget build(BuildContext context) {
-    print("Current questionId: ${controller.questionId.value}");
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(

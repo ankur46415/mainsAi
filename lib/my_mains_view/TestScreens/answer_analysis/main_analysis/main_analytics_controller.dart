@@ -32,8 +32,13 @@ class MainAnalyticsController extends GetxController
   RxBool isLoading = false.obs;
   final RxList<AnalysedAnnotations> annotatedImages =
       <AnalysedAnnotations>[].obs;
-      
-  static const List<String> topTabs = ['Expert Review  ','Analysis', 'Model Answer', "Video "];
+
+  static const List<String> topTabs = [
+    'Expert Review  ',
+    'Analysis',
+    'Model Answer',
+    "Video ",
+  ];
   final List<Color> tabColors = [
     Colors.blue.shade50,
     Colors.red.shade50,
@@ -59,9 +64,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
   Future<void> _initController() async {
     prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString(Constants.authToken);
-    print(
-      "🔑 Auth token initialized: ${authToken != null ? 'Present' : 'Null'}",
-    );
   }
 
   @override
@@ -74,24 +76,18 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
   }
 
   Future<void> fetchEvaluations() async {
-    print("🔄 Starting fetchEvaluations...");
-    print("📦 Question ID: $questionId");
-    print("📦 Attempt Number: $attemptNumber");
     isLoading.value = true;
 
     if (authToken == null) {
-      print("⏳ Waiting for auth token initialization...");
       await _initController();
     }
 
     if (authToken == null) {
-      print("❌ Auth token is still null after initialization");
       isLoading.value = false;
       return;
     }
 
     if (questionId == null || questionId!.isEmpty) {
-      print("❌ Question ID is null or empty");
       isLoading.value = false;
       return;
     }
@@ -103,13 +99,10 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
         null,
         url,
         onResponse: (response) {
-          print("📡 Response Status Code: \\${response.statusCode}");
-          print("📨 Raw Response Body: \\${response.body}");
           if (response.statusCode == 200) {
             isLoading.value = false;
             try {
               final Map<String, dynamic> jsonData = json.decode(response.body);
-              print("✅ Decoded JSON: \\${jsonData}");
               final GetAnswerAnlaysis analysis = GetAnswerAnlaysis.fromJson(
                 jsonData,
               );
@@ -125,18 +118,10 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
                     analysis.data!.answer!.annotatedImages!,
                   );
                 }
-                print("\n📊 Data Updated:");
-                print(
-                  "📝 Answer Analysis: \\${answerAnalysis.value != null ? 'Present' : 'Null'}",
-                );
-                print("🖼️ Answer Images: \\${answerImagesList.length}");
               } else {
-                print("⚠️ No valid data found in response");
                 _clearAllData();
               }
             } catch (e, stackTrace) {
-              print("❌ Error parsing response: $e");
-              print("🧠 Stack trace: $stackTrace");
               _clearAllData();
             }
           } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -145,14 +130,10 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
               Get.offAll(() => User_Login_option());
             });
           } else {
-            print(
-              "❌ Failed to load data. Status Code: \\${response.statusCode}",
-            );
             _clearAllData();
           }
         },
         onError: () {
-          print('❌ Error in fetchEvaluations');
           _clearAllData();
         },
         token: authToken ?? '',
@@ -160,12 +141,9 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
         hideLoader: false,
       );
     } catch (e, stackTrace) {
-      print("🛑 Error fetching evaluations: $e");
-      print("🧵 Stack trace: $stackTrace");
       _clearAllData();
     } finally {
       isLoading.value = false;
-      print("✅ fetchEvaluations() finished.");
     }
   }
 

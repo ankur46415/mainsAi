@@ -41,7 +41,6 @@ class HomeScreenController extends GetxController {
         });
       }
     } catch (e) {
-      print('Error in HomeScreenController onInit: $e');
     }
   }
 
@@ -55,16 +54,13 @@ class HomeScreenController extends GetxController {
 
   Future<void> fetchHomePageAdds() async {
     final prefs = await SharedPreferences.getInstance();
-    final authToken = prefs.getString('authToken'); // stored token
-    print("🔑 Auth Token: $authToken");
+    final authToken = prefs.getString('authToken'); 
 
     try {
       isLoading.value = true;
-      print("📡 Fetching HomePageAdds...");
 
-      final url = ApiUrls.marketing; // 👈 using central API url
+      final url = ApiUrls.marketing;
 
-      print("🌍 Request URL: $url");
 
       final response = await http.get(
         Uri.parse(url),
@@ -73,27 +69,18 @@ class HomeScreenController extends GetxController {
           "Authorization": "Bearer $authToken",
         },
       );
-
-      print("📨 Response Status for add: ${response.statusCode}");
-      print("📨 Response Body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         homePageAdds.value = adds_model.HomePageAdds.fromJson(data);
-        print(
-          "✅ Data parsed successfully. Found: ${homePageAdds.value.data?.length ?? 0} ads",
-        );
+      
         _buildAdsByLocation();
       } else {
         Get.snackbar("Error", "Failed to load data: ${response.statusCode}");
-        print("❌ Failed with status code ${response.statusCode}");
       }
     } catch (e) {
       Get.snackbar("Error", "Something went wrong: $e");
-      print("🔥 Exception caught: $e");
     } finally {
       isLoading.value = false;
-      print("⏹️ Fetch finished");
     }
   }
 
@@ -181,11 +168,8 @@ class HomeScreenController extends GetxController {
                 }
               }
             }
-            // Mark as successfully loaded after parsing
             hasLoaded.value = true;
           } else if (response.statusCode == 401) {
-            print("🔐 Token expired. Redirecting to login...");
-
             final prefs = await SharedPreferences.getInstance();
             await prefs.clear();
 
@@ -193,16 +177,12 @@ class HomeScreenController extends GetxController {
               Get.offAll(() => User_Login_option());
             });
 
-            return; // prevent further execution
+            return; 
           } else {
-            print("⚠️ Unhandled status: ${response.statusCode}");
             return;
           }
         },
         onError: () {
-          // Do NOT throw here. Just log
-          print("❌ API call failed in onError.");
-          // Don't navigate here again — already handled above
         },
         token: authToken,
         showLoader: false,
@@ -210,8 +190,6 @@ class HomeScreenController extends GetxController {
       );
     } catch (e) {
       isLoading.value = false;
-      print("❗ Exception caught: $e");
-      // Do not throw here — it crashes app before redirection
     } finally {
       isLoading.value = false;
       initializeFirstSubcategories();
@@ -282,7 +260,6 @@ class HomeScreenController extends GetxController {
         },
       );
     } catch (e) {
-      print('Error loading more books: $e');
       hasMore[key] = false;
     } finally {
       isLoading.value = false;

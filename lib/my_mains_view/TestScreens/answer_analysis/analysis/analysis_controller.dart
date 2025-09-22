@@ -36,14 +36,12 @@ class AnalysisController extends GetxController {
     }
 
     final url = Uri.parse('${ApiUrls.reviewForAnswer}/$answerId');
-    print('Review URL: $url');
 
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $authToken',
     };
 
-    // Prepare the review notes based on the selected option
     String reviewNotes = selectedOption;
     if (selectedOption == 'Others' &&
         otherText != null &&
@@ -52,7 +50,6 @@ class AnalysisController extends GetxController {
     }
 
     final body = jsonEncode({'notes': reviewNotes, 'priority': 'medium'});
-    print('Request body: $body');
     showSmallLoadingDialog();
     try {
       await callWebApi(
@@ -60,8 +57,6 @@ class AnalysisController extends GetxController {
         url.toString(),
         json.decode(body),
         onResponse: (response) async {
-          print('Response status: \\${response.statusCode}');
-          print('Response body: \\${response.body}');
           Get.back();
           if (response.statusCode == 200 || response.statusCode == 201) {
             await Future.delayed(Duration(milliseconds: 300));
@@ -81,18 +76,12 @@ class AnalysisController extends GetxController {
             final errorData = jsonDecode(response.body);
             final errorMessage =
                 errorData['message'] ?? 'Failed to submit review';
-            Get.snackbar(
-              'Error',
-              errorMessage,
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red.shade100,
-            );
+
             return false;
           }
         },
         onError: () {
           Get.back();
-          print('Error submitting review');
           Get.snackbar(
             'Error',
             'Failed to submit review. Please try again.',
@@ -107,7 +96,6 @@ class AnalysisController extends GetxController {
       return true;
     } catch (e) {
       Get.back();
-      print('Error submitting review: $e');
       Get.snackbar(
         'Error',
         'Failed to submit review. Please try again.',
@@ -151,7 +139,6 @@ class AnalysisController extends GetxController {
     final url = Uri.parse(
       '${ApiUrls.apiUrl5}/mobile/userAnswers/answers/$answerId/feedback',
     );
-    print('Feedback URL: $url');
 
     final headers = {
       'Content-Type': 'application/json',
@@ -167,7 +154,6 @@ class AnalysisController extends GetxController {
 
     final body = jsonEncode({'message': feedbackMessage});
 
-    print('Request body: $body');
     showSmallLoadingDialog();
     try {
       await callWebApi(
@@ -175,8 +161,7 @@ class AnalysisController extends GetxController {
         url.toString(),
         json.decode(body),
         onResponse: (response) async {
-          print('Response status: \\${response.statusCode}');
-          print('Response body: \\${response.body}');
+         
           Get.back();
           if (response.statusCode == 200 || response.statusCode == 201) {
             return true;
@@ -195,7 +180,6 @@ class AnalysisController extends GetxController {
         },
         onError: () {
           Get.back();
-          print('Error submitting feedback');
           Get.snackbar(
             'Error',
             'Failed to submit feedback. Please try again.',
@@ -210,7 +194,6 @@ class AnalysisController extends GetxController {
       return true;
     } catch (e) {
       Get.back();
-      print('Error submitting feedback: $e');
       Get.snackbar(
         'Error',
         'Failed to submit feedback. Please try again.',

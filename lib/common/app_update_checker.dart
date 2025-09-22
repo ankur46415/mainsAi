@@ -10,24 +10,20 @@ class AppUpdateChecker {
   
   static Future<void> checkForUpdates(BuildContext context) async {
     try {
-      // Get current app version
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       String currentVersion = packageInfo.version;
       
-      // Get latest version from your server or Play Store
       String? latestVersion = await _getLatestVersion();
       
       if (latestVersion != null && _shouldUpdate(currentVersion, latestVersion)) {
         _showUpdateDialog(context, latestVersion);
       }
     } catch (e) {
-      print('Error checking for updates: $e');
     }
   }
   
   static Future<String?> _getLatestVersion() async {
     try {
-      // Check your own API endpoint
       final response = await http.get(
         Uri.parse('${AppConfig.baseUrl}${AppConfig.versionCheckEndpoint}'),
         headers: {
@@ -40,10 +36,8 @@ class AppUpdateChecker {
         return data['latest_version'];
       }
       
-      // If API fails, return null (no update available)
       return null;
     } catch (e) {
-      print('Error getting latest version: $e');
       return null;
     }
   }
@@ -156,10 +150,8 @@ class AppUpdateChecker {
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       } else {
-        print('Could not launch Play Store');
       }
     } catch (e) {
-      print('Error opening Play Store: $e');
     }
   }
 }

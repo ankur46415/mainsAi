@@ -22,7 +22,6 @@ class _LectureDetailesOfCoursesState extends State<LectureDetailesOfCourses> {
   @override
   void initState() {
     controller = Get.put(CurriculumController(widget.bookId, widget.lectureId));
-    print("lectureid : ${widget.lectureId}");
     super.initState();
   }
 

@@ -12,36 +12,30 @@ class ScannerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('ScannerController: Initialized');
     resetScanner();
   }
 
   @override
   void onClose() {
-    print('ScannerController: Closing and disposing camera');
     cameraController.dispose();
     super.onClose();
   }
 
   void resetScanner() {
-    print('ScannerController: Resetting scanner state');
     hasNavigated.value = false;
     scannedCode.value = '';
     isScanning.value = true;
     isDialogShowing = false;
     lastScanTime = null;
     if (!cameraController.isStarting) {
-      print('ScannerController: Starting camera');
       cameraController.start();
     }
   }
 
   void stopScanner() {
-    print('ScannerController: Stopping scanner');
     isScanning.value = false;
     hasNavigated.value = true;
     if (cameraController.isStarting) {
-      print('ScannerController: Stopping camera');
       cameraController.stop();
     }
   }
@@ -61,42 +55,23 @@ class ScannerController extends GetxController {
 
   void onDetect(BarcodeCapture capture, BuildContext context) async {
     if (!isScanning.value || hasNavigated.value || isDialogShowing) {
-      print(
-        'ScannerController: Ignoring scan - isScanning: ${isScanning.value}, hasNavigated: ${hasNavigated.value}, isDialogShowing: $isDialogShowing',
-      );
+      
       return;
     }
 
-    print('ScannerController: BarcodeCapture received:');
     for (final barcode in capture.barcodes) {
-      print('--- Barcode Detected ---');
-      print('Raw Value: ${barcode.rawValue}');
-      print('Display Value: ${barcode.displayValue}');
-      print('Format: ${barcode.format}');
-      print('Type: ${barcode.type}');
+     
     }
 
     for (final barcode in capture.barcodes) {
       final value = barcode.rawValue;
-
       if (value != null && value.isNotEmpty) {
-        print('ScannerController: QR Code detected');
-
         final uri = Uri.tryParse(value);
-
         if (uri == null) {
-          print('ScannerController: Invalid URI');
           return;
         }
-
-        // ✅ Step 1: Validate clientId from query params
         final clientId = uri.queryParameters['clientId'];
-        print('ScannerController: clientId from QR = $clientId');
-
         if (clientId != 'CLI147189HIGB') {
-          print('ScannerController: Invalid clientId, rejecting QR scan');
-
-          // 🚨 Show popup for unauthorized access and go back after OK
           isDialogShowing = true;
           showDialog(
             context: context,
@@ -190,41 +165,31 @@ class ScannerController extends GetxController {
           }
 
           if (questionId == null || questionId.isEmpty) {
-            print(
-              'ScannerController: Could not extract question ID from QR code URL',
-            );
+        
             return;
           }
-
-          // ✅ Step 3: Call API
           final apiUrl = '${ApiUrls.viewQRQuestionBase}$questionId/view';
-          print('ScannerController: Hitting API: $apiUrl');
           await callWebApiGet(
             null,
             apiUrl,
             onResponse: (response) {
               if (response.statusCode == 200) {
                 final jsonData = jsonDecode(response.body);
-                print('ScannerController: API Response: $jsonData');
                 final data = jsonData['data'];
                 final String extractedId = data['id'] ?? questionId;
                 final String questionText = data['question'] ?? '';
                 stopScanner();
                 showCustomDialog(context, extractedId, questionText);
               } else {
-                print(
-                  'ScannerController: API call failed with status: ${response.statusCode}',
-                );
+             
               }
             },
             onError: () {
-              print('ScannerController: Error while calling API');
             },
             showLoader: false,
             hideLoader: false,
           );
         } catch (e) {
-          print('ScannerController: Error while calling API: $e');
         }
 
         break;
@@ -246,7 +211,7 @@ class ScannerController extends GetxController {
       barrierDismissible: true,
       builder: (BuildContext context) {
         final RxBool isExpanded =
-            false.obs; // ✅ define here to keep dialog state local
+            false.obs; 
 
         return WillPopScope(
           onWillPop: () async {
@@ -428,7 +393,6 @@ class ScannerController extends GetxController {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          print('ScannerController: Option tapped: $title');
           stopScanner();
           onTap();
         },

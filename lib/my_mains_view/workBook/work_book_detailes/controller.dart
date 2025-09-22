@@ -21,28 +21,20 @@ class WorkBookBOOKDetailes extends GetxController {
   }
 
   Future<void> fetchWorkbookDetails(String bookId) async {
-    print("📥 fetchWorkbookDetails() called with bookId: $bookId");
     isLoading.value = true;
 
     try {
-      print("🔑 Getting SharedPreferences...");
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
       if (authToken == null) {
-        print("❌ Authentication token is missing.");
-        Get.snackbar('Auth Error', 'Authentication token is missing');
         isLoading.value = false;
         return;
       }
 
       final url = Uri.parse('${ApiUrls.workBookBookDetailes}$bookId/sets');
-      print("🌐 API URL: $url");
 
-      print(
-        "📡 Sending GET request with headers: "
-        '{"Content-Type": "application/json", "Authorization": "Bearer $authToken"}',
-      );
+   
 
       final response = await http.get(
         url,
@@ -52,33 +44,19 @@ class WorkBookBOOKDetailes extends GetxController {
         },
       );
 
-      print("📨 Response status: ${response.statusCode}");
-      print("📨 Response body: ${response.body}");
-
       if (response.statusCode == 200) {
-        print("✅ Parsing response...");
         final jsonData = json.decode(response.body);
 
-        print("🧩 Creating WorkBookBookDetailes model...");
         final details = WorkBookBookDetailes.fromJson(jsonData);
 
-        print("📚 Setting data to observables...");
         workbook.value = details.workbook;
         workbookDetailes.value = details;
         sets.assignAll(details.sets ?? []);
-
-        print("✅ Data successfully fetched and assigned.");
       } else {
-        print("❌ Failed with status: ${response.statusCode}");
-        Get.snackbar('Error', 'Failed to fetch data');
       }
     } catch (e, s) {
-      print("💥 Exception occurred: $e");
-      print("📍 Stack trace: $s");
-      Get.snackbar('Error', 'Exception: $e');
     } finally {
       isLoading.value = false;
-      print("🏁 fetchWorkbookDetails() finished.");
     }
   }
 

@@ -56,47 +56,37 @@ class _MyHomePageState extends State<MyHomePage> {
     MyLibraryView(initialTabIndex: widget.initialLibraryTabIndex),
     VoiceScreen(key: UniqueKey(), isFromBottomNav: true),
     WorkBookPagesForTest(),
-    //MainTestScreen(),
     ProfileScreen(),
   ];
 
-  // Add a method to get the current page with proper state management
   Widget _getCurrentPage(int index) {
-    print('🔄 Building page for index: $index');
     
-    // Ensure controllers are properly initialized
     switch (index) {
       case 0:
-        // Home page - ensure HomeScreenController is initialized
         if (!Get.isRegistered<HomeScreenController>()) {
           Get.put(HomeScreenController(), permanent: true);
         }
         return HomeScreenPage();
         
       case 1:
-        // My Library - ensure MyLibraryController is initialized
         if (!Get.isRegistered<MyLibraryController>()) {
           Get.put(MyLibraryController(), permanent: true);
         }
         return MyLibraryView(initialTabIndex: widget.initialLibraryTabIndex);
         
       case 2:
-        // AI Voice - ensure VoiceController is initialized
         if (!Get.isRegistered<VoiceController>()) {
           Get.put(VoiceController(), permanent: true);
         }
         return VoiceScreen(key: UniqueKey(), isFromBottomNav: true);
         
       case 3:
-        // Result/WorkBook - ensure MainTestScreenController is initialized
         if (!Get.isRegistered<MainTestScreenController>()) {
           Get.put(MainTestScreenController(), permanent: true);
         }
-        print('🔄 Initializing WorkBookPagesForTest for index 3');
         return WorkBookPagesForTest();
         
       case 4:
-        // Settings - ensure ProfileController is initialized
         if (!Get.isRegistered<ProfileController>()) {
           Get.put(ProfileController(), permanent: true);
         }
@@ -149,7 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onWillPop: () => _onWillPop(context),
       child: Obx(() {
         int currentIndex = controller.currentIndex.value;
-        print('🔄 MyHomePage: Current tab index: $currentIndex');
         
         return Scaffold(
           backgroundColor: Colors.white,
@@ -171,11 +160,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           return tab;
                         }).toList(),
                     changeIndex: (int index) {
-                      print('🔄 MyHomePage: Tab changed to index: $index');
                       controller.changeIndex(index);
                     },
                     addClick: () {
-                      print('🔄 MyHomePage: Add button clicked');
                       controller.changeIndex(2);
                     },
                   ),

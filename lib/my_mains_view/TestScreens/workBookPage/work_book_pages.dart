@@ -1,6 +1,5 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/getAllUploadedAnswers.dart';
-import 'package:mains/my_mains_view/TestScreens/workBookPage/user_questions/user_questions_page.dart';
 import 'package:mains/my_mains_view/upload_images/controller.dart';
 
 class WorkBookPagesForTest extends StatelessWidget {
@@ -110,13 +109,10 @@ class WorkBookPagesForTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get arguments passed from previous navigation (e.g., UploadAnswers)
     final args = Get.arguments as Map<String, dynamic>?;
     final String? imageUrl = args?['imageUrl'];
     final String? bookTitle = args?['bookTitle'];
-    print(
-      'WorkBookPagesForTest received imageUrl: $imageUrl, bookTitle: $bookTitle',
-    );
+
     final MainTestScreenController controller = Get.put(
       MainTestScreenController(),
     );
@@ -206,12 +202,6 @@ class WorkBookPagesForTest extends StatelessWidget {
               final bool shouldShowProgressCard =
                   uploadController != null &&
                   uploadController.isUploadingToServer.value;
-              print(
-                'DEBUG: shouldShowProgressCard: '
-                ' [32m$shouldShowProgressCard [0m, '
-                'isUploading: ${uploadController?.isUploadingToServer.value}, '
-                'uploadStatus: ${uploadController?.uploadStatus.value}',
-              );
 
               final totalCount =
                   uniqueWorkbooks.length + (shouldShowProgressCard ? 1 : 0);

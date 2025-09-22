@@ -47,29 +47,17 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
           final videoModel = _createVideoModelFromUrl(videoUrl, j + 1);
           if (videoModel != null) {
             videos.add(videoModel);
-            print(
-              '✅ Added video:  {videoModel.title} (ID:  {videoModel.youtubeId})',
-            );
-          } else {
-            print('❌ Failed to create video model for URL: $videoUrl');
-          }
+          } else {}
         }
         if (endIndex < videoUrls.length) {
           await Future.delayed(const Duration(milliseconds: 5));
         }
       }
       if (videos.isNotEmpty) {
-        print(
-          '🎬 Initializing player with first video: ${videos.first.youtubeId}',
-        );
         initializeYoutubePlayer(videos.first.youtubeId);
       }
       stopwatch.stop();
-      print(
-        '⏱️ Video processing completed in ${stopwatch.elapsedMilliseconds}ms',
-      );
     } catch (e) {
-      print('❌ Error processing videos: $e');
       stopwatch.stop();
     }
   }
@@ -78,9 +66,7 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
     if (currentVideoId.value != null) {
       try {
         youtubeController.close();
-      } catch (e) {
-        print('Error closing existing player: $e');
-      }
+      } catch (e) {}
     }
     currentVideoId.value = null;
     setVideosFromQuestion(question);
@@ -91,7 +77,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
       String url = videoUrl.toString();
       String? youtubeId = _extractYoutubeId(url);
       if (youtubeId == null) {
-        print('Could not extract YouTube ID from URL: $url');
         return null;
       }
       String title = _generateVideoTitle(url, index);
@@ -103,7 +88,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
         youtubeId: youtubeId,
       );
     } catch (e) {
-      print('Error creating video model from URL: $e');
       return null;
     }
   }
@@ -128,7 +112,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
   }
 
   String? _extractYoutubeId(String url) {
-    print('🔍 Extracting YouTube ID from: $url');
     final patterns = [
       RegExp(
         r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})',
@@ -142,22 +125,15 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
       if (match != null) {
         final videoId = match.group(1);
         if (_isValidYoutubeId(videoId!)) {
-          print('✅ Extracted YouTube ID using pattern $i: $videoId');
           return videoId;
-        } else {
-          print('❌ Invalid YouTube ID format: $videoId');
-        }
+        } else {}
       }
     }
     if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url)) {
       if (_isValidYoutubeId(url)) {
-        print('✅ URL is already a valid YouTube ID: $url');
         return url;
-      } else {
-        print('❌ URL is not a valid YouTube ID: $url');
-      }
+      } else {}
     }
-    print('❌ Could not extract valid YouTube ID from URL: $url');
     return null;
   }
 
@@ -182,11 +158,9 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
   }
 
   void initializeYoutubePlayer(String videoId) {
-    print('🎬 Initializing YouTube player with video: $videoId');
     currentVideoId.value = videoId;
     try {
       if (videoId.isEmpty || videoId.length != 11) {
-        print('❌ Invalid video ID format: $videoId');
         isVideoLoading.value = false;
         return;
       }
@@ -203,17 +177,10 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
         ),
       );
       youtubeController.listen((event) {
-        print('🎬 YouTube event: $event');
         if (event is YoutubePlayerValue) {
-          print('🎬 Player state: ${event.playerState}');
-          print('🎬 Error state: ${event.error}');
           if (event.error != YoutubeError.none) {
-            print('❌ YouTube player error: ${event.error}');
             isVideoLoading.value = false;
             if (event.error == YoutubeError.invalidParam) {
-              print(
-                '🔄 Invalid param error detected, attempting to recreate player',
-              );
               Future.delayed(const Duration(milliseconds: 1000), () {
                 recreatePlayerWithQuestion(videoId, _questionData);
               });
@@ -223,41 +190,31 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
           switch (event.playerState) {
             case PlayerState.playing:
               isVideoLoading.value = false;
-              print('✅ Video started playing');
               break;
             case PlayerState.paused:
               isVideoLoading.value = false;
-              print('⏸️ Video paused');
               break;
             case PlayerState.ended:
               isVideoLoading.value = false;
-              print('⏹️ Video ended');
               break;
             case PlayerState.buffering:
               isVideoLoading.value = true;
-              print('⏳ Video buffering...');
               break;
             case PlayerState.cued:
               isVideoLoading.value = false;
-              print('📺 Video cued and ready');
               break;
             case PlayerState.unStarted:
               isVideoLoading.value = true;
-              print('⏳ Video loading...');
               break;
             default:
               isVideoLoading.value = true;
-              print('⏳ Video in unknown state: ${event.playerState}');
               break;
           }
         }
       });
-      print('✅ YouTube player initialized successfully');
     } catch (e) {
-      print('❌ Error initializing YouTube player: $e');
       isVideoLoading.value = false;
       Future.delayed(const Duration(milliseconds: 1000), () {
-        print('🔄 Attempting to recreate player due to initialization error');
         recreatePlayerWithQuestion(videoId, _questionData);
       });
     }
@@ -266,13 +223,8 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {}
   void playVideo(VideoModel video) {
-    print(
-      '🎬 Attempting to play video: ${video.title} (ID: ${video.youtubeId})',
-    );
-    print('🎬 Current video ID: ${currentVideoId.value}');
     try {
       if (currentVideoId.value != video.youtubeId) {
-        print('🔄 Switching to different video: ${video.youtubeId}');
         isVideoLoading.value = true;
         forceRefreshPlayer(video.youtubeId);
         Future.delayed(const Duration(milliseconds: 1000), () async {
@@ -286,51 +238,38 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
               if (isCued) {
                 await Future.delayed(const Duration(milliseconds: 500));
                 youtubeController.playVideo();
-                print('✅ Started playing video: ${video.youtubeId}');
               } else {
-                print('❌ Player not in cued state, attempting to play anyway');
                 youtubeController.playVideo();
               }
             } else {
-              print('❌ Player not ready, attempting to play anyway');
               youtubeController.playVideo();
             }
           } catch (e) {
-            print('❌ Error playing video: $e');
             isVideoLoading.value = false;
             retryVideoLoading(video);
           }
         });
       } else {
-        print('▶️ Playing current video: ${video.youtubeId}');
         try {
           youtubeController.playVideo();
         } catch (e) {
-          print('❌ Error playing current video: $e');
           forceRefreshPlayer(video.youtubeId);
         }
       }
     } catch (e) {
-      print('❌ Error playing video: $e');
       isVideoLoading.value = false;
       try {
-        print(
-          '🔄 Attempting to reinitialize player for video: ${video.youtubeId}',
-        );
         forceRefreshPlayer(video.youtubeId);
         Future.delayed(const Duration(milliseconds: 1500), () async {
           final isReady = await waitForPlayerReady(timeoutSeconds: 5);
           if (isReady) {
             youtubeController.playVideo();
           } else {
-            print('🔄 Final fallback: completely recreating player');
             recreatePlayerWithQuestion(video.youtubeId, _questionData);
           }
           isVideoLoading.value = false;
         });
       } catch (reinitError) {
-        print('❌ Failed to reinitialize player: $reinitError');
-        print('🔄 Final fallback: completely recreating player');
         recreatePlayerWithQuestion(video.youtubeId, _questionData);
         isVideoLoading.value = false;
       }
@@ -364,10 +303,7 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
           systemNavigationBarIconBrightness: Brightness.dark,
         ),
       );
-      print('🧹 VideoAnswerController: Cleaned up resources');
-    } catch (e) {
-      print('❌ Error during VideoAnswerController cleanup: $e');
-    }
+    } catch (e) {}
     super.onClose();
   }
 
@@ -387,7 +323,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
   }
 
   void forceRefreshPlayer(String videoId) {
-    print('🔄 Force refreshing player for video: $videoId');
     try {
       youtubeController.close();
       currentVideoId.value = null;
@@ -395,7 +330,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
         initializeYoutubePlayer(videoId);
       });
     } catch (e) {
-      print('❌ Error force refreshing player: $e');
     }
   }
 
@@ -403,7 +337,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
     try {
       return youtubeController != null && currentVideoId.value != null;
     } catch (e) {
-      print('❌ Error checking player readiness: $e');
       return false;
     }
   }
@@ -412,12 +345,10 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
     final stopwatch = Stopwatch()..start();
     while (stopwatch.elapsed.inSeconds < timeoutSeconds) {
       if (isPlayerReady()) {
-        print('✅ Player is ready');
         return true;
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    print('⏰ Timeout waiting for player to be ready');
     return false;
   }
 
@@ -429,25 +360,20 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
     while (stopwatch.elapsed.inSeconds < timeoutSeconds) {
       try {
         if (youtubeController.value?.playerState == targetState) {
-          print('✅ Player reached target state: $targetState');
           return true;
         }
         if (youtubeController.value.error != YoutubeError.none) {
-          print('❌ Player error detected: ${youtubeController.value.error}');
           return false;
         }
         await Future.delayed(const Duration(milliseconds: 200));
       } catch (e) {
-        print('❌ Error checking player state: $e');
         return false;
       }
     }
-    print('⏰ Timeout waiting for player state: $targetState');
     return false;
   }
 
   void recreatePlayer(String videoId) {
-    print('🔄 Completely recreating player for video: $videoId');
     try {
       if (currentVideoId.value != null) {
         youtubeController.close();
@@ -460,15 +386,12 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
         isVideoLoading.value = false;
       });
     } catch (e) {
-      print('❌ Error recreating player: $e');
       isVideoLoading.value = false;
     }
   }
 
   void recreatePlayerWithQuestion(String videoId, Question? question) {
-    print(
-      '🔄 Completely recreating player with question data for video: $videoId',
-    );
+   
     try {
       if (currentVideoId.value != null) {
         youtubeController.close();
@@ -484,7 +407,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
         isVideoLoading.value = false;
       });
     } catch (e) {
-      print('❌ Error recreating player with question: $e');
       isVideoLoading.value = false;
     }
   }
@@ -495,13 +417,10 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
     int maxRetries = 3,
   }) {
     if (retryCount >= maxRetries) {
-      print('❌ Max retries reached for video: ${video.youtubeId}');
       isVideoLoading.value = false;
       return;
     }
-    print(
-      '🔄 Retrying video loading (attempt ${retryCount + 1}/$maxRetries) for video: ${video.youtubeId}',
-    );
+  
     final delay = Duration(milliseconds: 1000 * (1 << retryCount));
     Future.delayed(delay, () {
       try {
@@ -515,7 +434,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
             );
             if (isCued) {
               youtubeController.playVideo();
-              print('✅ Retry successful for video: ${video.youtubeId}');
             } else {
               retryVideoLoading(
                 video,
@@ -532,7 +450,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
           }
         });
       } catch (e) {
-        print('❌ Error in retry attempt: $e');
         retryVideoLoading(
           video,
           retryCount: retryCount + 1,
@@ -544,7 +461,6 @@ class VideoAnswerController extends GetxController with WidgetsBindingObserver {
 
   void setQuestionData(Question? question) {
     _questionData = question;
-    print('📝 Question data stored for video switching');
   }
 }
 

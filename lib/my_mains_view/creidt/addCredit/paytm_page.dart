@@ -26,7 +26,6 @@ class _PaytmPaymentPageState extends State<PaytmPaymentPage> {
   @override
   void initState() {
     super.initState();
-    print("paytmUrl: ${widget.paytmUrl}");
 
     _controller =
         WebViewController()

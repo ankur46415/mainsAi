@@ -24,11 +24,9 @@ class UploadAnswersController extends GetxController {
 
   void setQuestionId(String? raw) {
     if (raw == null) {
-      print('Warning: Setting null questionId');
       return;
     }
 
-    print('Setting questionId: $raw');
     questionId.value = raw;
   }
 
@@ -42,10 +40,8 @@ class UploadAnswersController extends GetxController {
         Future.delayed(const Duration(milliseconds: 500), () {
           if ((Get.isDialogOpen ?? false) &&
               uploadStatus.value != 'Upload limit reached') {
-            print('Closing dialog due to upload completion');
             Get.back();
           } else if (uploadStatus.value == 'Upload limit reached') {
-            print('Not closing dialog - limit reached dialog is showing');
           }
         });
       }
@@ -57,15 +53,12 @@ class UploadAnswersController extends GetxController {
   final ImagePicker _picker = ImagePicker();
 
   void showLimitReachedDialog() {
-    print('showLimitReachedDialog called');
 
     if (Get.isDialogOpen ?? false) {
-      print('Closing existing dialog before showing limit dialog');
       Get.back();
     }
 
     Future.delayed(const Duration(milliseconds: 200), () {
-      print('Showing limit reached dialog');
       Get.dialog(
         Dialog(
           shape: RoundedRectangleBorder(
@@ -109,7 +102,6 @@ class UploadAnswersController extends GetxController {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      print('Limit dialog OK button pressed');
                       Get.back();
                       Get.back();
                     },
@@ -212,24 +204,20 @@ class UploadAnswersController extends GetxController {
   Future<File> _compressImage(File file) async {
     try {
       if (!await file.exists()) {
-        print('Error: File does not exist for compression: ${file.path}');
         return file;
       }
 
       final fileSize = await file.length();
       if (fileSize == 0) {
-        print('Error: File is empty: ${file.path}');
         return file;
       }
       final bytes = await file.readAsBytes();
       if (bytes.isEmpty) {
-        print('Error: File is empty: ${file.path}');
         return file;
       }
 
       final image = img.decodeImage(bytes);
       if (image == null) {
-        print('Error: Could not decode image: ${file.path}');
         return file;
       }
       var resized = image;
@@ -243,7 +231,6 @@ class UploadAnswersController extends GetxController {
 
       final compressed = img.encodeJpg(resized, quality: 80);
       if (compressed.isEmpty) {
-        print('Error: Compression resulted in empty data');
         return file;
       }
 
@@ -253,13 +240,10 @@ class UploadAnswersController extends GetxController {
       );
 
       await tempFile.writeAsBytes(compressed);
-      print(
-        'Compressed image saved to: ${tempFile.path}, size: ${compressed.length} bytes',
-      );
+      
 
       return tempFile;
     } catch (e) {
-      print('Error compressing image: $e');
       return file;
     }
   }
@@ -332,7 +316,6 @@ class UploadAnswersController extends GetxController {
           final file = capturedImages[i];
 
           if (!await file.exists()) {
-            print('Warning: File does not exist: ${file.path}');
             continue;
           }
 
@@ -351,10 +334,8 @@ class UploadAnswersController extends GetxController {
               ),
             );
           } else {
-            print('Warning: Skipped invalid compressed file');
           }
         } catch (e) {
-          print('Error processing image ${i + 1}: $e');
         }
 
         // Safe progress calculation using stored total count
@@ -391,17 +372,11 @@ class UploadAnswersController extends GetxController {
       final statusCode = response.statusCode;
       uploadProgress.value = 100;
 
-      print('\n📤 Upload response status code: $statusCode');
-      print('📤 Upload response body: $body');
-      print('⏱ Upload took: ${duration.inMilliseconds} ms');
-
       int? responseCodeFromBody;
       try {
         final jsonResponse = json.decode(body);
-        print('📦 Parsed response JSON: $jsonResponse');
         responseCodeFromBody = jsonResponse['responseCode'];
       } catch (e) {
-        print('❌ Error parsing JSON response: $e');
       }
 
       if (statusCode == 555 || responseCodeFromBody == 1573) {
@@ -500,15 +475,12 @@ class UploadAnswersController extends GetxController {
     } catch (e, stackTrace) {
       uploadStatus.value = 'Error: ${e.toString()}';
       showSnack('Error', 'Upload failed: ${e.toString()}');
-      print('❌ Exception occurred during upload: $e');
-      print('🪵 Stack trace: $stackTrace');
+  
       if (Get.isDialogOpen ?? false) Get.back();
       capturedImages.clear();
-      // Clear status after 5 seconds for exception cases too
       _clearStatusAfterDelay();
     } finally {
       isUploadingToServer.value = false;
-      print('✅ Upload process completed');
     }
   }
 
@@ -517,10 +489,8 @@ class UploadAnswersController extends GetxController {
       try {
         if (file.existsSync()) {
           file.deleteSync();
-          print('Cleaned up temp file: ${file.path}');
         }
       } catch (e) {
-        print('Error cleaning up temp file ${file.path}: $e');
       }
     }
   }
@@ -528,9 +498,7 @@ class UploadAnswersController extends GetxController {
   void clearImages() {
     try {
       capturedImages.clear();
-      print('Cleared captured images');
     } catch (e) {
-      print('Error clearing images: $e');
     }
   }
 
@@ -539,11 +507,9 @@ class UploadAnswersController extends GetxController {
     _statusClearTimer = Timer(const Duration(seconds: 5), () {
       uploadStatus.value = '';
       uploadProgress.value = 0;
-      print('Cleared upload status after delay');
     });
   }
 
-  // Method to clear all temporary files in the temp directory
   Future<void> clearAllTempFiles() async {
     try {
       final tempDir = await getTemporaryDirectory();
@@ -554,15 +520,12 @@ class UploadAnswersController extends GetxController {
           try {
             if (file.existsSync()) {
               file.deleteSync();
-              print('Cleaned up temp file: ${file.path}');
             }
           } catch (e) {
-            print('Error deleting temp file ${file.path}: $e');
           }
         }
       }
     } catch (e) {
-      print('Error clearing temp files: $e');
     }
   }
 
@@ -584,9 +547,7 @@ class UploadAnswersController extends GetxController {
       totalImages.value = 0;
       questionId.value = null;
 
-      print('UploadAnswersController: Cleaned up resources');
     } catch (e) {
-      print('Error during controller cleanup: $e');
     }
     super.onClose();
   }

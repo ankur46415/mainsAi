@@ -138,7 +138,6 @@ _returnResponse(
       if (onError != null) {
         onError();
       }
-      // Utils.showToast(responseJson?['message'] ?? " ");
       throw InvalidInputException(response.body.toString());
     case 401:
     case 403:

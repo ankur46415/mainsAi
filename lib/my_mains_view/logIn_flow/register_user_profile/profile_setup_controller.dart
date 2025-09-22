@@ -117,9 +117,6 @@ class ProfileSetupController extends GetxController {
       "native_language": selectedLanguage.value ?? '',
     };
 
-    print("📤 Sending Profile Data to API...");
-    print("➡️ URL: $url");
-    print("🧾 Payload: ${jsonEncode(data)}");
 
     try {
       showSmallLoadingDialog();
@@ -128,24 +125,19 @@ class ProfileSetupController extends GetxController {
         url,
         data,
         onResponse: (response) {
-          print("🔄 Response Status Code: \\${response.statusCode}");
           if (response.statusCode == 200 || response.statusCode == 201) {
             Get.offAll(() => const Decider());
-            print("✅ Profile data submitted successfully!");
-            print("📩 Response Body: \\${response.body}");
+       
           } else if (response.statusCode == 401 || response.statusCode == 403) {
-            print('🔐 Token expired or unauthorized. Logging out user...');
             SharedPreferences.getInstance().then((prefs) async {
               await prefs.clear();
               Get.offAll(() => User_Login_option());
             });
           } else {
-            print("❌ Failed to submit profile data!");
-            print("📩 Error Response Body: \\${response.body}");
+         
           }
         },
         onError: () {
-          print("🚨 Exception occurred while sending profile data!");
         },
         token: authToken ?? '',
         showLoader: false,

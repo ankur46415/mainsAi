@@ -97,7 +97,6 @@ class WatchIntroController extends GetxController {
       isLoading.value = true;
 
       final url = Uri.parse('${ApiUrls.courseDetaile}$bookId/course');
-      print(url);
       final response = await http.get(
         url,
         headers: {
@@ -108,7 +107,6 @@ class WatchIntroController extends GetxController {
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        print("suxess");
         final courseResponse = CourseVideoDetailes.fromJson(jsonData);
 
         if (courseResponse.success == true && courseResponse.course != null) {

@@ -43,9 +43,7 @@ class _VoiceScreenState extends State<VoiceScreen>
   @override
   void initState() {
     super.initState();
-    print(widget.questionId);
     _initializeController();
-    // Do not auto-fetch RAG chat history; Gemini-only logic
   }
 
   void _initializeController() {
@@ -1292,8 +1290,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                         final bookId = controller.bookDetails.value?.id;
                         final chapterId = chapter.chapterId;
 
-                        print("bookId : $bookId");
-                        print("chapterId : $chapterId");
+            
                         if (bookId != null && chapterId != null) {
                           final assetUrl = '$bookId/chapters/$chapterId';
                           Get.toNamed(
@@ -1334,8 +1331,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                               final topicId = topic.topicId;
                               final chapterId = chapter.chapterId;
 
-                              print("bookId: $bookId");
-                              print("chapterId: $topicId");
+                            
 
                               if (bookId != null && topicId != null) {
                                 final assetUrl =

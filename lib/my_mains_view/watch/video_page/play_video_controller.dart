@@ -39,7 +39,6 @@ class PlayVideoController extends GetxController {
 
     final prefs = await SharedPreferences.getInstance();
     final lastPosition = prefs.getDouble('video_$videoId') ?? 0.0;
-    print("Restoring video $videoId at $lastPosition sec");
 
     await youtubeController.loadVideoById(
       videoId: videoId,
@@ -52,7 +51,6 @@ class PlayVideoController extends GetxController {
           value.playerState == PlayerState.buffering ||
           value.playerState == PlayerState.paused) {
         await youtubeController.playVideo();
-        print("Played video after cue");
         await sub?.cancel();
       }
     });
@@ -61,7 +59,6 @@ class PlayVideoController extends GetxController {
     _positionTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
       final pos = await youtubeController.currentTime;
       prefs.setDouble('video_$videoId', pos);
-      print("Saved position $pos sec");
     });
   }
 

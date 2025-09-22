@@ -47,8 +47,6 @@ class TabControllerManager extends GetxController {
       try {
         tabController!.animateTo(index);
       } catch (e) {
-        print('Error animating to index $index: $e');
-        // If TabController is disposed, reset it
         tabController = null;
       }
     }

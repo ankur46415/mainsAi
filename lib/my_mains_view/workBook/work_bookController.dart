@@ -98,7 +98,6 @@ class WorkBookcontroller extends GetxController
   Future<void> fetchHomePageAdds() async {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
-    print("🔑 Auth Token: $authToken");
 
     try {
       isLoading.value = true;
@@ -185,7 +184,6 @@ class WorkBookcontroller extends GetxController
       Get.snackbar('Error', 'Something went wrong');
       hasLoaded.value = true;
       isLoading.value = false;
-      print(e);
     }
   }
 

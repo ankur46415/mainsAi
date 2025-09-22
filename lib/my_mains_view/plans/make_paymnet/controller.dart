@@ -40,8 +40,6 @@ class MakePaymentController extends GetxController {
         "customerEmail": userName,
       };
 
-      print("Sending POST request to $backendUrl");
-      print("Request Body: ${jsonEncode(requestBody)}");
 
       await callWebApi(
         null,
@@ -51,21 +49,16 @@ class MakePaymentController extends GetxController {
         showLoader: false,
         hideLoader: true,
         onResponse: (response) {
-          print("Response status: ${response.statusCode}");
-          print("Response body: ${response.body}");
-
+        
           if (response.statusCode == 200) {
             final data = jsonDecode(response.body);
-            print("Decoded response: $data");
 
             final String? paytmUrl = data['paytmUrl'];
             final Map<String, dynamic>? paytmParams = Map<String, dynamic>.from(
               data['paytmParams'] ?? {},
             );
 
-            print("Paytm URL: $paytmUrl");
-            print("Paytm Params: $paytmParams");
-
+          
             if (paytmUrl != null &&
                 paytmParams != null &&
                 paytmParams.isNotEmpty) {
@@ -76,7 +69,6 @@ class MakePaymentController extends GetxController {
                 () => PaytmPaymentPage(paytmUrl: paytmUrl, paytmParams: params),
               );
             } else {
-              Get.snackbar("Error", "Missing Paytm URL or Params");
             }
           } else {
             Get.snackbar("Error", "Failed to initiate payment.");
@@ -84,13 +76,10 @@ class MakePaymentController extends GetxController {
           }
         },
         onError: () {
-          Get.snackbar("Error", "Failed to initiate payment.");
         },
       );
     } catch (e, stack) {
-      print("Exception occurred: $e");
       log("Exception", error: e, stackTrace: stack);
-      Get.snackbar("Error", e.toString());
     }
   }
 }

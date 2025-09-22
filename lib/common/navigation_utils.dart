@@ -9,7 +9,6 @@ class NavigationUtils {
   }) async {
     try {
       if (arguments == null) {
-        print('⚠️ Warning: No arguments provided for route: $route');
       }
 
       return await Get.toNamed<T>(
@@ -18,7 +17,6 @@ class NavigationUtils {
         preventDuplicates: preventDuplicates,
       );
     } catch (e) {
-      print('❌ Navigation error: $e');
       Get.snackbar(
         'Navigation Error',
         'Failed to navigate to $route',
@@ -34,57 +32,45 @@ class NavigationUtils {
     try {
       final arguments = Get.arguments;
       if (arguments == null) {
-        print('⚠️ Warning: No arguments found');
         return null;
       }
 
       if (arguments is T) {
         return arguments;
       } else {
-        print('❌ Type mismatch: Expected $T, got ${arguments.runtimeType}');
         return null;
       }
     } catch (e) {
-      print('❌ Error getting arguments: $e');
       return null;
     }
   }
 
-  /// Validate test data before navigation
   static bool validateTestData(dynamic testData) {
     if (testData == null) {
-      print('❌ Test data is null');
       return false;
     }
 
-    // Check if it's a Test (subjective) or AiTestItem (objective)
     if (testData is Test) {
       if (testData.testId == null || testData.testId!.isEmpty) {
-        print('❌ Test ID is missing');
         return false;
       }
       if (testData.name == null || testData.name!.isEmpty) {
-        print('❌ Test name is missing');
         return false;
       }
       return true;
     } else if (testData is AiTestItem) {
       if (testData.testId == null || testData.testId!.isEmpty) {
-        print('❌ Test ID is missing');
         return false;
       }
       if (testData.name == null || testData.name!.isEmpty) {
-        print('❌ Test name is missing');
         return false;
       }
       return true;
     } else {
-      print('❌ Invalid test data type: ${testData.runtimeType}');
       return false;
     }
   }
 
-  /// Navigate to test details with validation
   static Future<void> navigateToTestDetails(
     dynamic testData,
     String route,
@@ -148,7 +134,6 @@ class NavigationUtils {
         Get.offAll(() => IntroMainScreen());
       }
     } catch (e) {
-      print('Navigation error: $e');
       Get.offAll(() => MyHomePage());
     }
   }
@@ -165,7 +150,6 @@ class NavigationUtils {
         Get.offAll(() => IntroMainScreen());
       }
     } catch (e) {
-      print('Navigation error: $e');
       Get.offAll(() => MyHomePage());
     }
   }

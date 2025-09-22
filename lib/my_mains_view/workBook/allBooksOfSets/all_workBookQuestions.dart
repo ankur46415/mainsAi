@@ -31,8 +31,6 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
     bookTitle = args?['title'] ?? '';
     controller = Get.put(SetsOfQuestions());
     controller.initialize(sid: sid, bookId: bookId.toString());
-    print(imageUrl);
-    print(bookTitle);
   }
 
   @override

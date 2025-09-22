@@ -101,8 +101,6 @@ class CurriculumController extends GetxController {
       });
     }
 
-    print("Lectures: ${totalLectures.value}");
-    print("Topics: ${totalTopics.value}");
   }
 }
 

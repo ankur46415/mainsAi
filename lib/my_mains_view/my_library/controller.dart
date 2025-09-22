@@ -146,40 +146,32 @@ class MyLibraryController extends GetxController {
     books.clear();
     isBooksLoaded.value = false;
     error.value = '';
-    // Optionally reset other state if needed
   }
 
   Future<void> getworkbooks() async {
-    print("🚀 Starting getworkbooks()");
 
     isLoading.value = true;
     error.value = '';
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
-    print("🔑 Retrieved Auth Token: $authToken");
 
     await callWebApiGet(
       null,
       ApiUrls.getMyWorkBookLibrary,
       onResponse: (response) {
-        print("📥 Response Status: ${response.statusCode}");
-        print("📦 Raw Body: ${response.body}");
+     
 
         if (response.statusCode == 200) {
           final jsonData = json.decode(response.body);
-          print("🧩 Decoded JSON: $jsonData");
 
           if (jsonData['success'] == true && jsonData['data'] != null) {
             final myWorkBookList = MyWorkBookList.fromJson(jsonData);
             final workbooks =
-                myWorkBookList.data ?? []; // ✅ Updated: no `.workbooks`
+                myWorkBookList.data ?? [];
 
-            print("✅ Total Workbooks Fetched: ${workbooks.length}");
             for (var book in workbooks) {
-              print(
-                "📚 Title: ${book.title}, ID: ${book.workbookId}, Author: ${book.author}",
-              );
+            
             }
 
             MyWorkBookLists.value = workbooks;
@@ -188,7 +180,6 @@ class MyLibraryController extends GetxController {
             error.value = jsonData['message'] ?? 'Failed to load books';
           }
         } else if (response.statusCode == 401 || response.statusCode == 403) {
-          print("🔒 Unauthorized. Token may be expired. Logging out...");
           SharedPreferences.getInstance().then((prefs) async {
             await prefs.clear();
             Get.offAll(() => User_Login_option());
@@ -213,34 +204,25 @@ class MyLibraryController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    final url = ApiUrls.dleteMyWorkBookLibrary; // Use the correct URL
-
-    print("🗑️ Starting delete for workbookId: $bookId");
-
+    final url = ApiUrls.dleteMyWorkBookLibrary; 
     await callWebApi(
       null,
-      url, // use `url` here
+      url, 
       {"workbook_id": bookId},
       onResponse: (response) {
-        print("📥 Response Status: ${response.statusCode}");
-        print("📦 Response Body: ${response.body}");
-
+     
         if (response.statusCode == 200) {
           final jsonData = json.decode(response.body);
           if (jsonData['success'] == true) {
-            print("✅ Workbook deleted successfully.");
             MyWorkBookLists.removeWhere((book) => book.workbookId == bookId);
           } else {
-            print("❌ Deletion failed: ${jsonData['message']}");
             throw Exception("Failed to delete workbook.");
           }
         } else {
-          print("❌ Server error: ${response.statusCode}");
           throw Exception("Server returned error.");
         }
       },
       onError: () {
-        print("❌ Network or parsing error occurred.");
         throw Exception('Error deleting book');
       },
       token: authToken ?? '',

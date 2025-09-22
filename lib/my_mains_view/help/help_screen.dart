@@ -26,23 +26,16 @@ class _HelpScreenState extends State<HelpScreen> {
 
   Future<void> _dialPhoneNumber(BuildContext context, String number) async {
     final Uri uri = Uri.parse('tel:$number');
-    print("📞 Trying to dial: $uri");
 
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri);
-        print("✅ Dialer launched with launchUrl.");
       } else if (await canLaunch(uri.toString())) {
         await launch(uri.toString());
-        print("✅ Dialer launched with legacy launch().");
       } else {
-        print("❌ No dialer available for: $uri");
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Could not open dialer")));
+       
       }
     } catch (e) {
-      print("❌ Exception while trying to dial: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Error launching dialer.")));

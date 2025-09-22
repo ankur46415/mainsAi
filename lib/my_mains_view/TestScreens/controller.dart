@@ -32,7 +32,6 @@ class MainTestScreenController extends GetxController {
       final dateTime = DateTime.parse(dateTimeStr).toLocal();
       return DateFormat('hh:mm a').format(dateTime);
     } catch (e) {
-      print('Error formatting time: $e for date: $dateTimeStr');
       return "Unknown";
     }
   }
@@ -43,7 +42,6 @@ class MainTestScreenController extends GetxController {
       final dateTime = DateTime.parse(dateTimeStr).toLocal();
       return DateFormat('MMM dd, yyyy').format(dateTime);
     } catch (e) {
-      print('Error formatting date: $e for date: $dateTimeStr');
       return "Unknown";
     }
   }
@@ -51,27 +49,20 @@ class MainTestScreenController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    print('🔄 MainTestScreenController: onInit called');
     try {
       prefs = await SharedPreferences.getInstance();
       authToken = prefs.getString(Constants.authToken);
-      print('🔄 MainTestScreenController: Auth token retrieved: ${authToken != null ? 'Yes' : 'No'}');
       getAllSubmittedAnswers();
       ever(allImagesList, (_) {
-        print('🔄 MainTestScreenController: allImagesList updated');
       });
     } catch (e) {
-      print('❌ MainTestScreenController: Error in onInit: $e');
     }
   }
 
-  // Add a method to force refresh data
   Future<void> refreshData() async {
-    print('🔄 MainTestScreenController: Refreshing data');
     try {
       await getAllSubmittedAnswers();
     } catch (e) {
-      print('❌ MainTestScreenController: Error refreshing data: $e');
     }
   }
 
@@ -82,7 +73,6 @@ class MainTestScreenController extends GetxController {
     if (isLoading.value) return;
 
     isLoading.value = true;
-    print('Using token: $authToken');
     await callWebApiGet(
       null,
       ApiUrls.getTestSubmissions,

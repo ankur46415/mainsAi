@@ -29,7 +29,6 @@ class UserLogInOption extends GetxController {
         if (response.statusCode == 200) {
           Get.to(() => OtpVerification(mobile: phone));
         } else {
-          print("Server Error: ${response.statusCode}");
         }
       },
       onError: (errorResponse) {
@@ -40,7 +39,6 @@ class UserLogInOption extends GetxController {
         String errorMessage =
             errorResponseData['msg'] ??
             "Something went wrong. Please try again.";
-        print("Error Message: $errorMessage");
       },
     );
   }
