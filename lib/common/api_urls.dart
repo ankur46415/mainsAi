@@ -4,8 +4,7 @@ class ApiUrls {
   static const String baseUrl4 = 'https://test.ailisher.com';
 
   static const String apiUrl = '${baseUrl}api/v1/';
-  //final String backendUrl = 'https://test.ailisher.com/api/paytm/initiate';
-  ///https://test.ailisher.com
+
   static const String apiUrl2 =
       '${baseUrl3}api/clients/CLI147189HIGB/mobile/auth/';
   static const String subjectiveTestStart =
@@ -70,7 +69,8 @@ class ApiUrls {
 
   static const String objectiveTestStartBase =
       'https://test.ailisher.com/api/objectivetest/clients/CLI147189HIGB/';
-  static const String reelsPopular = '${baseUrl3}api/reels/popular';
+  static const String reelsPopular =
+      '${baseUrl3}api/clients/CLI147189HIGB/mobile/reels/popular';
   static const String dleteMyWorkBookLibrary =
       '$apiUrl5/mobile/myworkbooks/remove';
   static const String reelsUser = '${apiUrl3}reels/user';

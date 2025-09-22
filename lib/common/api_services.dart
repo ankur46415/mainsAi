@@ -140,13 +140,19 @@ _returnResponse(
       }
       throw InvalidInputException(response.body.toString());
     case 401:
-    case 403:
       if (onError != null) {
         onError();
       }
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       Get.offAll(() => User_Login_option());
+      throw UnauthorisedException(response.body.toString());
+    case 403:
+      // Do not force logout on 403; often used for client mismatch or access denied
+      if (onError != null) {
+        onError();
+      }
+      Utils.showToast(responseJson?['message'] ?? 'Access denied');
       throw UnauthorisedException(response.body.toString());
     case 500:
     default:
@@ -255,13 +261,19 @@ returnMutipartResponse(
       Utils.showToast(responseJson!['message']);
       throw InvalidInputException(responseJson.toString());
     case 401:
-    case 403:
       if (onError != null) {
         onError();
       }
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       Get.offAll(() => User_Login_option());
+      throw UnauthorisedException(responseJson.toString());
+    case 403:
+      if (onError != null) {
+        onError();
+      }
+      Utils.showToast(responseJson!['message']);
+      if (hideLoader) Utils.hideLoader(); // Hide loader on error
       throw UnauthorisedException(responseJson.toString());
     case 500:
     default:

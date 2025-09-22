@@ -218,8 +218,13 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                           child: Text(
                                             (book.planDetails != null &&
-                                                    book.planDetails!.isNotEmpty &&
-                                                    book.planDetails![0].offerPrice != null)
+                                                    book
+                                                        .planDetails!
+                                                        .isNotEmpty &&
+                                                    book
+                                                            .planDetails![0]
+                                                            .offerPrice !=
+                                                        null)
                                                 ? '₹ ${book.planDetails![0].offerPrice}'
                                                 : 'PAID',
                                             style: GoogleFonts.poppins(
@@ -357,8 +362,13 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                         ),
                                         child: Text(
                                           (book.planDetails != null &&
-                                                  book.planDetails!.isNotEmpty &&
-                                                  book.planDetails![0].offerPrice != null)
+                                                  book
+                                                      .planDetails!
+                                                      .isNotEmpty &&
+                                                  book
+                                                          .planDetails![0]
+                                                          .offerPrice !=
+                                                      null)
                                               ? '₹ ${book.planDetails![0].offerPrice}'
                                               : 'PAID',
                                           style: GoogleFonts.poppins(
@@ -848,15 +858,9 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
             String? thumbnailUrl;
 
             if (reel.youtubeId != null && reel.youtubeId!.isNotEmpty) {
-              // 👇 YouTube thumbnail
               thumbnailUrl =
                   "https://img.youtube.com/vi/${reel.youtubeId}/hqdefault.jpg";
             }
-            // } else if (reel.thumbnailUrl != null &&
-            //     reel.thumbnailUrl!.isNotEmpty) {
-            //   // 👇 Use API-provided thumbnail if available
-            //   thumbnailUrl = reel.thumbnailUrl;
-            // }
 
             return GestureDetector(
               onTap: () {
