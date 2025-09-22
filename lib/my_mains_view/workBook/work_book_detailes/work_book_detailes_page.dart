@@ -71,9 +71,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
 
         final bookData = controller.workbook.value;
         if (bookData == null) {
-          return const Center(child: Text("No Data Found"));
+          return const Center(child: Text("No Data Found..."));
         }
-
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           child: CustomScrollView(
@@ -151,7 +150,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Status Badge (ENROLLED / PAID)
                           if (bookData.isEnrolled == true) ...[
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -196,9 +194,14 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                 ],
                               ),
                               child: Text(
-                                'PAID',
+                                (bookData.planDetails != null &&
+                                        bookData.planDetails!.isNotEmpty &&
+                                        bookData.planDetails![0].offerPrice !=
+                                            null)
+                                    ? '₹ ${bookData.planDetails![0].offerPrice}'
+                                    : 'PAID',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -207,74 +210,89 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                           ],
 
                           const Spacer(),
-                          Row(
-                            children: [
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Get.toNamed(AppRoutes.addToCart);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
-                                      ),
+
+                          // Add to Cart Button
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Cart Icon with Badge
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Icon(
+                                      Icons.shopping_cart_outlined,
+                                      color: Colors.white,
+                                      size: 18,
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            const Icon(
-                                              Icons.shopping_cart_outlined,
-                                              color: Colors.white,
-                                              size: 18,
-                                            ),
-                                            Positioned(
-                                              right: -6,
-                                              top: -6,
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  4,
-                                                ),
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.red,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Text(
-                                                  "3",
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 8,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                    Positioned(
+                                      right: -6,
+                                      top: -6,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "Add to Cart",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
+                                        child: const Text(
+                                          "3",
+                                          style: TextStyle(
                                             color: Colors.white,
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Add to Cart Text
+                                Text(
+                                  "Add to Cart",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+
+                                // Vertical Divider
+                                Container(
+                                  height: 20,
+                                  width: 1,
+                                  color: Colors.white.withOpacity(0.7),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                ),
+
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -701,33 +719,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildAddToCartRow(Workbook bookData) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-          label: Text(
-            "Add to Cart",
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
       ],

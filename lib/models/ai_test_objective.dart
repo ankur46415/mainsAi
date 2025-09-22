@@ -1,4 +1,3 @@
-import 'workBookData.dart';
 
 class AiTestHomeResponse {
   final bool success;
@@ -146,5 +145,50 @@ class AiTestItem {
       'isEnrolled': isEnrolled,
       'planDetails': planDetails.map((e) => e.toJson()).toList(),
     };
+  }
+}
+class PlanDetails {
+  String? id;
+  String? name;
+  String? description;
+  int? mrp;
+  int? offerPrice;
+  String? category;
+  int? duration;
+  String? status;
+
+  PlanDetails({
+    this.id,
+    this.name,
+    this.description,
+    this.mrp,
+    this.offerPrice,
+    this.category,
+    this.duration,
+    this.status,
+  });
+
+  PlanDetails.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    description = json['description'];
+    mrp = json['mrp'];
+    offerPrice = json['offerPrice'];
+    category = json['category'];
+    duration = json['duration'];
+    status = json['status'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['description'] = description;
+    data['mrp'] = mrp;
+    data['offerPrice'] = offerPrice;
+    data['category'] = category;
+    data['duration'] = duration;
+    data['status'] = status;
+    return data;
   }
 }

@@ -28,9 +28,7 @@ class _TestCategoriesObjectivePageState
           final subcategories = category.subcategories;
           if (subcategories.isNotEmpty) {
             final firstSub = subcategories.first.name;
-            if (firstSub != null) {
-              tabController.setSelected(category.category, firstSub);
-            }
+            tabController.setSelected(category.category, firstSub);
           }
         }
       }
@@ -87,7 +85,7 @@ class _TestCategoriesObjectivePageState
                 if (subcategories.isEmpty) return const SizedBox.shrink();
 
                 final subCatNames =
-                    subcategories.map((e) => e.name ?? "").toSet().toList();
+                    subcategories.map((e) => e.name).toSet().toList();
 
                 final selectedSub =
                     tabController.getSelected(category.category) ??
@@ -189,11 +187,7 @@ class _TestCategoriesObjectivePageState
                                   final images =
                                       enabledTests
                                           .take(6)
-                                          .map(
-                                            (t) =>
-                                                t.imageUrl ??
-                                                'https://picsum.photos/300/200',
-                                          )
+                                          .map((t) => t.imageUrl)
                                           .toList();
 
                                   return GestureDetector(
@@ -271,6 +265,10 @@ class _TestCategoriesObjectivePageState
                                   child: _buildTestCard(
                                     imageUrl: test.imageUrl,
                                     isPaid: test.isPaid,
+                                    offerPrice:
+                                        (test.planDetails.isNotEmpty)
+                                            ? test.planDetails[0].offerPrice
+                                            : null,
                                   ),
                                 );
                               },
@@ -293,7 +291,11 @@ class _TestCategoriesObjectivePageState
     );
   }
 
-  Widget _buildTestCard({required String? imageUrl, bool? isPaid}) {
+  Widget _buildTestCard({
+    required String? imageUrl,
+    bool? isPaid,
+    int? offerPrice,
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Stack(
@@ -315,7 +317,6 @@ class _TestCategoriesObjectivePageState
                   ),
                 ),
           ),
-          // Paid indicator - only show when isPaid is true
           if (isPaid == true)
             Positioned(
               bottom: 8,
@@ -327,14 +328,14 @@ class _TestCategoriesObjectivePageState
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Text(
-                  'PAID',
+                  (offerPrice != null) ? '₹ ${offerPrice}' : 'PAID',
                   style: GoogleFonts.poppins(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
