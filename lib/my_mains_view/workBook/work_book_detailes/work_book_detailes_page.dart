@@ -1,15 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/app_imports.dart';
-import 'package:mains/app_routes.dart';
+
 import 'package:mains/models/workBookBookDetailes.dart';
-import 'package:mains/my_mains_view/bottomBar/MyHomePage.dart';
-import 'package:mains/my_mains_view/bottomBar/controller.dart';
+
 import 'package:mains/my_mains_view/my_library/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/controller.dart';
-import 'package:lottie/lottie.dart';
 
 class WorkBookDetailesPage extends StatefulWidget {
   final String? bookId;
@@ -234,58 +228,64 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                               ),
                             ),
                           ],
-                          const Spacer(),
-                          InkWell(
-                            onTap: () {
-                              controller.addWorkbookToCart(
-                                widget.bookId?.toString() ?? '',
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
+                          if (bookData.isForSale == true) ...[
+                            const Spacer(),
+                            Container(
                               decoration: BoxDecoration(
                                 color: Colors.orange,
                                 borderRadius: BorderRadius.circular(25),
                               ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      const Icon(
-                                        Icons.shopping_cart_outlined,
-                                        color: Colors.white,
-                                        size: 18,
+                                  InkWell(
+                                    onTap: () {
+                                      Get.toNamed(AppRoutes.addToCart);
+                                    },
+                                    borderRadius: BorderRadius.circular(25),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                      Positioned(
-                                        right: -6,
-                                        top: -6,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          const Icon(
+                                            Icons.shopping_cart_outlined,
+                                            color: Colors.white,
+                                            size: 18,
                                           ),
-                                          child: Obx(
-                                            () => Text(
-                                              "${controller.count.value}",
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 8,
-                                                fontWeight: FontWeight.bold,
+                                          Positioned(
+                                            right: -6,
+                                            top: -6,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Obx(
+                                                () => Text(
+                                                  "${controller.count.value}",
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 8,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                  const SizedBox(width: 8),
-
+                                  // Divider
                                   Container(
                                     height: 20,
                                     width: 1,
@@ -294,17 +294,24 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                       horizontal: 8,
                                     ),
                                   ),
-                                  GestureDetector(
+                                  InkWell(
                                     onTap: () {
-                                      controller.increment();
+                                      controller.addWorkbookToCart(
+                                        widget.bookId?.toString() ?? '',
+                                      );
                                     },
+                                    borderRadius: BorderRadius.circular(25),
                                     child: Container(
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.rectangle,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: const Icon(
                                         Icons.add,
-                                        size: 22,
+                                        size: 20,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -312,7 +319,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                 ],
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                       _buildBookInfoCard(bookData),

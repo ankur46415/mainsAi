@@ -183,16 +183,20 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                     width: double.infinity,
                                     child: ElevatedButton.icon(
                                       onPressed: () {
-                                        final PlanDetails? activePlan =
-                                            testData.planDetails.firstWhereOrNull(
-                                              (p) => (p.id ?? '').isNotEmpty &&
+                                        final PlanDetails? activePlan = testData
+                                            .planDetails
+                                            .firstWhereOrNull(
+                                              (p) =>
+                                                  (p.id ?? '').isNotEmpty &&
                                                   (p.status == null ||
                                                       p.status == 'active'),
                                             );
-                                        final String? planId = activePlan?.id ??
+                                        final String? planId =
+                                            activePlan?.id ??
                                             testData.planDetails
                                                 .firstWhereOrNull(
-                                                  (p) => (p.id ?? '').isNotEmpty,
+                                                  (p) =>
+                                                      (p.id ?? '').isNotEmpty,
                                                 )
                                                 ?.id;
                                         if (planId == null || planId.isEmpty) {

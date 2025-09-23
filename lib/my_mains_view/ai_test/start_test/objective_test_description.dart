@@ -305,7 +305,7 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
             alignment: Alignment.center,
             child: Text(
               testData.totalQuestions == 0
-                  ? "No Questions Available"
+                  ? "This Test will open on 29/09/2025"
                   : "Start Test Now",
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,

@@ -159,7 +159,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             ),
                                       ),
                                     ),
-                                    // Paid indicator - only show when isPaid is true
                                     if (book.isEnrolled == true)
                                       Positioned(
                                         bottom: 8,
@@ -195,7 +194,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                         ),
                                       )
                                     else if ((book.isEnrolled != true) &&
-                                        (book.isPaid == true))
+                                        (book.isForSale == true))
                                       Positioned(
                                         bottom: 8,
                                         left: 8,
@@ -220,15 +219,9 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             ],
                                           ),
                                           child: Text(
-                                            (book.planDetails != null &&
-                                                    book
-                                                        .planDetails!
-                                                        .isNotEmpty &&
-                                                    book
-                                                            .planDetails![0]
-                                                            .offerPrice !=
-                                                        null)
-                                                ? '₹ ${book.planDetails![0].offerPrice}'
+                                            (book.offerPrice != null &&
+                                                    book.offerPrice! > 0)
+                                                ? '₹ ${book.offerPrice}'
                                                 : 'PAID',
                                             style: GoogleFonts.poppins(
                                               fontSize: 10,
@@ -304,7 +297,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                     ),
                                   ),
-                                  if (book.isEnrolled == true)
+                                  if (book.isForSale == true)
                                     Positioned(
                                       bottom: 18,
                                       left: 8,
@@ -339,7 +332,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                       ),
                                     )
                                   else if ((book.isEnrolled != true) &&
-                                      (book.isPaid == true))
+                                      (book.isForSale == true))
                                     Positioned(
                                       bottom: 18,
                                       left: 8,
@@ -364,15 +357,9 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ],
                                         ),
                                         child: Text(
-                                          (book.planDetails != null &&
-                                                  book
-                                                      .planDetails!
-                                                      .isNotEmpty &&
-                                                  book
-                                                          .planDetails![0]
-                                                          .offerPrice !=
-                                                      null)
-                                              ? '₹ ${book.planDetails![0].offerPrice}'
+                                          (book.offerPrice != null &&
+                                                  book.offerPrice! > 0)
+                                              ? '₹ ${book.offerPrice}'
                                               : 'PAID',
                                           style: GoogleFonts.poppins(
                                             fontSize: 10,
@@ -800,13 +787,13 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                   ),
                 ),
               )
-            else if ((book.isEnrolled != true) && (book.isPaid == true))
+            else if ((book.isEnrolled != true) && (book.isForSale == true))
               Positioned(
                 bottom: 8,
                 left: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: 6,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
@@ -821,14 +808,12 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                     ],
                   ),
                   child: Text(
-                    (book.planDetails != null &&
-                            book.planDetails!.isNotEmpty &&
-                            book.planDetails![0].offerPrice != null)
-                        ? '₹ ${book.planDetails![0].offerPrice}'
+                    (book.offerPrice != null && book.offerPrice! > 0)
+                        ? '₹ ${book.offerPrice}'
                         : 'PAID',
                     style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
                     ),
                   ),
@@ -922,7 +907,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
       }),
     );
   }
-
 }
 
 Widget _buildSectionTitle(String title) {

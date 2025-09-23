@@ -69,6 +69,7 @@ class Workbook {
   int? shareCount;
   dynamic lastViewedAt;
   bool? isPublic;
+  bool? isForSale;
   String? sId;
   String? title;
   String? description;
@@ -83,7 +84,7 @@ class Workbook {
   UserMeta? trendingByUser;
   dynamic categoryOrderByUser;
   bool? isMyWorkbookAdded;
- List<PlanDetails>? planDetails;
+  List<PlanDetails>? planDetails;
   Workbook({
     this.language,
     this.rating,
@@ -123,6 +124,7 @@ class Workbook {
     this.shareCount,
     this.lastViewedAt,
     this.isPublic,
+    this.isForSale,
     this.sId,
     this.title,
     this.description,
@@ -138,7 +140,7 @@ class Workbook {
     this.categoryOrderByUser,
     this.isMyWorkbookAdded,
     this.isEnrolled,
-     this.planDetails,
+    this.planDetails,
   });
 
   Workbook.fromJson(Map<String, dynamic> json) {
@@ -181,6 +183,7 @@ class Workbook {
     shareCount = json['shareCount'];
     lastViewedAt = json['lastViewedAt'];
     isPublic = json['isPublic'];
+    isForSale = json['isForSale'];
     sId = json['_id'];
     title = json['title'];
     description = json['description'];
@@ -208,11 +211,12 @@ class Workbook {
             : null;
     categoryOrderByUser = json['categoryOrderByUser'];
     isMyWorkbookAdded = json['isMyWorkbookAdded'];
-    planDetails = json['planDetails'] != null
-        ? List<PlanDetails>.from(
-            json['planDetails'].map((x) => PlanDetails.fromJson(x)),
-          )
-        : null;
+    planDetails =
+        json['planDetails'] != null
+            ? List<PlanDetails>.from(
+              json['planDetails'].map((x) => PlanDetails.fromJson(x)),
+            )
+            : null;
   }
 
   Map<String, dynamic> toJson() => {
@@ -255,6 +259,7 @@ class Workbook {
     'shareCount': shareCount,
     'lastViewedAt': lastViewedAt,
     'isPublic': isPublic,
+    'isForSale': isForSale,
     '_id': sId,
     'title': title,
     'description': description,
@@ -269,9 +274,11 @@ class Workbook {
     'trendingByUser': trendingByUser?.toJson(),
     'categoryOrderByUser': categoryOrderByUser,
     'isMyWorkbookAdded': isMyWorkbookAdded,
-    if (planDetails != null) 'planDetails': planDetails!.map((v) => v.toJson()).toList(),
+    if (planDetails != null)
+      'planDetails': planDetails!.map((v) => v.toJson()).toList(),
   };
 }
+
 class PlanDetails {
   String? id;
   String? name;
@@ -317,6 +324,7 @@ class PlanDetails {
     return data;
   }
 }
+
 class CreatedBy {
   String? id;
   String? name;

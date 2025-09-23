@@ -114,47 +114,46 @@ class WorkBookBOOKDetailes extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken') ?? '';
-      if (authToken.isEmpty) {
-        Get.offAll(() => User_Login_option());
+
+      if (workbookId.isEmpty) {
+        print("⚠️ WorkbookId is empty.");
         return;
       }
-      if (workbookId.isEmpty) return;
 
       const String addToCartUrl =
           'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/add';
 
+      print("🔗 API URL: $addToCartUrl");
+      print("📦 Request Body: {workbookId: $workbookId}");
+      print("🔑 Token: $authToken");
+
       await callWebApi(
         null,
         addToCartUrl,
-        {'workbook_id': workbookId},
+        {'workbookId': workbookId},
         token: authToken,
         showLoader: false,
         hideLoader: true,
         onResponse: (response) {
+          print("📥 Response Status: ${response.statusCode}");
+          print("📥 Response Body: ${response.body}");
+
           if (response.statusCode == 200) {
             increment();
-            Get.snackbar(
-              'Cart',
-              'Added to cart',
-              snackPosition: SnackPosition.BOTTOM,
-            );
+            print("✅ Success: Added to cart");
           } else {
-            Get.snackbar(
-              'Cart',
-              'Failed to add to cart',
-              snackPosition: SnackPosition.BOTTOM,
+            print(
+              "❌ Error: Failed to add to cart (Status ${response.statusCode})",
             );
           }
         },
         onError: () {
-          Get.snackbar(
-            'Cart',
-            'Failed to add to cart',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          print("❌ API Error: Something went wrong");
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      print("❌ Exception: $e");
+    }
   }
 }
 

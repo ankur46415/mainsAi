@@ -102,6 +102,14 @@ class WorkBookHighlighted {
   String? id;
   List<PlanDetails>? planDetails;
 
+  // New fields
+  bool? isForSale;
+  num? MRP;
+  num? offerPrice;
+  String? currency;
+  num? validityDays;
+  String? details;
+
   WorkBookHighlighted({
     this.isEnabled,
     this.isPaid,
@@ -155,6 +163,12 @@ class WorkBookHighlighted {
     this.isCurrentlyTrending,
     this.id,
     this.planDetails,
+    this.isForSale,
+    this.MRP,
+    this.offerPrice,
+    this.currency,
+    this.validityDays,
+    this.details,
   });
 
   WorkBookHighlighted.fromJson(Map<String, dynamic> json) {
@@ -165,12 +179,11 @@ class WorkBookHighlighted {
     title = json['title'];
     description = json['description'];
     coverImage = json['coverImage'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
     author = json['author'];
-
     isPublic = json['isPublic'];
     language = json['language'];
     mainCategory = json['mainCategory'];
@@ -179,7 +192,6 @@ class WorkBookHighlighted {
     ratingCount = json['ratingCount'];
     subCategory = json['subCategory'];
     summary = json['summary'];
-
     coverImageKey = json['coverImageKey'];
     coverImageUrl = json['coverImageUrl'];
     clientId = json['clientId'];
@@ -193,7 +205,7 @@ class WorkBookHighlighted {
     highlightedAt = json['highlightedAt'];
     highlightedBy =
         json['highlightedBy'] != null
-            ? new User.fromJson(json['highlightedBy'])
+            ? User.fromJson(json['highlightedBy'])
             : null;
     highlightedByType = json['highlightedByType'];
     isHighlighted = json['isHighlighted'];
@@ -217,67 +229,82 @@ class WorkBookHighlighted {
         planDetails!.add(PlanDetails.fromJson(v));
       });
     }
+
+    // Parse new fields
+    isForSale = json['isForSale'];
+    MRP = json['MRP'];
+    offerPrice = json['offerPrice'];
+    currency = json['currency'];
+    validityDays = json['validityDays'];
+    details = json['details'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = {};
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
     data['isEnrolled'] = isEnrolled;
-    data['_id'] = this.sId;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['coverImage'] = this.coverImage;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    data['_id'] = sId;
+    data['title'] = title;
+    data['description'] = description;
+    data['coverImage'] = coverImage;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['__v'] = this.iV;
-    data['author'] = this.author;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['author'] = author;
+    data['isPublic'] = isPublic;
+    data['language'] = language;
+    data['mainCategory'] = mainCategory;
+    data['publisher'] = publisher;
+    data['rating'] = rating;
+    data['ratingCount'] = ratingCount;
+    data['subCategory'] = subCategory;
+    data['summary'] = summary;
+    data['coverImageKey'] = coverImageKey;
+    data['coverImageUrl'] = coverImageUrl;
+    data['clientId'] = clientId;
+    data['exam'] = exam;
+    data['paper'] = paper;
+    data['userType'] = userType;
+    data['categoryOrder'] = categoryOrder;
+    data['downloadCount'] = downloadCount;
+    data['highlightNote'] = highlightNote;
+    data['highlightOrder'] = highlightOrder;
+    data['highlightedAt'] = highlightedAt;
+    if (highlightedBy != null) {
+      data['highlightedBy'] = highlightedBy!.toJson();
+    }
+    data['highlightedByType'] = highlightedByType;
+    data['isHighlighted'] = isHighlighted;
+    data['isTrending'] = isTrending;
+    data['shareCount'] = shareCount;
+    data['subject'] = subject;
+    data['trendingScore'] = trendingScore;
+    data['viewCount'] = viewCount;
+    data['trendingBy'] = trendingBy;
+    data['trendingByType'] = trendingByType;
+    data['trendingEndDate'] = trendingEndDate;
+    data['trendingStartDate'] = trendingStartDate;
+    data['effectiveSubCategory'] = effectiveSubCategory;
+    data['fullCategory'] = fullCategory;
+    data['fullClassification'] = fullClassification;
+    data['isCurrentlyTrending'] = isCurrentlyTrending;
+    data['id'] = id;
+    if (planDetails != null) {
+      data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
+    }
 
-    data['isPublic'] = this.isPublic;
-    data['language'] = this.language;
-    data['mainCategory'] = this.mainCategory;
-    data['publisher'] = this.publisher;
-    data['rating'] = this.rating;
-    data['ratingCount'] = this.ratingCount;
-    data['subCategory'] = this.subCategory;
-    data['summary'] = this.summary;
+    // Add new fields
+    data['isForSale'] = isForSale;
+    data['MRP'] = MRP;
+    data['offerPrice'] = offerPrice;
+    data['currency'] = currency;
+    data['validityDays'] = validityDays;
+    data['details'] = details;
 
-    data['coverImageKey'] = this.coverImageKey;
-    data['coverImageUrl'] = this.coverImageUrl;
-    data['clientId'] = this.clientId;
-    data['exam'] = this.exam;
-    data['paper'] = this.paper;
-    data['userType'] = this.userType;
-    data['categoryOrder'] = this.categoryOrder;
-    data['downloadCount'] = this.downloadCount;
-    data['highlightNote'] = this.highlightNote;
-    data['highlightOrder'] = this.highlightOrder;
-    data['highlightedAt'] = this.highlightedAt;
-    if (this.highlightedBy != null) {
-      data['highlightedBy'] = this.highlightedBy!.toJson();
-    }
-    data['highlightedByType'] = this.highlightedByType;
-    data['isHighlighted'] = this.isHighlighted;
-    data['isTrending'] = this.isTrending;
-    data['shareCount'] = this.shareCount;
-    data['subject'] = this.subject;
-    data['trendingScore'] = this.trendingScore;
-    data['viewCount'] = this.viewCount;
-    data['trendingBy'] = this.trendingBy;
-    data['trendingByType'] = this.trendingByType;
-    data['trendingEndDate'] = this.trendingEndDate;
-    data['trendingStartDate'] = this.trendingStartDate;
-    data['effectiveSubCategory'] = this.effectiveSubCategory;
-    data['fullCategory'] = this.fullCategory;
-    data['fullClassification'] = this.fullClassification;
-    data['isCurrentlyTrending'] = this.isCurrentlyTrending;
-    data['id'] = this.id;
-    if (this.planDetails != null) {
-      data['planDetails'] = this.planDetails!.map((v) => v.toJson()).toList();
-    }
     return data;
   }
 }
@@ -318,8 +345,8 @@ class WorkBookTrending {
   String? language;
   num? rating;
   num? ratingCount;
-  List<dynamic>? conversations; // Changed from List<Null> to List<dynamic>?
-  List<dynamic>? users; // Changed from List<Null> to List<dynamic>?
+  List<dynamic>? conversations;
+  List<dynamic>? users;
   String? summary;
   String? coverImageKey;
   String? coverImageUrl;
@@ -328,17 +355,17 @@ class WorkBookTrending {
   String? exam;
   String? paper;
   String? subject;
-  List<dynamic>? tags; // Changed from List<Null> to List<dynamic>?
+  List<dynamic>? tags;
   bool? isHighlighted;
   String? highlightedAt;
-  dynamic highlightedBy; // Changed from String? to dynamic
+  dynamic highlightedBy;
   String? highlightedByType;
   num? highlightOrder;
   String? highlightNote;
   num? categoryOrder;
-  dynamic categoryOrderBy; // Changed from Null? to dynamic
-  dynamic categoryOrderByType; // Changed from Null? to dynamic
-  dynamic categoryOrderedAt; // Changed from Null? to dynamic
+  dynamic categoryOrderBy;
+  dynamic categoryOrderByType;
+  dynamic categoryOrderedAt;
   bool? isTrending;
   num? trendingScore;
   String? trendingStartDate;
@@ -363,6 +390,14 @@ class WorkBookTrending {
   String? id;
   String? coverImage;
   List<PlanDetails>? planDetails;
+
+  // New fields
+  bool? isForSale;
+  num? MRP;
+  num? offerPrice;
+  String? currency;
+  num? validityDays;
+  String? details;
 
   WorkBookTrending({
     this.isPaid,
@@ -420,6 +455,12 @@ class WorkBookTrending {
     this.id,
     this.coverImage,
     this.planDetails,
+    this.isForSale,
+    this.MRP,
+    this.offerPrice,
+    this.currency,
+    this.validityDays,
+    this.details,
   });
 
   WorkBookTrending.fromJson(Map<String, dynamic> json) {
@@ -432,7 +473,6 @@ class WorkBookTrending {
     publisher = json['publisher'] as String?;
     language = json['language'] as String?;
     rating = (json['rating'] is num) ? json['rating'] as num : null;
-
     ratingCount = json['ratingCount'] as num?;
     conversations = json['conversations'] as List<dynamic>?;
     users = json['users'] as List<dynamic>?;
@@ -490,6 +530,14 @@ class WorkBookTrending {
         planDetails!.add(PlanDetails.fromJson(v));
       });
     }
+
+    // New fields
+    isForSale = json['isForSale'] as bool?;
+    MRP = json['MRP'] as num?;
+    offerPrice = json['offerPrice'] as num?;
+    currency = json['currency'] as String?;
+    validityDays = json['validityDays'] as num?;
+    details = json['details'] as String?;
   }
 
   Map<String, dynamic> toJson() {
@@ -555,6 +603,15 @@ class WorkBookTrending {
     if (planDetails != null) {
       data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
     }
+
+    // New fields
+    data['isForSale'] = isForSale;
+    data['MRP'] = MRP;
+    data['offerPrice'] = offerPrice;
+    data['currency'] = currency;
+    data['validityDays'] = validityDays;
+    data['details'] = details;
+
     return data;
   }
 }
@@ -615,6 +672,14 @@ class Workbooks {
   String? userType;
   List<PlanDetails>? planDetails;
 
+  // New fields
+  bool? isForSale;
+  num? MRP;
+  num? offerPrice;
+  String? currency;
+  num? validityDays;
+  String? details;
+
   Workbooks({
     this.isEnabled,
     this.isPaid,
@@ -660,7 +725,6 @@ class Workbooks {
     this.ratingCount,
     this.subCategory,
     this.summary,
-
     this.coverImageKey,
     this.coverImageUrl,
     this.createdBy,
@@ -670,6 +734,12 @@ class Workbooks {
     this.clientId,
     this.userType,
     this.planDetails,
+    this.isForSale,
+    this.MRP,
+    this.offerPrice,
+    this.currency,
+    this.validityDays,
+    this.details,
   });
 
   factory Workbooks.fromJson(Map<String, dynamic> json) {
@@ -716,11 +786,9 @@ class Workbooks {
       publisher: json['publisher'] as String?,
       rating:
           (json['rating'] is num) ? (json['rating'] as num).toDouble() : null,
-
       ratingCount: json['ratingCount'] as num?,
       subCategory: json['subCategory'] as String?,
       summary: json['summary'] as String?,
-
       coverImageKey: json['coverImageKey'] as String?,
       coverImageUrl: json['coverImageUrl'] as String?,
       createdBy:
@@ -738,6 +806,14 @@ class Workbooks {
                   .map((v) => PlanDetails.fromJson(v as Map<String, dynamic>))
                   .toList()
               : null,
+
+      // New fields
+      isForSale: json['isForSale'] as bool?,
+      MRP: json['MRP'] as num?,
+      offerPrice: json['offerPrice'] as num?,
+      currency: json['currency'] as String?,
+      validityDays: json['validityDays'] as num?,
+      details: json['details'] as String?,
     );
   }
 
@@ -787,7 +863,6 @@ class Workbooks {
     data['ratingCount'] = ratingCount;
     data['subCategory'] = subCategory;
     data['summary'] = summary;
-
     data['coverImageKey'] = coverImageKey;
     data['coverImageUrl'] = coverImageUrl;
     if (createdBy != null) {
@@ -801,6 +876,15 @@ class Workbooks {
     if (planDetails != null) {
       data['planDetails'] = planDetails!.map((v) => v.toJson()).toList();
     }
+
+    // New fields
+    data['isForSale'] = isForSale;
+    data['MRP'] = MRP;
+    data['offerPrice'] = offerPrice;
+    data['currency'] = currency;
+    data['validityDays'] = validityDays;
+    data['details'] = details;
+
     return data;
   }
 }

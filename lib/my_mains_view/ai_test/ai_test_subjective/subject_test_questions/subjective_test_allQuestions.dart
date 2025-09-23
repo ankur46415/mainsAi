@@ -19,7 +19,7 @@ class _SubjectiveTestAllquestionsState
     testId = Get.arguments;
     controller = Get.put(SubjectiveQuestionsController());
 
-controller.fetchQuestions(testId);
+    controller.fetchQuestions(testId);
   }
 
   String formatDuration(int seconds) {
@@ -199,7 +199,7 @@ controller.fetchQuestions(testId);
               if (controller.questions.isEmpty) {
                 return Center(
                   child: Text(
-                    "No Questions Available",
+                    "This Test will open on 29/09/2025",
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       color: Colors.black,
@@ -214,7 +214,7 @@ controller.fetchQuestions(testId);
                 itemCount: controller.questions.length,
                 itemBuilder: (context, index) {
                   final question = controller.questions[index];
-                  
+
                   return _buildQuestionCard(
                     id: question.sId ?? "",
                     text: question.question ?? "",
