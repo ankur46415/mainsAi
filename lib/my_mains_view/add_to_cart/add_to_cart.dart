@@ -331,7 +331,6 @@ class _AddToCartState extends State<AddToCart> {
                       key: Key(item.title ?? index.toString()),
                       direction: DismissDirection.endToStart,
                       background: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(20),
                         alignment: Alignment.centerRight,
                         decoration: BoxDecoration(
