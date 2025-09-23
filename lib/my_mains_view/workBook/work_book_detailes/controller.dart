@@ -109,6 +109,53 @@ class WorkBookBOOKDetailes extends GetxController {
       isActionLoading.value = false;
     }
   }
+
+  Future<void> addWorkbookToCart(String workbookId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken') ?? '';
+      if (authToken.isEmpty) {
+        Get.offAll(() => User_Login_option());
+        return;
+      }
+      if (workbookId.isEmpty) return;
+
+      const String addToCartUrl =
+          'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/add';
+
+      await callWebApi(
+        null,
+        addToCartUrl,
+        {'workbook_id': workbookId},
+        token: authToken,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          if (response.statusCode == 200) {
+            increment();
+            Get.snackbar(
+              'Cart',
+              'Added to cart',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          } else {
+            Get.snackbar(
+              'Cart',
+              'Failed to add to cart',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        },
+        onError: () {
+          Get.snackbar(
+            'Cart',
+            'Failed to add to cart',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        },
+      );
+    } catch (e) {}
+  }
 }
 
 class WorkBookBOOKDetailesBinding extends Bindings {

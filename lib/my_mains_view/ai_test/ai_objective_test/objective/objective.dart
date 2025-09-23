@@ -323,7 +323,7 @@ class _TestCategoriesObjectivePageState
               child: Container(
                 padding: const EdgeInsets.all(6), // padding around the icon
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.grey,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(

@@ -160,14 +160,14 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                   .resultData
                                   .value
                                   ?.attemptStats
-                                  ?.totalAttempts ??
+                                  .totalAttempts ??
                               0;
                           final maxAttempts =
                               controller
                                   .resultData
                                   .value
                                   ?.attemptStats
-                                  ?.maxAttempts ??
+                                  .maxAttempts ??
                               5;
 
                           if (controller.isLoading.value) {
@@ -183,7 +183,30 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                     width: double.infinity,
                                     child: ElevatedButton.icon(
                                       onPressed: () {
-                                        Get.toNamed(AppRoutes.specificCourse);
+                                        final PlanDetails? activePlan =
+                                            testData.planDetails.firstWhereOrNull(
+                                              (p) => (p.id ?? '').isNotEmpty &&
+                                                  (p.status == null ||
+                                                      p.status == 'active'),
+                                            );
+                                        final String? planId = activePlan?.id ??
+                                            testData.planDetails
+                                                .firstWhereOrNull(
+                                                  (p) => (p.id ?? '').isNotEmpty,
+                                                )
+                                                ?.id;
+                                        if (planId == null || planId.isEmpty) {
+                                          Get.snackbar(
+                                            'Plan',
+                                            'Plan not available right now',
+                                            snackPosition: SnackPosition.BOTTOM,
+                                          );
+                                          return;
+                                        }
+                                        Get.toNamed(
+                                          AppRoutes.specificCourse,
+                                          arguments: {'planId': planId},
+                                        );
                                       },
                                       icon: const Icon(
                                         Icons.shopping_cart,
@@ -277,7 +300,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                     final attempt = history[index];
                                     final dateTime =
                                         DateTime.tryParse(
-                                          attempt.submittedAt ?? '',
+                                          attempt.submittedAt,
                                         ) ??
                                         DateTime.now();
                                     final formattedDate =

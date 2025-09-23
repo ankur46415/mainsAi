@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mains/app_imports.dart';
 import 'package:mains/app_routes.dart';
 import 'package:mains/models/workBookBookDetailes.dart';
 import 'package:mains/my_mains_view/bottomBar/MyHomePage.dart';
@@ -193,30 +194,57 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                   ),
                                 ],
                               ),
-                              child: Text(
-                                (bookData.planDetails != null &&
-                                        bookData.planDetails!.isNotEmpty &&
-                                        bookData.planDetails![0].offerPrice !=
-                                            null)
-                                    ? '₹ ${bookData.planDetails![0].offerPrice}'
-                                    : 'PAID',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (bookData.planDetails != null &&
+                                      bookData.planDetails!.isNotEmpty &&
+                                      bookData.planDetails![0].mrp != null &&
+                                      (bookData.planDetails![0].offerPrice ??
+                                              0) <
+                                          (bookData.planDetails![0].mrp ??
+                                              0)) ...[
+                                    Text(
+                                      '₹ ${bookData.planDetails![0].mrp}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white.withOpacity(0.85),
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Text(
+                                    (bookData.planDetails != null &&
+                                            bookData.planDetails!.isNotEmpty &&
+                                            bookData
+                                                    .planDetails![0]
+                                                    .offerPrice !=
+                                                null)
+                                        ? '₹ ${bookData.planDetails![0].offerPrice}'
+                                        : 'PAID',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                           const Spacer(),
                           InkWell(
                             onTap: () {
-                              Get.toNamed(AppRoutes.addToCart);
+                              controller.addWorkbookToCart(
+                                widget.bookId?.toString() ?? '',
+                              );
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 8,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.orange,
@@ -258,15 +286,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                   ),
                                   const SizedBox(width: 8),
 
-                                  Text(
-                                    "Add to Cart",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-
                                   Container(
                                     height: 20,
                                     width: 1,
@@ -280,7 +299,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                       controller.increment();
                                     },
                                     child: Container(
-                                      // padding: const EdgeInsets.all(4),
                                       decoration: const BoxDecoration(
                                         shape: BoxShape.rectangle,
                                       ),
