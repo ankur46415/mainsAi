@@ -148,7 +148,6 @@ _returnResponse(
       Get.offAll(() => User_Login_option());
       throw UnauthorisedException(response.body.toString());
     case 403:
-      // Do not force logout on 403; often used for client mismatch or access denied
       if (onError != null) {
         onError();
       }
@@ -202,7 +201,7 @@ Future<dynamic> callMultipartWebApi(
     }
   } catch (e) {
     Utils.print("Error adding request : " + e.toString());
-    if (hideLoader) Utils.hideLoader(); // Hide loader on error
+    if (hideLoader) Utils.hideLoader(); 
   }
 
   try {
@@ -214,7 +213,7 @@ Future<dynamic> callMultipartWebApi(
       onError();
     }
     Utils.showToast('No Internet Connection');
-    if (hideLoader) Utils.hideLoader(); // Hide loader on error
+    if (hideLoader) Utils.hideLoader();
     return;
   } catch (e) {
     if (onError != null) {
@@ -222,7 +221,7 @@ Future<dynamic> callMultipartWebApi(
     }
     Utils.print(e.toString());
     Utils.showToast('Something went wrong');
-    if (hideLoader) Utils.hideLoader(); // Hide loader on error
+    if (hideLoader) Utils.hideLoader();
   }
 }
 
@@ -251,7 +250,7 @@ returnMutipartResponse(
       if (onError != null) {
         onError();
       }
-      if (hideLoader) Utils.hideLoader(); // Hide loader on error
+      if (hideLoader) Utils.hideLoader();
       throw BadRequestException(responseJson.toString());
     case 404:
       if (onError != null) {
@@ -273,7 +272,7 @@ returnMutipartResponse(
         onError();
       }
       Utils.showToast(responseJson!['message']);
-      if (hideLoader) Utils.hideLoader(); // Hide loader on error
+      if (hideLoader) Utils.hideLoader();
       throw UnauthorisedException(responseJson.toString());
     case 500:
     default:
@@ -281,7 +280,7 @@ returnMutipartResponse(
       if (onError != null) {
         onError();
       }
-      if (hideLoader) Utils.hideLoader(); // Hide loader on error
+      if (hideLoader) Utils.hideLoader();
       throw FetchDataException(responseJson.toString());
   }
 }

@@ -45,7 +45,6 @@ class WatchIntroController extends GetxController {
         final parsed = CourseLectureModel.fromJson(data);
         final lectures = parsed.lectures ?? [];
 
-        // Get all video URLs from all lectures
         final allVideoUrls = <String>[];
         for (final lecture in lectures) {
           if (lecture.topics != null) {
@@ -57,7 +56,6 @@ class WatchIntroController extends GetxController {
           }
         }
 
-        // Check if any video has a saved position
         for (final videoUrl in allVideoUrls) {
           final videoId = _extractYoutubeId(videoUrl);
           if (videoId.isNotEmpty) {
@@ -77,7 +75,6 @@ class WatchIntroController extends GetxController {
     }
   }
 
-  // Extract YouTube video ID from URL
   String _extractYoutubeId(String url) {
     final uri = Uri.tryParse(url);
     if (uri == null) return '';
@@ -119,7 +116,6 @@ class WatchIntroController extends GetxController {
           }
           faculty.value = allFaculty;
 
-          // Check for saved video positions after loading course data
           await checkForSavedVideoPositions();
         }
       }

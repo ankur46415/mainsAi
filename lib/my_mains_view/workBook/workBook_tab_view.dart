@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:mains/app_imports.dart';
 import 'package:mains/common/custom_banner.dart';
 import 'package:mains/my_mains_view/workBook/work_bookController.dart';
+import 'package:video_thumbnail/video_thumbnail.dart' as video_thumbnail;
 import '../home_screen/see_more_books.dart';
 
 class WorkBookBookPage extends StatefulWidget {
@@ -838,6 +841,15 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
   }
 
   Widget _buildTipsSection() {
+    Future<String?> _generateThumbnail(String videoUrl) async {
+      return await video_thumbnail.VideoThumbnail.thumbnailFile(
+        video: videoUrl,
+        imageFormat: video_thumbnail.ImageFormat.JPEG,
+        maxWidth: 128,
+        quality: 75,
+      );
+    }
+
     return SizedBox(
       height: 180,
       child: Obx(() {
@@ -881,7 +893,27 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                 (context, error, stackTrace) =>
                                     const Icon(Icons.broken_image),
                           )
-                          : const Icon(Icons.play_circle_fill, size: 48),
+                          : FutureBuilder<String?>(
+                            future: _generateThumbnail(reel.videoUrl ?? ""),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return Image.file(
+                                  File(snapshot.data!),
+                                  fit: BoxFit.cover,
+                                );
+                              }
+                              return const Icon(
+                                Icons.play_circle_fill,
+                                size: 48,
+                              );
+                            },
+                          ),
                 ),
               ),
             );
@@ -890,6 +922,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
       }),
     );
   }
+
 }
 
 Widget _buildSectionTitle(String title) {

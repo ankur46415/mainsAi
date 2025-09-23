@@ -22,31 +22,8 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        leading: InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        title: Text(
-          "${widget.mainCategory} - ${widget.subCategory}",
-          style: GoogleFonts.lato(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+        title: Text("${widget.mainCategory} - ${widget.subCategory}"),
         actions: [
           IconButton(
             tooltip: isGrid ? 'List view' : 'Grid view',
@@ -58,7 +35,7 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
             icon: Icon(
               isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded,
             ),
-            color: Colors.orange,
+            color: Colors.white,
           ),
         ],
       ),

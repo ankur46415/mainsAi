@@ -10,6 +10,13 @@ class WorkBookBOOKDetailes extends GetxController {
   Rxn<WorkBookBookDetailes> workbookDetailes = Rxn<WorkBookBookDetailes>();
   RxList<Sets> sets = <Sets>[].obs;
   RxBool isLoading = false.obs;
+  var count = 0.obs;
+
+  void increment() {
+    if (count.value == 0) {
+      count.value = 1;
+    }
+  }
 
   var isSaved = false.obs;
   var isActionLoading = false.obs;
@@ -34,8 +41,6 @@ class WorkBookBOOKDetailes extends GetxController {
 
       final url = Uri.parse('${ApiUrls.workBookBookDetailes}$bookId/sets');
 
-   
-
       final response = await http.get(
         url,
         headers: {
@@ -52,8 +57,7 @@ class WorkBookBOOKDetailes extends GetxController {
         workbook.value = details.workbook;
         workbookDetailes.value = details;
         sets.assignAll(details.sets ?? []);
-      } else {
-      }
+      } else {}
     } catch (e, s) {
     } finally {
       isLoading.value = false;

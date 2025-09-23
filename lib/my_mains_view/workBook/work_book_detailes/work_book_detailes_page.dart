@@ -208,90 +208,92 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                               ),
                             ),
                           ],
-
                           const Spacer(),
-
-                          // Add to Cart Button
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Cart Icon with Badge
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const Icon(
-                                      Icons.shopping_cart_outlined,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    Positioned(
-                                      right: -6,
-                                      top: -6,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Text(
-                                          "3",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.bold,
+                          InkWell(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.addToCart);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      const Icon(
+                                        Icons.shopping_cart_outlined,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      Positioned(
+                                        right: -6,
+                                        top: -6,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Obx(
+                                            () => Text(
+                                              "${controller.count.value}",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 8,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Add to Cart Text
-                                Text(
-                                  "Add to Cart",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                    ],
                                   ),
-                                ),
+                                  const SizedBox(width: 8),
 
-                                // Vertical Divider
-                                Container(
-                                  height: 20,
-                                  width: 1,
-                                  color: Colors.white.withOpacity(0.7),
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                ),
-
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      size: 16,
+                                  Text(
+                                    "Add to Cart",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
                                       color: Colors.white,
                                     ),
                                   ),
-                                ),
-                              ],
+
+                                  Container(
+                                    height: 20,
+                                    width: 1,
+                                    color: Colors.white.withOpacity(0.7),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      controller.increment(); // 🔥 tap pe +1
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

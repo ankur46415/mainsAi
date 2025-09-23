@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:mains/my_mains_view/creidt/addCredit/paytm_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mains/models/addAmount.dart' as model;
+import '../../../common/api_urls.dart';
+import '../../../common/api_services.dart';
 
 import '../../../common/shred_pref.dart';
 import '../../../common/auth_service/auth_service.dart';
@@ -32,38 +34,29 @@ class PaymentController extends GetxController {
 
     isLoading.value = true;
 
-    const url =
-        'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/plans/without-items';
+    final String url = '${ApiUrls.creditPlans}/without-items';
 
     try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final jsonData = json.decode(response.body);
+          final parsed = model.AddAmountResponse.fromJson(jsonData);
+          plans.value = parsed.data ?? [];
         },
+        onError: () {},
       );
-
-    
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        final parsed = model.AddAmountResponse.fromJson(jsonData);
-        plans.value = parsed.data ?? [];
-
-        for (var plan in plans) {
-   
-        }
-      } else {
-      
-      }
     } catch (e) {
     } finally {
       isLoading.value = false;
     }
   }
 
-  final String backendUrl = 'https://test.ailisher.com/api/paytm/initiate';
+  final String backendUrl = ApiUrls.paytmInitiate;
 
   Future<void> initiatePayment({
     required double amount,
@@ -96,7 +89,6 @@ class PaymentController extends GetxController {
         "credits": selectedPlan.credits,
       };
 
-
       final response = await http.post(
         Uri.parse(backendUrl),
         headers: {
@@ -106,7 +98,6 @@ class PaymentController extends GetxController {
         body: jsonEncode(requestBody),
       );
 
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -115,10 +106,7 @@ class PaymentController extends GetxController {
           data['paytmParams'] ?? {},
         );
 
-       
-
         if (paytmUrl != null && paytmParams != null && paytmParams.isNotEmpty) {
-          // Convert all paytmParams values to String
           final params = paytmParams.map(
             (key, value) => MapEntry(key, value.toString()),
           );
@@ -137,5 +125,4 @@ class PaymentController extends GetxController {
       Get.snackbar("Error", e.toString());
     }
   }
-
 }

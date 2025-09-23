@@ -13,7 +13,7 @@ class HomeScreenController extends GetxController {
   RxList<Categories> categories = <Categories>[].obs;
   RxInt totalBooks = 0.obs;
   RxBool isLoading = false.obs;
-  RxBool hasLoaded = false.obs; // first successful dashboard load completed
+  RxBool hasLoaded = false.obs;
   RxString selectedCategory = 'All'.obs;
   RxString selectedSubCategory = ''.obs;
   RxMap<String, List<adds_model.Data>> adsByLocation =
@@ -32,16 +32,13 @@ class HomeScreenController extends GetxController {
     try {
       await _initializePreferences();
       if (!_isDashboardLoaded) {
-        // Ensure the very first frame after landing shows a loader
-        // instead of briefly flashing "No data" before the API starts.
         isLoading.value = true;
         Future.microtask(() async {
           await dashBoardData();
           initializeFirstSubcategories();
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> _initializePreferences() async {
@@ -54,13 +51,12 @@ class HomeScreenController extends GetxController {
 
   Future<void> fetchHomePageAdds() async {
     final prefs = await SharedPreferences.getInstance();
-    final authToken = prefs.getString('authToken'); 
+    final authToken = prefs.getString('authToken');
 
     try {
       isLoading.value = true;
 
       final url = ApiUrls.marketing;
-
 
       final response = await http.get(
         Uri.parse(url),
@@ -72,13 +68,10 @@ class HomeScreenController extends GetxController {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         homePageAdds.value = adds_model.HomePageAdds.fromJson(data);
-      
+
         _buildAdsByLocation();
-      } else {
-        Get.snackbar("Error", "Failed to load data: ${response.statusCode}");
-      }
+      } else {}
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
     } finally {
       isLoading.value = false;
     }
@@ -177,13 +170,12 @@ class HomeScreenController extends GetxController {
               Get.offAll(() => User_Login_option());
             });
 
-            return; 
+            return;
           } else {
             return;
           }
         },
-        onError: () {
-        },
+        onError: () {},
         token: authToken,
         showLoader: false,
         hideLoader: false,
@@ -220,7 +212,6 @@ class HomeScreenController extends GetxController {
                       .map((item) => Categories.fromJson(item))
                       .toList();
 
-              // Find the matching category and subcategory
               final categoryObj = newCategories.firstWhereOrNull(
                 (cat) => cat.category == category,
               );
@@ -229,7 +220,6 @@ class HomeScreenController extends GetxController {
 
               if (subCategoryObj?.books != null &&
                   subCategoryObj!.books!.isNotEmpty) {
-                // Append new books to the existing subcategory
                 final existingCategory = categories.firstWhereOrNull(
                   (cat) => cat.category == category,
                 );
@@ -243,9 +233,7 @@ class HomeScreenController extends GetxController {
                   ];
                   categories.refresh();
                   currentPage[key] = nextPage;
-                  hasMore[key] =
-                      subCategoryObj.books!.length >=
-                      5; // Adjust based on API page size
+                  hasMore[key] = subCategoryObj.books!.length >= 5;
                 }
               } else {
                 hasMore[key] = false;

@@ -15,16 +15,11 @@ class EmailLauncher {
     debugPrint("📧 Email: $emailAddress");
     debugPrint("📝 Subject: $subject");
     debugPrint("📄 Body: $body");
-
-    // Try multiple email URI formats for better compatibility
     final List<Uri> emailUris = [
-      // Standard mailto format with proper encoding
       Uri.parse('mailto:$emailAddress?subject=${Uri.encodeComponent(subject ?? '')}&body=${Uri.encodeComponent(body ?? '')}'),
       
-      // Alternative format for Android
       Uri(scheme: 'mailto', path: emailAddress, query: 'subject=${Uri.encodeComponent(subject ?? '')}&body=${Uri.encodeComponent(body ?? '')}'),
       
-      // Simple mailto without query parameters
       Uri.parse('mailto:$emailAddress'),
     ];
 
@@ -58,7 +53,6 @@ class EmailLauncher {
       }
     }
 
-    // If no email app is available, show a simple message
     if (showFallbackDialog) {
       _showSimpleFallbackDialog(emailAddress);
     } else {
@@ -119,7 +113,6 @@ class EmailLauncher {
     );
   }
 
-  // Method to check if any email app is available
   static Future<bool> isEmailAppAvailable() async {
     debugPrint("🔍 Checking email app availability...");
     
@@ -149,7 +142,6 @@ class EmailLauncher {
     return false;
   }
 
-  // Direct email launch without fallback dialog
   static Future<bool> launchEmailDirect({
     required String emailAddress,
     String? subject,
@@ -167,7 +159,6 @@ class EmailLauncher {
     );
   }
 
-  // Phone dialer functionality
   static Future<bool> launchPhoneDialer({
     required String phoneNumber,
     bool showFallbackDialog = false,
@@ -175,7 +166,6 @@ class EmailLauncher {
     debugPrint("📞 Starting phone dialer launch...");
     debugPrint("📱 Phone: $phoneNumber");
 
-    // Try multiple phone URI formats
     final List<Uri> phoneUris = [
       Uri.parse('tel:$phoneNumber'),
       Uri.parse('tel:${phoneNumber.replaceAll(' ', '')}'),
@@ -212,7 +202,6 @@ class EmailLauncher {
       }
     }
 
-    // If no phone dialer is available, show a simple message
     if (showFallbackDialog) {
       _showPhoneFallbackDialog(phoneNumber);
     } else {
@@ -273,7 +262,6 @@ class EmailLauncher {
     );
   }
 
-  // Test method to debug email launching
   static Future<void> testEmailLaunch() async {
     debugPrint("🧪 Testing email launch functionality...");
     
@@ -292,7 +280,6 @@ class EmailLauncher {
     }
   }
 
-  // Test method to debug phone dialing
   static Future<void> testPhoneDialer() async {
     debugPrint("🧪 Testing phone dialer functionality...");
     
@@ -302,7 +289,6 @@ class EmailLauncher {
     debugPrint("✅ Test phone dialer result: $result");
   }
 
-  // Method to get detailed email app information
   static Future<void> getEmailAppInfo() async {
     debugPrint("📋 Getting email app information...");
     

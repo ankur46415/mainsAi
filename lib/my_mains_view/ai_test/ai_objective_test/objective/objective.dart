@@ -95,7 +95,6 @@ class _TestCategoriesObjectivePageState
                   (s) => s.name == selectedSub,
                 );
 
-                // Filter tests for enabled only
                 final enabledTests =
                     (selectedSubcategory?.tests ?? [])
                         .where((t) => t.isEnabled == true)

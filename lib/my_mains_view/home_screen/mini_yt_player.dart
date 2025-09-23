@@ -24,7 +24,7 @@ class MiniYoutubePreview extends StatelessWidget {
 }
 
 class MiniFileVideoPreview extends StatelessWidget {
-  final String thumbnailUrl; // pass pre-generated or API-provided thumbnail
+  final String thumbnailUrl;
   const MiniFileVideoPreview({required this.thumbnailUrl, Key? key})
     : super(key: key);
 

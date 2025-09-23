@@ -458,8 +458,16 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                               );
                             },
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color.fromARGB(255, 236, 87, 87), width: 1.2),
-                              foregroundColor: const Color.fromARGB(255, 236, 87, 87),
+                              side: const BorderSide(
+                                color: Color.fromARGB(255, 236, 87, 87),
+                                width: 1.2,
+                              ),
+                              foregroundColor: const Color.fromARGB(
+                                255,
+                                236,
+                                87,
+                                87,
+                              ),
                               backgroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(

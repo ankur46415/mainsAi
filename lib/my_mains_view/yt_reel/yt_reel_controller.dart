@@ -227,7 +227,7 @@ class ReelsController extends GetxController {
             url = youtubeLink ?? '';
           } else if (videoUrl != null && videoUrl.isNotEmpty) {
             type = 'file';
-            id = videoUrl; // use url as id for file videos
+            id = videoUrl;
             url = videoUrl;
           }
           debugPrint(
@@ -256,7 +256,6 @@ class ReelsController extends GetxController {
         videoUrls.assignAll(urls);
         titles.assignAll(titlesList);
         debugPrint('[Reels] videoIds assigned.');
-        // init first window
         _ensureInitializedForIndices([0, 1]);
         _playOnly(0);
         _maybeMarkViewed(0);

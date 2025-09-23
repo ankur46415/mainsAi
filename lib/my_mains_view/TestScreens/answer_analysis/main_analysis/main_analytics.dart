@@ -473,7 +473,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                      horizontal: 16,
+                                                      horizontal: 32,
                                                       vertical: 4,
                                                     ),
                                                 child: Image.network(
@@ -495,7 +495,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
 
                                       // ---- LEFT ARROW ----
                                       Positioned(
-                                        left: 8,
+                                        left: 0,
                                         top: 0,
                                         bottom: 0,
                                         child: Center(
@@ -524,10 +524,9 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                           ),
                                         ),
                                       ),
-
                                       // ---- RIGHT ARROW ----
                                       Positioned(
-                                        right: 8,
+                                        right: 0,
                                         top: 0,
                                         bottom: 0,
                                         child: Center(
@@ -613,7 +612,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                           children: [
                                             const SizedBox(width: 6),
                                             _buildCircleIcon(
-                                              icon: Icons.library_books,
+                                              icon: Icons.download,
                                               onTap:
                                                   () => _exportAllImagesAsPdf(
                                                     images,

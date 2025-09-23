@@ -414,7 +414,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     final authToken = prefs.getString('authToken');
 
     isManuallyStopped.value =
-        false; // Reset flag when fetching app voice config
+        false; 
 
     final url = Uri.parse(ApiUrls.appConfig);
 
@@ -1294,7 +1294,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
       return;
     }
 
-    isManuallyStopped.value = false; // Reset flag when fetching book details
+    isManuallyStopped.value = false; 
 
     isLoadingBookDetails.value = true;
     debugPrint("⏳ isLoadingBookDetails set to true");
