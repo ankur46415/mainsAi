@@ -1,6 +1,5 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/objective_previous_attempt.dart';
-import 'package:http/http.dart' as http;
 
 class ResultAttemptController extends GetxController {
   final AttemptHistory attempt;
@@ -8,15 +7,14 @@ class ResultAttemptController extends GetxController {
 
   ResultAttemptController(this.attempt, this.testId);
 
-  double get totalMarksEarned => attempt?.totalMarksEarned?.toDouble() ?? 0.0;
+  double get totalMarksEarned =>
+      (attempt.totalMarksEarned as num?)?.toDouble() ?? 0.0;
 
-  // Display the final score including negative marking
   String get score => finalMarksWithNegative.toStringAsFixed(2);
   int get correct => attempt.correctAnswers;
   int get incorrect => (attempt.totalQuestions - unattempted) - correct;
   int get unattempted => attempt.answers.values.where((v) => v == null).length;
 
-  // Computed marking with positives/negatives pulled from questions API when available
   double get totalPossibleMarks {
     if (questions.isEmpty) {
       // fallback: assume 1 mark per question
@@ -84,45 +82,44 @@ class ResultAttemptController extends GetxController {
 
   Future<void> fetchQuestions() async {
     try {
-isLoadingQuestions.value = true;
+      isLoadingQuestions.value = true;
 
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
-final url = Uri.parse('${ApiUrls.objectiveTestQnsBase}$testId');
-final response = await http.get(
+      final String url = '${ApiUrls.objectiveTestQnsBase}$testId';
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${authToken ?? ''}',
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['questions'] != null) {
+            final questionsData = data['questions'] as List;
+            questions =
+                questionsData.map((q) {
+                  return {
+                    'id': q['_id'],
+                    'question': q['question'],
+                    'options': q['options'],
+                    'correctAnswer': q['correctAnswer'],
+                    'difficulty': q['difficulty'],
+                    'positiveMarks': q['positiveMarks'],
+                    'negativeMarks': q['negativeMarks'],
+                  };
+                }).toList();
+          } else {
+            // no-op
+          }
+        },
+        onError: () {
+          // show error silently; UI already reflects state
         },
       );
-
-if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-if (data['success'] == true && data['questions'] != null) {
-          final questionsData = data['questions'] as List;
-questions =
-              questionsData.map((q) {
-return {
-                  'id': q['_id'],
-                  'question': q['question'],
-                  'options': q['options'],
-                  'correctAnswer': q['correctAnswer'],
-                  'difficulty': q['difficulty'],
-                  'positiveMarks': q['positiveMarks'],
-                  'negativeMarks': q['negativeMarks'],
-                };
-              }).toList();
-
-          
-        } else {
-}
-      } else {
-}
-    } catch (e, s) {
-} finally {
+    } catch (e) {
+    } finally {
       isLoadingQuestions.value = false;
-      
     }
   }
 
@@ -193,7 +190,6 @@ return {
     );
   }
 
-  /// Helper: get correct answer for a given questionId
   int? getCorrectAnswer(String questionId) {
     final q = questions.firstWhereOrNull((q) => q['id'] == questionId);
     if (q != null) return q['correctAnswer'];

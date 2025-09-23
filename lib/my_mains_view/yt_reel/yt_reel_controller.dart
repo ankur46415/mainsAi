@@ -6,7 +6,7 @@ import 'package:mains/common/api_urls.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+// Removed direct http usage; using shared callWebApiGet
 
 class ReelsController extends GetxController {
   final RxList<String> videoIds = <String>[].obs;
@@ -175,94 +175,100 @@ class ReelsController extends GetxController {
         debugPrint('[Reels] ERROR: Invalid API URL: "$apiUrl"');
         return;
       }
-      final uri = Uri.parse(rawUrl);
       debugPrint('[Reels] Fetching reels → GET $rawUrl');
       debugPrint('[Reels] Using token present: ${authToken.isNotEmpty}');
-      final response = await http.get(
-        uri,
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
+
+      await callWebApiGet(
+        null,
+        rawUrl,
+        token: authToken,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          debugPrint('[Reels] Response status: ${response.statusCode}');
+          final preview =
+              response.body.length > 500
+                  ? response.body.substring(0, 500)
+                  : response.body;
+          debugPrint('[Reels] Raw body (first 500 chars): $preview');
+
+          final jsonResponse =
+              json.decode(response.body) as Map<String, dynamic>;
+          debugPrint('[Reels] json keys: ${jsonResponse.keys.toList()}');
+          final dataList =
+              (jsonResponse['data'] as List<dynamic>? ?? [])
+                  .cast<Map<String, dynamic>>();
+          debugPrint('[Reels] items in data: ${dataList.length}');
+          final ids = <String>[];
+          final idsBackend = <String>[];
+          final viewed = <bool>[];
+          final liked = <bool>[];
+          final likes = <int>[];
+          final types = <String>[];
+          final urls = <String>[];
+          final titlesList = <String>[];
+          for (final m in dataList) {
+            final backendId = (m['_id'] as String?)?.trim() ?? '';
+            final isViewed = (m['isViewed'] as bool?) ?? false;
+            final isLiked = (m['isLiked'] as bool?) ?? false;
+            final metrics = (m['metrics'] as Map<String, dynamic>?) ?? const {};
+            final likesCount = (metrics['likes'] as int?) ?? 0;
+            final youtubeId = (m['youtubeId'] as String?)?.trim();
+            final youtubeLink = (m['youtubeLink'] as String?)?.trim();
+            final videoUrl = (m['videoUrl'] as String?)?.trim();
+            String? id = youtubeId;
+            String type = '';
+            String url = '';
+            final title = (m['title'] as String?)?.trim() ?? '';
+            if ((id == null || id.isEmpty) &&
+                youtubeLink != null &&
+                youtubeLink.isNotEmpty) {
+              id = YoutubePlayer.convertUrlToId(youtubeLink);
+            }
+            if (id != null && id.isNotEmpty) {
+              type = 'youtube';
+              url = youtubeLink ?? '';
+            } else if (videoUrl != null && videoUrl.isNotEmpty) {
+              type = 'file';
+              id = videoUrl;
+              url = videoUrl;
+            }
+            debugPrint(
+              '[Reels] mapped item id: $id from youtubeId:"$youtubeId" link:"$youtubeLink" videoUrl:"$videoUrl"',
+            );
+            if (id != null && id.isNotEmpty) {
+              ids.add(id);
+              idsBackend.add(backendId);
+              viewed.add(isViewed);
+              liked.add(isLiked);
+              likes.add(likesCount);
+              types.add(type);
+              urls.add(url);
+              titlesList.add(title);
+            } else {
+              debugPrint('[Reels] skipped item: missing valid video id/url');
+            }
+          }
+          debugPrint('[Reels] valid ids count: ${ids.length} → $ids');
+          videoIds.assignAll(ids);
+          reelIds.assignAll(idsBackend);
+          viewedFlags.assignAll(viewed);
+          likedFlags.assignAll(liked);
+          likeCounts.assignAll(likes);
+          videoTypes.assignAll(types);
+          videoUrls.assignAll(urls);
+          titles.assignAll(titlesList);
+          debugPrint('[Reels] videoIds assigned.');
+          _ensureInitializedForIndices([0, 1]);
+          _playOnly(0);
+          _maybeMarkViewed(0);
+          errorMessage('');
+        },
+        onError: () {
+          errorMessage('Failed to load reels');
+          debugPrint('[Reels] Error: non-2xx response.');
         },
       );
-      debugPrint('[Reels] Response status: ${response.statusCode}');
-      debugPrint(
-        '[Reels] Raw body (first 500 chars): ${response.body.length > 500 ? response.body.substring(0, 500) : response.body}',
-      );
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-        debugPrint('[Reels] json keys: ${jsonResponse.keys.toList()}');
-        final dataList =
-            (jsonResponse['data'] as List<dynamic>? ?? [])
-                .cast<Map<String, dynamic>>();
-        debugPrint('[Reels] items in data: ${dataList.length}');
-        final ids = <String>[];
-        final idsBackend = <String>[];
-        final viewed = <bool>[];
-        final liked = <bool>[];
-        final likes = <int>[];
-        final types = <String>[];
-        final urls = <String>[];
-        final titlesList = <String>[];
-        for (final m in dataList) {
-          final backendId = (m['_id'] as String?)?.trim() ?? '';
-          final isViewed = (m['isViewed'] as bool?) ?? false;
-          final isLiked = (m['isLiked'] as bool?) ?? false;
-          final metrics = (m['metrics'] as Map<String, dynamic>?) ?? const {};
-          final likesCount = (metrics['likes'] as int?) ?? 0;
-          final youtubeId = (m['youtubeId'] as String?)?.trim();
-          final youtubeLink = (m['youtubeLink'] as String?)?.trim();
-          final videoUrl = (m['videoUrl'] as String?)?.trim();
-          String? id = youtubeId;
-          String type = '';
-          String url = '';
-          final title = (m['title'] as String?)?.trim() ?? '';
-          if ((id == null || id.isEmpty) &&
-              youtubeLink != null &&
-              youtubeLink.isNotEmpty) {
-            id = YoutubePlayer.convertUrlToId(youtubeLink);
-          }
-          if (id != null && id.isNotEmpty) {
-            type = 'youtube';
-            url = youtubeLink ?? '';
-          } else if (videoUrl != null && videoUrl.isNotEmpty) {
-            type = 'file';
-            id = videoUrl;
-            url = videoUrl;
-          }
-          debugPrint(
-            '[Reels] mapped item id: $id from youtubeId:"$youtubeId" link:"$youtubeLink" videoUrl:"$videoUrl"',
-          );
-          if (id != null && id.isNotEmpty) {
-            ids.add(id);
-            idsBackend.add(backendId);
-            viewed.add(isViewed);
-            liked.add(isLiked);
-            likes.add(likesCount);
-            types.add(type);
-            urls.add(url);
-            titlesList.add(title);
-          } else {
-            debugPrint('[Reels] skipped item: missing valid video id/url');
-          }
-        }
-        debugPrint('[Reels] valid ids count: ${ids.length} → $ids');
-        videoIds.assignAll(ids);
-        reelIds.assignAll(idsBackend);
-        viewedFlags.assignAll(viewed);
-        likedFlags.assignAll(liked);
-        likeCounts.assignAll(likes);
-        videoTypes.assignAll(types);
-        videoUrls.assignAll(urls);
-        titles.assignAll(titlesList);
-        debugPrint('[Reels] videoIds assigned.');
-        _ensureInitializedForIndices([0, 1]);
-        _playOnly(0);
-        _maybeMarkViewed(0);
-      } else {
-        errorMessage('Failed to load reels');
-        debugPrint('[Reels] Error: non-2xx response.');
-      }
     } catch (e) {
       errorMessage('Error: $e');
       debugPrint('[Reels] Exception: $e');

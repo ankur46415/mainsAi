@@ -108,6 +108,8 @@ class WorkBookcontroller extends GetxController
         null,
         url,
         token: authToken ?? "",
+        showLoader: false,
+        hideLoader: true,
         onResponse: (response) {
           if (response.statusCode == 200) {
             final data = json.decode(response.body);
@@ -116,7 +118,7 @@ class WorkBookcontroller extends GetxController
             _buildAdsByLocation();
           } else {}
         },
-        onError: (error) {},
+        onError: () {},
       );
     } finally {
       isLoading.value = false;

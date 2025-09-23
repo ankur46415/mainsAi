@@ -1,5 +1,4 @@
 import 'package:mains/app_imports.dart';
-import 'package:http/http.dart' as http;
 import 'package:mains/models/workBookBookDetailes.dart';
 import 'package:mains/my_mains_view/my_library/controller.dart';
 
@@ -39,26 +38,24 @@ class WorkBookBOOKDetailes extends GetxController {
         return;
       }
 
-      final url = Uri.parse('${ApiUrls.workBookBookDetailes}$bookId/sets');
+      final String url = '${ApiUrls.workBookBookDetailes}$bookId/sets';
 
-      final response = await http.get(
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $authToken",
+        token: authToken,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final jsonData = json.decode(response.body);
+          final details = WorkBookBookDetailes.fromJson(jsonData);
+          workbook.value = details.workbook;
+          workbookDetailes.value = details;
+          sets.assignAll(details.sets ?? []);
         },
+        onError: () {},
       );
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        final details = WorkBookBookDetailes.fromJson(jsonData);
-
-        workbook.value = details.workbook;
-        workbookDetailes.value = details;
-        sets.assignAll(details.sets ?? []);
-      } else {}
-    } catch (e, s) {
+    } catch (e) {
     } finally {
       isLoading.value = false;
     }

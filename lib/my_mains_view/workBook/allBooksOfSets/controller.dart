@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/allQuestionsOfSets.dart';
 
@@ -27,29 +26,24 @@ class SetsOfQuestions extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
-     
+      final String url =
+          '${ApiUrls.workBookAllQuestiones}$bookId/sets/$sid/questions';
 
-      final url = Uri.parse(
-        '${ApiUrls.workBookAllQuestiones}$bookId/sets/$sid/questions',
-      );
-
-
-      final response = await http.get(
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          if (authToken != null) 'Authorization': 'Bearer $authToken',
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = json.decode(response.body);
+          final parsed = AllQuestionsOfSets.fromJson(data);
+          questions.assignAll(parsed.questions ?? []);
+        },
+        onError: () {
+          Get.snackbar('Error', 'Failed to load questions');
         },
       );
-
-     
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final parsed = AllQuestionsOfSets.fromJson(data);
-        questions.assignAll(parsed.questions ?? []);
-      } else {
-        Get.snackbar('Error', 'Failed to load questions');
-      }
     } catch (e) {
       Get.snackbar('Error', 'Something went wrong');
     } finally {

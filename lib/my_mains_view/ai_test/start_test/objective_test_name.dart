@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/objective_previous_attempt.dart';
 
@@ -73,41 +72,41 @@ class ObjectiveRestNameController extends GetxController {
         return;
       }
 
-      final url = Uri.parse(
-        'https://test.ailisher.com/api/objectivetest/clients/CLI147189HIGB/$testId/results',
-      );
-      final response = await http.get(
+      final String url =
+          '${ApiUrls.objectiveTestStartBase}$testId/results';
+
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      // FULL RAW RESPONSE
-
-      if (response.statusCode == 200) {
-        final jsonMap = jsonDecode(response.body);
-
-        // FULL DECODED JSON MAP
-
-        if (jsonMap['success'] == true) {
-          try {
-            if (_isDisposing) return;
-            resultData.value = ObjectiveTestResult.fromJson(jsonMap['data']);
-            if (!isClosed) update();
-          } catch (e, stackTrace) {
+        token: authToken,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          if (response.statusCode == 200) {
+            final jsonMap = jsonDecode(response.body);
+            if (jsonMap['success'] == true) {
+              try {
+                if (_isDisposing) return;
+                resultData.value = ObjectiveTestResult.fromJson(jsonMap['data']);
+                if (!isClosed) update();
+              } catch (e) {
+                if (!_isDisposing) hasError.value = true;
+                if (!isClosed) update();
+              }
+            } else {
+              if (!_isDisposing) hasError.value = true;
+              if (!isClosed) update();
+            }
+          } else {
             if (!_isDisposing) hasError.value = true;
             if (!isClosed) update();
           }
-        } else {
+        },
+        onError: () {
           if (!_isDisposing) hasError.value = true;
           if (!isClosed) update();
-        }
-      } else {
-        if (!_isDisposing) hasError.value = true;
-        if (!isClosed) update();
-      }
+        },
+      );
     } catch (e) {
       if (!_isDisposing) hasError.value = true;
       if (!isClosed) update();

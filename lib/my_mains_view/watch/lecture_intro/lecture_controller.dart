@@ -26,8 +26,6 @@ class CurriculumController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-
-
     if (bookId == null || lectureId == null) {
       return;
     }
@@ -45,8 +43,6 @@ class CurriculumController extends GetxController {
         },
       );
 
-     
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -63,8 +59,6 @@ class CurriculumController extends GetxController {
 
         topics.value = allTopics;
         buildSectionsFromLectures();
-
-      
       } else {
         Get.snackbar("Error", "Failed to load topics: ${response.statusCode}");
       }
@@ -100,7 +94,6 @@ class CurriculumController extends GetxController {
         'isExpanded': false.obs,
       });
     }
-
   }
 }
 
@@ -108,9 +101,6 @@ class CurriculumBinding extends Bindings {
   @override
   void dependencies() {
     final args = Get.arguments as Map<String, dynamic>?;
-    Get.put(CurriculumController(
-      args?['bookId'],
-      args?['lectureId'],
-    ));
+    Get.put(CurriculumController(args?['bookId'], args?['lectureId']));
   }
 }

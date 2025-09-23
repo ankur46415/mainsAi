@@ -57,20 +57,21 @@ class HomeScreenController extends GetxController {
       isLoading.value = true;
 
       final url = ApiUrls.marketing;
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $authToken",
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            homePageAdds.value = adds_model.HomePageAdds.fromJson(data);
+            _buildAdsByLocation();
+          }
         },
+        onError: () {},
       );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        homePageAdds.value = adds_model.HomePageAdds.fromJson(data);
-
-        _buildAdsByLocation();
-      } else {}
     } catch (e) {
     } finally {
       isLoading.value = false;

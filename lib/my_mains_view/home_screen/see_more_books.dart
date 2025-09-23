@@ -22,8 +22,26 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("${widget.mainCategory} - ${widget.subCategory}"),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          "${widget.mainCategory} - ${widget.subCategory}",
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
+
         actions: [
           IconButton(
             tooltip: isGrid ? 'List view' : 'Grid view',

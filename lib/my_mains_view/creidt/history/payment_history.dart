@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import '../../../app_imports.dart';
 import 'controller.dart';
 
@@ -24,9 +26,22 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
           "Payment History",
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Colors.white,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -119,7 +134,11 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              item.createdAt ?? "",
+                              item.createdAt != null
+                                  ? DateFormat(
+                                    "dd MMM yyyy, hh:mm a",
+                                  ).format(DateTime.parse(item.createdAt!))
+                                  : "",
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 13,

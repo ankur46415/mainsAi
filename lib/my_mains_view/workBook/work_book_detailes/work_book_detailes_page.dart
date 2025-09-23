@@ -277,17 +277,16 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      controller.increment(); // 🔥 tap pe +1
+                                      controller.increment();
                                     },
                                     child: Container(
-                                      padding: const EdgeInsets.all(4),
+                                      // padding: const EdgeInsets.all(4),
                                       decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
+                                        shape: BoxShape.rectangle,
                                       ),
                                       child: const Icon(
                                         Icons.add,
-                                        size: 16,
+                                        size: 22,
                                         color: Colors.white,
                                       ),
                                     ),

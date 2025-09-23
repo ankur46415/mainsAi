@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'app_config.dart';
+import 'api_services.dart';
 
 class AppUpdateChecker {
   static Future<void> checkForUpdates(BuildContext context) async {
@@ -23,17 +23,20 @@ class AppUpdateChecker {
 
   static Future<String?> _getLatestVersion() async {
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}${AppConfig.versionCheckEndpoint}'),
-        headers: {'Content-Type': 'application/json'},
+      final String url = '${AppConfig.baseUrl}${AppConfig.versionCheckEndpoint}';
+      String? latest;
+      await callWebApiGet(
+        null,
+        url,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = json.decode(response.body);
+          latest = data['latest_version'];
+        },
+        onError: () {},
       );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['latest_version'];
-      }
-
-      return null;
+      return latest;
     } catch (e) {
       return null;
     }
