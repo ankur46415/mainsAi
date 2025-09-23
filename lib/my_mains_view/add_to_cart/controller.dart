@@ -65,7 +65,9 @@ class CreditCardController extends GetxController {
   Future<void> deleteCartItem(String itemId) async {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
-    final url = Uri.parse('https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/item/$itemId');
+    final url = Uri.parse(
+      'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/item/$itemId',
+    );
     isLoading.value = true;
     error.value = '';
     print("🔗 DeleteCartItem API URL: $url");

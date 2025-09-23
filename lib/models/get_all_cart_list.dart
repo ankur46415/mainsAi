@@ -68,8 +68,58 @@ class Data {
   }
 }
 
+class WorkbookId {
+  String? id;
+  String? title;
+  String? coverImageKey;
+  String? coverImageUrl;
+  int? mrp;
+  String? currency;
+  String? details;
+  int? offerPrice;
+  int? validityDays;
+
+  WorkbookId({
+    this.id,
+    this.title,
+    this.coverImageKey,
+    this.coverImageUrl,
+    this.mrp,
+    this.currency,
+    this.details,
+    this.offerPrice,
+    this.validityDays,
+  });
+
+  WorkbookId.fromJson(Map<String, dynamic> json) {
+    id = json['_id'];
+    title = json['title'];
+    coverImageKey = json['coverImageKey'];
+    coverImageUrl = json['coverImageUrl'];
+    mrp = json['MRP'];
+    currency = json['currency'];
+    details = json['details'];
+    offerPrice = json['offerPrice'];
+    validityDays = json['validityDays'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['_id'] = id;
+    data['title'] = title;
+    data['coverImageKey'] = coverImageKey;
+    data['coverImageUrl'] = coverImageUrl;
+    data['MRP'] = mrp;
+    data['currency'] = currency;
+    data['details'] = details;
+    data['offerPrice'] = offerPrice;
+    data['validityDays'] = validityDays;
+    return data;
+  }
+}
+
 class Items {
-  String? workbookId;
+  WorkbookId? workbookId;
   String? title;
   int? price;
   String? currency;
@@ -77,18 +127,22 @@ class Items {
   Items({this.workbookId, this.title, this.price, this.currency});
 
   Items.fromJson(Map<String, dynamic> json) {
-    workbookId = json['workbookId'];
+    workbookId = json['workbookId'] != null
+        ? WorkbookId.fromJson(json['workbookId'])
+        : null;
     title = json['title'];
     price = json['price'];
     currency = json['currency'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['workbookId'] = this.workbookId;
-    data['title'] = this.title;
-    data['price'] = this.price;
-    data['currency'] = this.currency;
+    final Map<String, dynamic> data = {};
+    if (workbookId != null) {
+      data['workbookId'] = workbookId!.toJson();
+    }
+    data['title'] = title;
+    data['price'] = price;
+    data['currency'] = currency;
     return data;
   }
 }

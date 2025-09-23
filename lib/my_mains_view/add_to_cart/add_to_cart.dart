@@ -349,7 +349,7 @@ class _AddToCartState extends State<AddToCart> {
                         ),
                       ),
                       onDismissed: (direction) async {
-                        final itemId = item.workbookId;
+                        final itemId = item.workbookId?.id;
                         if (itemId != null && itemId.isNotEmpty) {
                           await controller.deleteCartItem(itemId);
                           setState(() {
@@ -454,12 +454,36 @@ class _AddToCartState extends State<AddToCart> {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
-                                      child: Image.asset(
-                                        'assets/images/bookb.png',
-                                        width: 70,
-                                        height: 70,
-                                        fit: BoxFit.cover,
-                                      ),
+                                      child:
+                                          (item.workbookId?.coverImageUrl !=
+                                                      null &&
+                                                  item
+                                                      .workbookId!
+                                                      .coverImageUrl!
+                                                      .isNotEmpty)
+                                              ? Image.network(
+                                                item.workbookId!.coverImageUrl!,
+                                                width: 70,
+                                                height: 70,
+                                                fit: BoxFit.fill,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => Image.asset(
+                                                      'assets/images/bookb.png',
+                                                      width: 70,
+                                                      height: 70,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                              )
+                                              : Image.asset(
+                                                'assets/images/bookb.png',
+                                                width: 70,
+                                                height: 70,
+                                                fit: BoxFit.cover,
+                                              ),
                                     ),
                                   ),
 
