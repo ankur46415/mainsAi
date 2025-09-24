@@ -618,21 +618,16 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               final bool isEnrolled = bookData.isEnrolled == true;
               final bool isForSale = bookData.isForSale == true;
               final bool showPurchase = isForSale && !isEnrolled;
 
               if (showPurchase) {
-                String? planId;
-                if (bookData.planDetails != null &&
-                    bookData.planDetails!.isNotEmpty) {
-                  planId = bookData.planDetails![0].id;
-                }
-                Get.toNamed(
-                  AppRoutes.specificCourse,
-                  arguments: {'planId': planId},
+                final success = await controller.addWorkbookToCart(
+                  widget.bookId?.toString() ?? '',
                 );
+                if (success) Get.toNamed(AppRoutes.addToCart);
               } else if (controller.isSaved == true ||
                   controller.isActionLoading.value) {
                 if (!Get.isRegistered<MyLibraryController>()) {

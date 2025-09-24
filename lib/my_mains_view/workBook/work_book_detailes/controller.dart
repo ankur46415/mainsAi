@@ -110,14 +110,14 @@ class WorkBookBOOKDetailes extends GetxController {
     }
   }
 
-  Future<void> addWorkbookToCart(String workbookId) async {
+  Future<bool> addWorkbookToCart(String workbookId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken') ?? '';
 
       if (workbookId.isEmpty) {
         print("⚠️ WorkbookId is empty.");
-        return;
+        return false;
       }
 
       const String addToCartUrl = ApiUrls.cartAdd;
@@ -126,6 +126,7 @@ class WorkBookBOOKDetailes extends GetxController {
       print("📦 Request Body: {workbookId: $workbookId}");
       print("🔑 Token: $authToken");
 
+      bool isSuccess = false;
       await callWebApi(
         null,
         addToCartUrl,
@@ -134,21 +135,10 @@ class WorkBookBOOKDetailes extends GetxController {
         showLoader: false,
         hideLoader: true,
         onResponse: (response) {
-          print("📥 Response Status: ${response.statusCode}");
-          print("📥 Response Body: ${response.body}");
-
           if (response.statusCode == 200) {
             increment();
-            print("✅ Success: Added to cart");
-            Get.snackbar(
-              'Cart',
-              'Added to cart',
-              snackPosition: SnackPosition.BOTTOM,
-            );
+            isSuccess = true;
           } else {
-            print(
-              "❌ Error: Failed to add to cart (Status ${response.statusCode})",
-            );
             Get.snackbar(
               'Cart',
               'Failed to add to cart',
@@ -156,17 +146,12 @@ class WorkBookBOOKDetailes extends GetxController {
             );
           }
         },
-        onError: () {
-          print("❌ API Error: Something went wrong");
-          Get.snackbar(
-            'Cart',
-            'Failed to add to cart',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        },
+        onError: () {},
       );
+      return isSuccess;
     } catch (e) {
       print("❌ Exception: $e");
+      return false;
     }
   }
 }
