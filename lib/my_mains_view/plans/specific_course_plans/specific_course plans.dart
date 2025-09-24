@@ -141,7 +141,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
                             ),
                           ),
                         ),
-                        // White content
                         Padding(
                           padding: const EdgeInsets.all(14),
                           child: Column(
@@ -224,7 +223,14 @@ class _SpecificCourseState extends State<SpecificCourse> {
                 }),
 
                 const SizedBox(height: 20),
-
+                Text(
+                  "Descriptions",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
                 // ---------- Description ----------
                 Obx(() {
                   final plan = controller.plan.value;
@@ -259,24 +265,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
 
                 const SizedBox(height: 24),
 
-                Text(
-                  "Descriptions",
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Following contents are available with this plan",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
                 Obx(() {
                   final plan = controller.plan.value;
                   String categoryFromItems = '';
@@ -301,7 +289,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
 
                 const SizedBox(height: 16),
 
-                // ---------- Subcategory Tabs (dynamic) ----------
                 Obx(() {
                   final items = controller.plan.value?.items ?? [];
                   final List<String> subCats =
@@ -313,10 +300,9 @@ class _SpecificCourseState extends State<SpecificCourse> {
                       }.toList();
 
                   if (subCats.isEmpty) {
-                    return const SizedBox.shrink(); // Hide subcategory tabs if no subcategories
+                    return const SizedBox.shrink();
                   }
 
-                  // Compute current selection without mutating reactive state during build
                   final String currentSelection =
                       (selectedSubCategory.value.isEmpty && subCats.isNotEmpty)
                           ? subCats.first
@@ -325,7 +311,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
                   final int currentIndex =
                       computedIndex >= 0 ? computedIndex : 0;
 
-                  // Initialize selection post-frame to avoid mutating during build
                   if (selectedSubCategory.value.isEmpty && subCats.isNotEmpty) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (selectedSubCategory.value.isEmpty &&
@@ -383,8 +368,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
 
                 Obx(() {
                   final allItems = controller.plan.value?.items ?? [];
-
-                  // Build subcategories list to compute effective filter
                   final List<String> subCats =
                       <String>{
                         for (final it in allItems)
@@ -393,7 +376,6 @@ class _SpecificCourseState extends State<SpecificCourse> {
                             it.referencedItem!.subCategory,
                       }.toList();
 
-                  // Use first subcategory by default if none selected
                   final String effectiveFilter =
                       (selectedSubCategory.value.isEmpty && subCats.isNotEmpty)
                           ? subCats.first
@@ -478,7 +460,7 @@ class _SpecificCourseState extends State<SpecificCourse> {
                                     imageUrl,
                                     width: double.infinity,
                                     height: double.infinity,
-                                    fit: BoxFit.cover, // 🔹 fills entire space
+                                    fit: BoxFit.fill,
                                     errorBuilder:
                                         (_, __, ___) => Container(
                                           color: Colors.grey.shade200,
@@ -504,72 +486,85 @@ class _SpecificCourseState extends State<SpecificCourse> {
       floatingActionButton: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-            left: Get.width * 0.03,
-            right: Get.width * 0.03,
+            left: Get.width * 0.05,
+            right: Get.width * 0.05,
           ),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 56,
+          child: Obx(() {
+            final plan = controller.plan.value;
+            final bool isEnrolled = plan?.isEnrolled ?? false;
+            return Container(
+              width: double.infinity,
+              height: 50,
               alignment: Alignment.center,
+              decoration:
+                  isEnrolled
+                      ? BoxDecoration(
+                        color: Theme.of(context).disabledColor,
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                      : const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFFFC107),
+                            Color.fromARGB(255, 236, 87, 87),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 56,
-                child: Obx(() {
-                  final plan = controller.plan.value;
-                  final bool isEnrolled = plan?.isEnrolled ?? false;
-                  return FloatingActionButton.extended(
-                    backgroundColor: isEnrolled ? Colors.grey : Colors.green,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    icon: Icon(
-                      isEnrolled ? Icons.check_circle : Icons.payment,
+                child: FloatingActionButton.extended(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  icon: Icon(
+                    isEnrolled ? Icons.check_circle : Icons.payment,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    isEnrolled ? 'ALREADY PURCHASED' : 'MAKE PAYMENT',
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                    label: Text(
-                      isEnrolled ? 'ALREADY PURCHASED' : 'MAKE PAYMENT',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onPressed:
-                        isEnrolled
-                            ? null
-                            : () {
-                              if (plan == null) {
-                                Get.snackbar(
-                                  'Error',
-                                  'Plan information is not available. Please try again.',
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.red,
-                                  colorText: Colors.white,
-                                );
-                                return;
-                              }
-                              Get.toNamed(
-                                AppRoutes.makePayment,
-                                arguments: {
-                                  'planId': plan.id,
-                                  'name': plan.name,
-                                  'description': plan.description,
-                                  'duration': plan.duration,
-                                  'mrp': plan.mrp,
-                                  'offerPrice': plan.offerPrice,
-                                  'category': plan.category,
-                                },
+                  ),
+                  onPressed:
+                      isEnrolled
+                          ? null
+                          : () {
+                            if (plan == null) {
+                              Get.snackbar(
+                                'Error',
+                                'Plan information is not available. Please try again.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
                               );
-                            },
-                  );
-                }),
+                              return;
+                            }
+                            Get.toNamed(
+                              AppRoutes.makePayment,
+                              arguments: {
+                                'planId': plan.id,
+                                'name': plan.name,
+                                'description': plan.description,
+                                'duration': plan.duration,
+                                'mrp': plan.mrp,
+                                'offerPrice': plan.offerPrice,
+                                'category': plan.category,
+                              },
+                            );
+                          },
+                ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     );

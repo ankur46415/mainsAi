@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:mains/my_mains_view/creidt/addCredit/paytm_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mains/models/addAmount.dart' as model;
@@ -89,37 +88,37 @@ class PaymentController extends GetxController {
         "credits": selectedPlan.credits,
       };
 
-      final response = await http.post(
-        Uri.parse(backendUrl),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
+      await callWebApi(
+        null,
+        backendUrl,
+        requestBody,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = jsonDecode(response.body);
+          final String? paytmUrl = data['paytmUrl'];
+          final Map<String, dynamic>? paytmParams = Map<String, dynamic>.from(
+            data['paytmParams'] ?? {},
+          );
+
+          if (paytmUrl != null &&
+              paytmParams != null &&
+              paytmParams.isNotEmpty) {
+            final params = paytmParams.map(
+              (key, value) => MapEntry(key, value.toString()),
+            );
+            Get.to(
+              () => PaytmPaymentPage(paytmUrl: paytmUrl, paytmParams: params),
+            );
+          } else {
+            Get.snackbar("Error", "Missing Paytm URL or Params");
+          }
         },
-        body: jsonEncode(requestBody),
+        onError: () {
+          Get.snackbar("Error", "Failed to initiate payment.");
+        },
       );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        final String? paytmUrl = data['paytmUrl'];
-        final Map<String, dynamic>? paytmParams = Map<String, dynamic>.from(
-          data['paytmParams'] ?? {},
-        );
-
-        if (paytmUrl != null && paytmParams != null && paytmParams.isNotEmpty) {
-          final params = paytmParams.map(
-            (key, value) => MapEntry(key, value.toString()),
-          );
-          Get.to(
-            () => PaytmPaymentPage(paytmUrl: paytmUrl, paytmParams: params),
-          );
-        } else {
-          Get.snackbar("Error", "Missing Paytm URL or Params");
-        }
-      } else {
-        Get.snackbar("Error", "Failed to initiate payment.");
-        log("Failed Response: ${response.body}");
-      }
     } catch (e, stack) {
       log("Exception", error: e, stackTrace: stack);
       Get.snackbar("Error", e.toString());

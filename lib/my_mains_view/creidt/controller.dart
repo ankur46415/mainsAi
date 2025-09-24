@@ -1,7 +1,6 @@
-import 'package:http/http.dart' as http;
-
 import '../../app_imports.dart';
 import '../../models/creditGetModel.dart';
+import '../../common/api_services.dart';
 
 class CreditBalanceController extends GetxController {
   late SharedPreferences prefs;
@@ -32,23 +31,18 @@ class CreditBalanceController extends GetxController {
       isLoading.value = true;
 
       final url = "https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/account";
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json',
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final jsonData = json.decode(response.body);
+          creditData.value = CreditGetApi.fromJson(jsonData);
         },
+        onError: () {},
       );
-
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        creditData.value = CreditGetApi.fromJson(jsonData);
-      } else {
-        
-      }
     } catch (e) {
       Get.snackbar("Error", "Something went wrong");
     } finally {

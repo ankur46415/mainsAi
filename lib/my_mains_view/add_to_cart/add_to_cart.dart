@@ -158,7 +158,7 @@ class _AddToCartState extends State<AddToCart> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => controller.fetchCartList(),
+                  onPressed: () => controller.fetchCartList(null),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     shape: RoundedRectangleBorder(
@@ -488,7 +488,6 @@ class _AddToCartState extends State<AddToCart> {
 
                                   const SizedBox(width: 16),
 
-                                  // Product Details
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:

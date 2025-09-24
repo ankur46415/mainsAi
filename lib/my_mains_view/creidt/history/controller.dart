@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import '../../../common/api_services.dart';
 
 import '../../../models/payment_history.dart';
 
@@ -26,28 +26,19 @@ class PaymentHistoryController extends GetxController {
     try {
       isLoading.value = true;
 
-      final url = Uri.parse(
-        "https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/transactions",
-      );
-
-    
-      final response = await http.get(
+      final url = "https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/credit/transactions";
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          "Authorization": "Bearer $authToken",
-          "Content-Type": "application/json",
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final Map<String, dynamic> jsonData = jsonDecode(response.body);
+          paymentHistory.value = PaymentHistory.fromJson(jsonData);
         },
+        onError: () {},
       );
-
-    
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = jsonDecode(response.body);
-
-        paymentHistory.value = PaymentHistory.fromJson(jsonData);
-      
-      } else {
-      }
     } catch (e) {
     } finally {
       isLoading.value = false;

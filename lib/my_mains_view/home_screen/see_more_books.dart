@@ -33,6 +33,12 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
             ),
           ),
         ),
+        leading: InkWell(
+          onTap: () {
+            Get.back();
+          },
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
         title: Text(
           "${widget.mainCategory} - ${widget.subCategory}",
           style: GoogleFonts.poppins(
@@ -131,12 +137,8 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
                 left: 8,
                 child: _buildBadge('ENROLLED', Colors.green),
               )
-            else if ((book.isEnrolled != true) && (book.isPaid == true))
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: _buildBadge('PAID', Colors.red),
-              ),
+            else if ((book.isEnrolled != true) && (book.isForSale == true))
+              Positioned(bottom: 8, left: 8, child: _buildPriceBadge(book)),
           ],
         ),
       ),
@@ -212,8 +214,8 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
                       if (book.isEnrolled == true)
                         _buildBadge('ENROLLED', Colors.green)
                       else if ((book.isEnrolled != true) &&
-                          (book.isPaid == true))
-                        _buildBadge('PAID', Colors.red),
+                          (book.isForSale == true))
+                        _buildPriceBadge(book),
                     ],
                   ),
                 ],
@@ -243,11 +245,24 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
       child: Text(
         text,
         style: GoogleFonts.poppins(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
+          fontSize: 9,
+          fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
       ),
     );
+  }
+
+  Widget _buildPriceBadge(Workbooks book) {
+    final dynamic offer = book.offerPrice;
+    String label;
+    if (offer == null) {
+      label = 'PAID';
+    } else if (offer is num) {
+      label = offer > 0 ? '₹ ${offer.toStringAsFixed(0)}' : 'PAID';
+    } else {
+      label = '₹ $offer';
+    }
+    return _buildBadge(label, Colors.red);
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mains/models/asset_list.dart';
 import '../../../common/api_urls.dart';
+import '../../../common/api_services.dart';
 
 class AssetResultController extends GetxController {
   final String assetUrls;
@@ -49,9 +49,6 @@ class AssetResultController extends GetxController {
     isLoading.value = true;
 
     try {
-      final uri = Uri.parse(assetUrls);
-      final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
-
       // Use correct URL based on isDirectPath
       final fullUrl =
           isDirectPath
@@ -60,33 +57,38 @@ class AssetResultController extends GetxController {
 
       debugPrint("Fetching response from: $fullUrl");
 
-      final response = await http.get(Uri.parse(fullUrl));
-      debugPrint("Status Code: ${response.statusCode}");
+      await callWebApiGet(
+        null,
+        fullUrl,
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          debugPrint("Status Code: ${response.statusCode}");
+          try {
+            final jsonData = json.decode(response.body);
+            final parsedData = AssetListGet.fromJson(jsonData);
 
-      if (response.statusCode == 200) {
-        try {
-          final jsonData = json.decode(response.body);
-          final parsedData = AssetListGet.fromJson(jsonData);
+            assetData.value = parsedData;
+            bookList.assignAll(parsedData.book != null ? [parsedData.book!] : []);
+            chapters.assignAll(parsedData.chapters ?? []);
+            summaries.assignAll(parsedData.summaries ?? []);
+            videos.assignAll(parsedData.videos ?? []);
+            pyqs.assignAll(parsedData.pyqs ?? []);
+            subjectiveL1.assignAll(parsedData.subjectiveQuestionSets?.l1 ?? []);
+            subjectiveL2.assignAll(parsedData.subjectiveQuestionSets?.l2 ?? []);
+            objectiveL1.assignAll(parsedData.objectiveQuestionSets?.l1 ?? []);
+            objectiveL2.assignAll(parsedData.objectiveQuestionSets?.l2 ?? []);
+            objectiveL3.assignAll(parsedData.objectiveQuestionSets?.l3 ?? []);
 
-          assetData.value = parsedData;
-          bookList.assignAll(parsedData.book != null ? [parsedData.book!] : []);
-          chapters.assignAll(parsedData.chapters ?? []);
-          summaries.assignAll(parsedData.summaries ?? []);
-          videos.assignAll(parsedData.videos ?? []);
-          pyqs.assignAll(parsedData.pyqs ?? []);
-          subjectiveL1.assignAll(parsedData.subjectiveQuestionSets?.l1 ?? []);
-          subjectiveL2.assignAll(parsedData.subjectiveQuestionSets?.l2 ?? []);
-          objectiveL1.assignAll(parsedData.objectiveQuestionSets?.l1 ?? []);
-          objectiveL2.assignAll(parsedData.objectiveQuestionSets?.l2 ?? []);
-          objectiveL3.assignAll(parsedData.objectiveQuestionSets?.l3 ?? []);
-
-          debugPrint("🔹 Data loaded into RxLists");
-        } catch (e) {
-          debugPrint("Failed to parse AssetListGet: $e");
-        }
-      } else {
-        debugPrint("HTTP Error: ${response.statusCode}");
-      }
+            debugPrint("🔹 Data loaded into RxLists");
+          } catch (e) {
+            debugPrint("Failed to parse AssetListGet: $e");
+          }
+        },
+        onError: () {
+          debugPrint("HTTP Error while fetching asset data");
+        },
+      );
     } catch (e) {
       debugPrint("Exception during fetch: $e");
     } finally {

@@ -1,5 +1,5 @@
 import 'package:mains/app_imports.dart';
-import 'package:http/http.dart' as http;
+import 'package:mains/common/api_services.dart';
 
 class WatchIntroController extends GetxController {
   String? authToken;
@@ -32,44 +32,44 @@ class WatchIntroController extends GetxController {
       if (courseId == null) return;
 
       final url = '${ApiUrls.courseDetaile}$bookId/course/$courseId/topic';
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
-        },
-      );
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = json.decode(response.body);
+          final parsed = CourseLectureModel.fromJson(data);
+          final lectures = parsed.lectures ?? [];
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final parsed = CourseLectureModel.fromJson(data);
-        final lectures = parsed.lectures ?? [];
-
-        final allVideoUrls = <String>[];
-        for (final lecture in lectures) {
-          if (lecture.topics != null) {
-            for (final topic in lecture.topics!) {
-              if (topic.videoUrl != null && topic.videoUrl!.isNotEmpty) {
-                allVideoUrls.add(topic.videoUrl!);
+          final allVideoUrls = <String>[];
+          for (final lecture in lectures) {
+            if (lecture.topics != null) {
+              for (final topic in lecture.topics!) {
+                if (topic.videoUrl != null && topic.videoUrl!.isNotEmpty) {
+                  allVideoUrls.add(topic.videoUrl!);
+                }
               }
             }
           }
-        }
 
-        for (final videoUrl in allVideoUrls) {
-          final videoId = _extractYoutubeId(videoUrl);
-          if (videoId.isNotEmpty) {
-            final savedPosition = prefs.getDouble('video_$videoId');
-            if (savedPosition != null && savedPosition > 0) {
-              hasSavedVideoPosition.value = true;
-              return;
+          for (final videoUrl in allVideoUrls) {
+            final videoId = _extractYoutubeId(videoUrl);
+            if (videoId.isNotEmpty) {
+              final savedPosition = prefs.getDouble('video_$videoId');
+              if (savedPosition != null && savedPosition > 0) {
+                hasSavedVideoPosition.value = true;
+                return;
+              }
             }
           }
-        }
-        hasSavedVideoPosition.value = false;
-      } else {
-        hasSavedVideoPosition.value = false;
-      }
+          hasSavedVideoPosition.value = false;
+        },
+        onError: () {
+          hasSavedVideoPosition.value = false;
+        },
+      );
     } catch (e) {
       hasSavedVideoPosition.value = false;
     }
@@ -93,32 +93,32 @@ class WatchIntroController extends GetxController {
     try {
       isLoading.value = true;
 
-      final url = Uri.parse('${ApiUrls.courseDetaile}$bookId/course');
-      final response = await http.get(
+      final url = '${ApiUrls.courseDetaile}$bookId/course';
+      await callWebApiGet(
+        null,
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
-        },
-      );
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) async {
+          final jsonData = json.decode(response.body);
+          final courseResponse = CourseVideoDetailes.fromJson(jsonData);
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        final courseResponse = CourseVideoDetailes.fromJson(jsonData);
-
-        if (courseResponse.success == true && courseResponse.course != null) {
-          courseData.value = courseResponse.course!;
-          final allFaculty = <Faculty>[];
-          for (final course in courseResponse.course!) {
-            if (course.faculty != null) {
-              allFaculty.addAll(course.faculty!);
+          if (courseResponse.success == true && courseResponse.course != null) {
+            courseData.value = courseResponse.course!;
+            final allFaculty = <Faculty>[];
+            for (final course in courseResponse.course!) {
+              if (course.faculty != null) {
+                allFaculty.addAll(course.faculty!);
+              }
             }
-          }
-          faculty.value = allFaculty;
+            faculty.value = allFaculty;
 
-          await checkForSavedVideoPositions();
-        }
-      }
+            await checkForSavedVideoPositions();
+          }
+        },
+        onError: () {},
+      );
     } catch (e) {
     } finally {
       isLoading.value = false;

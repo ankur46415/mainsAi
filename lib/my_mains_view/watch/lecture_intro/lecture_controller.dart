@@ -1,5 +1,5 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
+import 'package:mains/common/api_services.dart';
 
 class CurriculumController extends GetxController {
   String? authToken;
@@ -35,33 +35,32 @@ class CurriculumController extends GetxController {
     final url = '${ApiUrls.courseDetaile}$bookId/course/$lectureId/topic';
 
     try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
+      await callWebApiGet(
+        null,
+        url,
+        token: authToken ?? '',
+        showLoader: false,
+        hideLoader: true,
+        onResponse: (response) {
+          final data = json.decode(response.body);
+          final parsed = CourseLectureModel.fromJson(data);
+
+          lectures.value = parsed.lectures ?? [];
+
+          final allTopics = <Topics>[];
+          for (var lecture in lectures) {
+            if (lecture.topics != null) {
+              allTopics.addAll(lecture.topics!);
+            }
+          }
+
+          topics.value = allTopics;
+          buildSectionsFromLectures();
+        },
+        onError: () {
+          Get.snackbar("Error", "Failed to load topics");
         },
       );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final parsed = CourseLectureModel.fromJson(data);
-
-        lectures.value = parsed.lectures ?? [];
-
-        final allTopics = <Topics>[];
-        for (var lecture in lectures) {
-          if (lecture.topics != null) {
-            allTopics.addAll(lecture.topics!);
-          }
-        }
-
-        topics.value = allTopics;
-        buildSectionsFromLectures();
-      } else {
-        Get.snackbar("Error", "Failed to load topics: ${response.statusCode}");
-      }
     } catch (e) {
       Get.snackbar("Error", "Something went wrong: $e");
     } finally {

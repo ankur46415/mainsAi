@@ -756,7 +756,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                             ),
                       ),
             ),
-            // Paid indicator - only show when isPaid is true
             if (book.isEnrolled == true)
               Positioned(
                 bottom: 8,
