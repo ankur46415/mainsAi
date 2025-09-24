@@ -70,6 +70,10 @@ class Workbook {
   dynamic lastViewedAt;
   bool? isPublic;
   bool? isForSale;
+  String? currency;
+  String? details;
+  int? offerPrice;
+  int? validityDays;
   String? sId;
   String? title;
   String? description;
@@ -125,6 +129,10 @@ class Workbook {
     this.lastViewedAt,
     this.isPublic,
     this.isForSale,
+    this.currency,
+    this.details,
+    this.offerPrice,
+    this.validityDays,
     this.sId,
     this.title,
     this.description,
@@ -184,6 +192,10 @@ class Workbook {
     lastViewedAt = json['lastViewedAt'];
     isPublic = json['isPublic'];
     isForSale = json['isForSale'];
+    currency = json['currency'];
+    details = json['details'];
+    offerPrice = json['offerPrice'];
+    validityDays = json['validityDays'];
     sId = json['_id'];
     title = json['title'];
     description = json['description'];
@@ -260,6 +272,10 @@ class Workbook {
     'lastViewedAt': lastViewedAt,
     'isPublic': isPublic,
     'isForSale': isForSale,
+    'currency': currency,
+    'details': details,
+    'offerPrice': offerPrice,
+    'validityDays': validityDays,
     '_id': sId,
     'title': title,
     'description': description,

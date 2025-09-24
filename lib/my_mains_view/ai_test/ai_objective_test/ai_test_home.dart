@@ -32,7 +32,7 @@ class _AiTestHomeState extends State<AiTestHome>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
-        toolbarHeight: 20,
+        toolbarHeight: 13,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: TabBar(

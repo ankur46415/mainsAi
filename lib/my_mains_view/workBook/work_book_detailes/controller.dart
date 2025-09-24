@@ -120,8 +120,7 @@ class WorkBookBOOKDetailes extends GetxController {
         return;
       }
 
-      const String addToCartUrl =
-          'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/add';
+      const String addToCartUrl = ApiUrls.cartAdd;
 
       print("🔗 API URL: $addToCartUrl");
       print("📦 Request Body: {workbookId: $workbookId}");
@@ -141,14 +140,29 @@ class WorkBookBOOKDetailes extends GetxController {
           if (response.statusCode == 200) {
             increment();
             print("✅ Success: Added to cart");
+            Get.snackbar(
+              'Cart',
+              'Added to cart',
+              snackPosition: SnackPosition.BOTTOM,
+            );
           } else {
             print(
               "❌ Error: Failed to add to cart (Status ${response.statusCode})",
+            );
+            Get.snackbar(
+              'Cart',
+              'Failed to add to cart',
+              snackPosition: SnackPosition.BOTTOM,
             );
           }
         },
         onError: () {
           print("❌ API Error: Something went wrong");
+          Get.snackbar(
+            'Cart',
+            'Failed to add to cart',
+            snackPosition: SnackPosition.BOTTOM,
+          );
         },
       );
     } catch (e) {

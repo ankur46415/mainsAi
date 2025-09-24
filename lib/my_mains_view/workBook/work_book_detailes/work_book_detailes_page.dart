@@ -1,7 +1,5 @@
 import 'package:mains/app_imports.dart';
-
 import 'package:mains/models/workBookBookDetailes.dart';
-
 import 'package:mains/my_mains_view/my_library/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/controller.dart';
 
@@ -171,7 +169,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                 ),
                               ),
                             ),
-                          ] else if (bookData.isPaid == true) ...[
+                          ] else if ((bookData.isEnrolled != true) &&
+                              (bookData.isForSale == true)) ...[
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
@@ -191,36 +190,14 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (bookData.planDetails != null &&
-                                      bookData.planDetails!.isNotEmpty &&
-                                      bookData.planDetails![0].mrp != null &&
-                                      (bookData.planDetails![0].offerPrice ??
-                                              0) <
-                                          (bookData.planDetails![0].mrp ??
-                                              0)) ...[
-                                    Text(
-                                      '₹ ${bookData.planDetails![0].mrp}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white.withOpacity(0.85),
-                                        decoration: TextDecoration.lineThrough,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                  ],
                                   Text(
-                                    (bookData.planDetails != null &&
-                                            bookData.planDetails!.isNotEmpty &&
-                                            bookData
-                                                    .planDetails![0]
-                                                    .offerPrice !=
-                                                null)
-                                        ? '₹ ${bookData.planDetails![0].offerPrice}'
+                                    (bookData.offerPrice != null &&
+                                            bookData.offerPrice! > 0)
+                                        ? '₹ ${bookData.offerPrice}'
                                         : 'PAID',
                                     style: GoogleFonts.poppins(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w500,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -536,7 +513,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             ),
           ),
           SizedBox(height: Get.width * 0.02),
-          // Paid indicator - only show when isPaid is true
           _buildRatingRow(bookData),
           const SizedBox(height: 8),
           const Divider(height: 1),
@@ -644,8 +620,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
           child: ElevatedButton(
             onPressed: () {
               final bool isEnrolled = bookData.isEnrolled == true;
-              final bool isPaid = bookData.isPaid == true;
-              final bool showPurchase = isPaid && !isEnrolled;
+              final bool isForSale = bookData.isForSale == true;
+              final bool showPurchase = isForSale && !isEnrolled;
 
               if (showPurchase) {
                 String? planId;
@@ -675,7 +651,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  bookData.isPaid == true
+                  bookData.isForSale == true
                       ? Colors.orange
                       : bookData.isMyWorkbookAdded == true
                       ? Colors.green
@@ -697,7 +673,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       ),
                     )
                     : Text(
-                      bookData.isPaid == true
+                      bookData.isForSale == true
                           ? 'Purchase Plan'
                           : bookData.isMyWorkbookAdded == true
                           ? 'Go to My Library'

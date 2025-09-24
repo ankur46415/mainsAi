@@ -59,7 +59,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
         child: Scaffold(
           backgroundColor: Colors.grey[50],
           appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(100),
+            preferredSize: const Size.fromHeight(80),
             child: CustomTabBar(tabController: _tabController),
           ),
           body: TabBarView(

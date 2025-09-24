@@ -28,7 +28,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
       backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.only(
-          top: Get.width * 0.05,
+          top: Get.width * 0.02,
           bottom: Get.width * 0.04,
         ),
         child: Obx(() {

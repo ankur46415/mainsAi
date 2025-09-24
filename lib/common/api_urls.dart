@@ -52,6 +52,7 @@ class ApiUrls {
   static const String workBookBookDetailes = '$apiUrl5/workbooks/';
   static const String workBookAllQuestiones = '$apiUrl5/workbooks/';
   static const String addMyWorkBook = '$apiUrl5/mobile/myworkbooks/add';
+  static const String cartAdd = '$apiUrl5/mobile/cart/add';
   static const String getMyWorkBookLibrary = '$apiUrl5/mobile/myworkbooks/list';
   static const String ragChatBoook =
       '${baseUrl4}api/enhanced-pdf-chat/chat-book-knowledge-base';
