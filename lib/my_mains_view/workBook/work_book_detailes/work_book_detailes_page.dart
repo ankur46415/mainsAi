@@ -1,7 +1,6 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/workBookBookDetailes.dart';
 import 'package:mains/my_mains_view/my_library/controller.dart';
-import 'package:mains/my_mains_view/workBook/work_book_detailes/controller.dart';
 
 class WorkBookDetailesPage extends StatefulWidget {
   final String? bookId;
@@ -190,14 +189,27 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  if ((bookData.mrp ?? 0) > 0 &&
+                                      (bookData.offerPrice ?? 0) > 0) ...[
+                                    Text(
+                                      '₹ ${bookData.mrp}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
                                   Text(
                                     (bookData.offerPrice != null &&
                                             bookData.offerPrice! > 0)
                                         ? '₹ ${bookData.offerPrice}'
                                         : 'PAID',
                                     style: GoogleFonts.poppins(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -209,9 +221,14 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                             const Spacer(),
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.orange,
+                                color:
+                                    (bookData.countOfCartItems != null &&
+                                            bookData.isInCart == true)
+                                        ? Colors.green
+                                        : Colors.orange,
                                 borderRadius: BorderRadius.circular(25),
                               ),
+
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
@@ -246,14 +263,12 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                 color: Colors.red,
                                                 shape: BoxShape.circle,
                                               ),
-                                              child: Obx(
-                                                () => Text(
-                                                  "${controller.count.value}",
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 8,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                              child: Text(
+                                                "${bookData.countOfCartItems}",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ),
@@ -271,28 +286,56 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                       horizontal: 8,
                                     ),
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      controller.addWorkbookToCart(
-                                        widget.bookId?.toString() ?? '',
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(25),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
+                                  (bookData.countOfCartItems != null &&
+                                          bookData.isInCart == true)
+                                      ? InkWell(
+                                        onTap: () {
+                                          controller.deleteCartItem(
+                                            widget.bookId?.toString() ?? '',
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(25),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.remove,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                      : InkWell(
+                                        onTap: () {
+                                          controller.addWorkbookToCart(
+                                            widget.bookId?.toString() ?? '',
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(25),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.add,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        size: 20,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -305,7 +348,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       const SizedBox(height: 16),
                       _buildActionButtons(bookData),
                       const SizedBox(height: 12),
-
                       SizedBox(
                         width: Get.width,
                         child: Card(
@@ -468,6 +510,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                           ),
                         );
                       }),
+                      SizedBox(height: Get.width * 0.1),
                     ],
                   ),
                 ),
@@ -669,7 +712,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                     )
                     : Text(
                       bookData.isForSale == true
-                          ? 'Purchase Plan'
+                          ? 'Purchase Book'
                           : bookData.isMyWorkbookAdded == true
                           ? 'Go to My Library'
                           : 'Add to My Library',

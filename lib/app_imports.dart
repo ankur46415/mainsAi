@@ -123,3 +123,5 @@ export 'package:mains/models/ai_test_objective.dart';
 export 'package:mains/my_mains_view/ai_test/ai_objective_test/controller.dart';
 export 'package:mains/my_mains_view/ai_test/ai_test_subjective/tab_controller.dart';
 export 'package:mains/my_mains_view/ai_test/ai_objective_test/objective/objective.dart';
+
+export 'package:mains/my_mains_view/workBook/work_book_detailes/controller.dart';

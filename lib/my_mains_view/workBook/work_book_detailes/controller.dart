@@ -10,7 +10,7 @@ class WorkBookBOOKDetailes extends GetxController {
   RxList<Sets> sets = <Sets>[].obs;
   RxBool isLoading = false.obs;
   var count = 0.obs;
-
+  var error = ''.obs;
   void increment() {
     if (count.value == 0) {
       count.value = 1;
@@ -19,24 +19,26 @@ class WorkBookBOOKDetailes extends GetxController {
 
   var isSaved = false.obs;
   var isActionLoading = false.obs;
+
   @override
   void onInit() async {
     super.onInit();
     prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString(Constants.authToken);
+    count.value = prefs.getInt(Constants.cartCount) ?? 0;
   }
 
-  Future<void> fetchWorkbookDetails(String bookId) async {
-    isLoading.value = true;
+  Future<void> fetchWorkbookDetails(
+    String bookId, {
+    bool showLoader = true,
+  }) async {
+    if (showLoader) isLoading.value = true;
 
     try {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('authToken');
 
-      if (authToken == null) {
-        isLoading.value = false;
-        return;
-      }
+      if (authToken == null) return;
 
       final String url = '${ApiUrls.workBookBookDetailes}$bookId/sets';
 
@@ -46,18 +48,22 @@ class WorkBookBOOKDetailes extends GetxController {
         token: authToken,
         showLoader: false,
         hideLoader: true,
-        onResponse: (response) {
+        onResponse: (response) async {
           final jsonData = json.decode(response.body);
           final details = WorkBookBookDetailes.fromJson(jsonData);
           workbook.value = details.workbook;
           workbookDetailes.value = details;
           sets.assignAll(details.sets ?? []);
+
+          final cartCount = details.workbook?.countOfCartItems ?? 0;
+          count.value = cartCount;
+          await prefs.setInt(Constants.cartCount, cartCount);
         },
         onError: () {},
       );
     } catch (e) {
     } finally {
-      isLoading.value = false;
+      if (showLoader) isLoading.value = false;
     }
   }
 
@@ -134,10 +140,11 @@ class WorkBookBOOKDetailes extends GetxController {
         token: authToken,
         showLoader: false,
         hideLoader: true,
-        onResponse: (response) {
+        onResponse: (response) async {
           if (response.statusCode == 200) {
             increment();
             isSuccess = true;
+            await fetchWorkbookDetails(workbookId, showLoader: false);
           } else {
             Get.snackbar(
               'Cart',
@@ -153,6 +160,37 @@ class WorkBookBOOKDetailes extends GetxController {
       print("❌ Exception: $e");
       return false;
     }
+  }
+
+  Future<void> deleteCartItem(String workbookId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('authToken');
+    final url = Uri.parse(
+      'https://test.ailisher.com/api/clients/CLI147189HIGB/mobile/cart/item/$workbookId',
+    );
+
+    print("🔗 DeleteCartItem API URL: $url");
+    print("🔑 Auth Token: $authToken");
+
+    await callWebApiDelete(
+      null,
+      url.toString(),
+      token: authToken ?? '',
+      showLoader: false,
+      hideLoader: true,
+      onResponse: (response) async {
+        print("✅ Item deleted successfully");
+
+        /// ✅ Immediately fetch fresh details
+        await fetchWorkbookDetails(workbookId, showLoader: false);
+      },
+      onError: () {
+        error.value = 'Failed to delete item';
+        print("❌ Error: ${error.value}");
+      },
+    );
+
+    print("ℹ️ Loading finished (isLoading = false)");
   }
 }
 

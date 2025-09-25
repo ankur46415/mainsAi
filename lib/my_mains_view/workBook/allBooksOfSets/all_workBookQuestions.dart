@@ -132,12 +132,11 @@ class _AllWorkbookquestionsState extends State<AllWorkbookquestions> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ---------- Metadata Row ----------
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'QUESTION',
+                            '${index + 1}.QUESTION ',
                             style: GoogleFonts.poppins(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,

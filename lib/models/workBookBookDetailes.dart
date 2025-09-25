@@ -32,6 +32,7 @@ class WorkBookBookDetailes {
 class Workbook {
   String? language;
   bool? isPaid;
+  bool? isInCart;
   bool? isEnrolled;
   num? rating;
   num? ratingCount;
@@ -73,6 +74,8 @@ class Workbook {
   String? currency;
   String? details;
   int? offerPrice;
+  int? mrp;
+  int? countOfCartItems;
   int? validityDays;
   String? sId;
   String? title;
@@ -98,6 +101,8 @@ class Workbook {
     this.author,
     this.users,
     this.isPaid,
+    this.countOfCartItems,
+    this.isInCart,
     this.summary,
     this.coverImageKey,
     this.coverImageUrl,
@@ -132,6 +137,7 @@ class Workbook {
     this.currency,
     this.details,
     this.offerPrice,
+    this.mrp,
     this.validityDays,
     this.sId,
     this.title,
@@ -156,6 +162,7 @@ class Workbook {
     publisher = json['publisher'];
     author = json['author'];
     isPaid = json['isPaid'] as bool?;
+    isInCart = json['isInCart'] as bool?;
     isEnrolled = json['isEnrolled'] as bool?;
     rating = json['rating'];
     ratingCount = json['ratingCount'];
@@ -169,6 +176,7 @@ class Workbook {
     exam = json['exam'];
     paper = json['paper'];
     subject = json['subject'];
+    countOfCartItems = json['countOfCartItems'];
     tags = json['tags'];
     isHighlighted = json['isHighlighted'];
     highlightedAt = json['highlightedAt'];
@@ -195,6 +203,7 @@ class Workbook {
     currency = json['currency'];
     details = json['details'];
     offerPrice = json['offerPrice'];
+    mrp = json['MRP'];
     validityDays = json['validityDays'];
     sId = json['_id'];
     title = json['title'];
@@ -235,6 +244,7 @@ class Workbook {
     'language': language,
     'publisher': publisher,
     'isPaid': isPaid,
+    'isInCart': isInCart,
     'isEnrolled': isEnrolled,
     'author': author,
     'rating': rating,
@@ -242,6 +252,7 @@ class Workbook {
     'conversations': conversations,
     'users': users,
     'summary': summary,
+    'countOfCartItems': countOfCartItems,
     'coverImageKey': coverImageKey,
     'coverImageUrl': coverImageUrl,
     'mainCategory': mainCategory,
@@ -275,6 +286,7 @@ class Workbook {
     'currency': currency,
     'details': details,
     'offerPrice': offerPrice,
+    'MRP': mrp,
     'validityDays': validityDays,
     '_id': sId,
     'title': title,

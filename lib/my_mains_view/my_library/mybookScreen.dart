@@ -6,7 +6,9 @@ import 'package:mains/app_routes.dart';
 import 'package:mains/my_mains_view/bottomBar/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/work_book_detailes_page.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/colors.dart';
+import '../../common/shred_pref.dart';
 import 'controller.dart';
 import '../../models/my_workBook_List.dart';
 
@@ -107,23 +109,36 @@ class _MyLibraryViewState extends State<MyLibraryView> {
                 ),
 
                 // 🔴 Badge (item count)
+                // 🔴 Badge (SharedPreferences se)
                 Positioned(
                   right: 6,
                   top: 6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      "3",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  child: FutureBuilder<SharedPreferences>(
+                    future: SharedPreferences.getInstance(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const SizedBox.shrink();
+
+                      final prefs = snapshot.data!;
+                      final cartCount = prefs.getInt(Constants.cartCount) ?? 0;
+
+                      if (cartCount == 0) return const SizedBox.shrink();
+
+                      return Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          "$cartCount",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
