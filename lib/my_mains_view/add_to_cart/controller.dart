@@ -96,18 +96,16 @@ class CreditCardController extends GetxController {
 
     final body = {"workbookIds": workbookIds, "customerEmail": customerEmail};
 
-    isLoading.value = true;
+    isLoading.value = true; // Show loader immediately
 
     await callWebApi(
       null,
       url,
       body,
       token: authToken,
-      showLoader: false,
+      showLoader: false, // we control loader manually
       hideLoader: true,
-      onResponse: (response) {
-        isLoading.value = false;
-
+      onResponse: (response) async {
         if (response.statusCode == 200) {
           try {
             final data = jsonDecode(response.body);
@@ -120,13 +118,18 @@ class CreditCardController extends GetxController {
             );
 
             if (paytmUrl != null && paytmParams.isNotEmpty) {
-              Get.to(
+              // Navigate to Paytm page
+              await Get.to(
                 () => PaytmPaymentPage(
                   paytmUrl: paytmUrl,
                   paytmParams: paytmParams,
                 ),
               );
+
+              // Hide loader only after navigation completes
+              isLoading.value = false;
             } else {
+              isLoading.value = false;
               Get.snackbar(
                 "Error",
                 "Invalid payment data received",
@@ -134,6 +137,7 @@ class CreditCardController extends GetxController {
               );
             }
           } catch (e) {
+            isLoading.value = false;
             Get.snackbar(
               "Error",
               "Failed to parse payment data",
@@ -141,6 +145,7 @@ class CreditCardController extends GetxController {
             );
           }
         } else {
+          isLoading.value = false;
           Get.snackbar(
             "Error",
             "Failed to proceed to payment",
@@ -158,5 +163,4 @@ class CreditCardController extends GetxController {
       },
     );
   }
-
 }

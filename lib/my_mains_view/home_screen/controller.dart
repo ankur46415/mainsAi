@@ -31,13 +31,13 @@ class HomeScreenController extends GetxController {
     super.onInit();
     try {
       await _initializePreferences();
-      if (!_isDashboardLoaded) {
-        isLoading.value = true;
-        Future.microtask(() async {
-          await dashBoardData();
-          initializeFirstSubcategories();
-        });
-      }
+      // if (!_isDashboardLoaded) {
+      //   isLoading.value = true;
+      //   Future.microtask(() async {
+      //     await dashBoardData();
+      //     initializeFirstSubcategories();
+      //   });
+      // }
     } catch (e) {}
   }
 

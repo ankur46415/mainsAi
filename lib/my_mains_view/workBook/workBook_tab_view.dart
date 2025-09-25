@@ -158,7 +158,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             ),
                                       ),
                                     ),
-                                    if (book.isEnrolled == true)
+                                    if (book.isPurchased == true)
                                       Positioned(
                                         bottom: 8,
                                         left: 8,
@@ -600,7 +600,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                               child: Stack(
                                                 fit: StackFit.expand,
                                                 children: [
-                                                  // Background images in 2x2 grid
                                                   ...List.generate(bgImages.length, (
                                                     i,
                                                   ) {
@@ -786,7 +785,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                             ),
                       ),
             ),
-            if (book.isEnrolled == true)
+            if (book.isPurchased == true)
               Positioned(
                 bottom: 8,
                 left: 8,

@@ -142,7 +142,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (bookData.isEnrolled == true) ...[
+                          if (bookData.isPurchased == true) ...[
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
@@ -217,7 +217,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                               ),
                             ),
                           ],
-                          if (bookData.isForSale == true) ...[
+                          if (bookData.isForSale == true &&
+                              bookData.isPurchased != true) ...[
                             const Spacer(),
                             Container(
                               decoration: BoxDecoration(
@@ -662,17 +663,17 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () async {
-              final bool isEnrolled = bookData.isEnrolled == true;
               final bool isForSale = bookData.isForSale == true;
-              final bool showPurchase = isForSale && !isEnrolled;
+              final bool isPurchased = bookData.isPurchased == true;
 
-              if (showPurchase) {
+              if (isForSale && !isPurchased) {
+                // Purchase flow
                 final success = await controller.addWorkbookToCart(
                   widget.bookId?.toString() ?? '',
                 );
                 if (success) Get.toNamed(AppRoutes.addToCart);
-              } else if (controller.isSaved == true ||
-                  controller.isActionLoading.value) {
+              } else {
+                // Add to library flow
                 if (!Get.isRegistered<MyLibraryController>()) {
                   Get.put(MyLibraryController(), permanent: true);
                 }
@@ -683,17 +684,19 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                 final bottomNavController = Get.find<BottomNavController>();
                 bottomNavController.changeIndex(1);
                 Get.offAll(() => MyHomePage());
-              } else {
+
                 controller.addToMyBooks(widget.bookId.toString());
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  bookData.isForSale == true
-                      ? Colors.orange
+                  (bookData.isForSale == true && bookData.isPurchased != true)
+                      ? Colors
+                          .orange // purchase
                       : bookData.isMyWorkbookAdded == true
-                      ? Colors.green
-                      : Colors.blue,
+                      ? Colors
+                          .green // already in library
+                      : Colors.blue, // add to library
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -711,7 +714,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       ),
                     )
                     : Text(
-                      bookData.isForSale == true
+                      (bookData.isForSale == true &&
+                              bookData.isPurchased != true)
                           ? 'Purchase Book'
                           : bookData.isMyWorkbookAdded == true
                           ? 'Go to My Library'

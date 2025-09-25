@@ -32,6 +32,7 @@ class WorkBookBookDetailes {
 class Workbook {
   String? language;
   bool? isPaid;
+  bool? isPurchased;
   bool? isInCart;
   bool? isEnrolled;
   num? rating;
@@ -104,6 +105,7 @@ class Workbook {
     this.countOfCartItems,
     this.isInCart,
     this.summary,
+    this.isPurchased,
     this.coverImageKey,
     this.coverImageUrl,
     this.mainCategory,
@@ -162,6 +164,7 @@ class Workbook {
     publisher = json['publisher'];
     author = json['author'];
     isPaid = json['isPaid'] as bool?;
+    isPurchased = json['isPurchased'] as bool?;
     isInCart = json['isInCart'] as bool?;
     isEnrolled = json['isEnrolled'] as bool?;
     rating = json['rating'];
@@ -244,6 +247,7 @@ class Workbook {
     'language': language,
     'publisher': publisher,
     'isPaid': isPaid,
+    'isPurchased': isPurchased,
     'isInCart': isInCart,
     'isEnrolled': isEnrolled,
     'author': author,

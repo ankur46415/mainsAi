@@ -51,6 +51,7 @@ class WorkBookResponse {
 class WorkBookHighlighted {
   bool? isEnabled;
   bool? isPaid;
+  bool? isPurchased;
   bool? isEnrolled;
   String? sId;
   String? title;
@@ -121,6 +122,7 @@ class WorkBookHighlighted {
     this.user,
     this.createdAt,
     this.updatedAt,
+    this.isPurchased,
     this.iV,
     this.author,
     this.conversations,
@@ -175,6 +177,7 @@ class WorkBookHighlighted {
     isEnabled = json['isEnabled'] as bool?;
     isPaid = json['isPaid'] as bool?;
     isEnrolled = json['isEnrolled'] as bool?;
+    isPurchased = json['isPurchased'] as bool?;
     sId = json['_id'];
     title = json['title'];
     description = json['description'];
@@ -244,6 +247,7 @@ class WorkBookHighlighted {
     data['isEnabled'] = isEnabled;
     data['isPaid'] = isPaid;
     data['isEnrolled'] = isEnrolled;
+    data['isPurchased'] = isPurchased;
     data['_id'] = sId;
     data['title'] = title;
     data['description'] = description;
@@ -336,6 +340,7 @@ class User {
 
 class WorkBookTrending {
   bool? isPaid;
+  bool? isPurchased;
   bool? isEnrolled;
   String? sId;
   String? title;
@@ -404,6 +409,7 @@ class WorkBookTrending {
     this.isEnrolled,
     this.sId,
     this.title,
+    this.isPurchased,
     this.description,
     this.author,
     this.publisher,
@@ -465,6 +471,7 @@ class WorkBookTrending {
 
   WorkBookTrending.fromJson(Map<String, dynamic> json) {
     isPaid = json['isPaid'] as bool?;
+    isPurchased = json['isPurchased'] as bool?;
     isEnrolled = json['isEnrolled'] as bool?;
     sId = json['_id'] as String?;
     title = json['title'] as String?;
@@ -544,6 +551,7 @@ class WorkBookTrending {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['isPaid'] = isPaid;
     data['isEnrolled'] = isEnrolled;
+    data['isPurchased'] = isPurchased;
     data['_id'] = sId;
     data['title'] = title;
     data['description'] = description;
@@ -620,6 +628,7 @@ class Workbooks {
   bool? isEnabled;
   bool? isPaid;
   bool? isEnrolled;
+  bool? isPurchased;
   String? exam;
   String? paper;
   String? subject;
@@ -686,6 +695,7 @@ class Workbooks {
     this.isEnrolled,
     this.exam,
     this.paper,
+    this.isPurchased,
     this.subject,
     this.isHighlighted,
     this.highlightedAt,
@@ -747,6 +757,7 @@ class Workbooks {
       isEnabled: json['isEnabled'] as bool?,
       isPaid: json['isPaid'] as bool?,
       isEnrolled: json['isEnrolled'] as bool?,
+      isPurchased: json['isPurchased'] as bool?,
       exam: json['exam'] as String?,
       paper: json['paper'] as String?,
       subject: json['subject'] as String?,

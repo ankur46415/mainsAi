@@ -16,50 +16,79 @@ class PaymentResultScreen extends StatelessWidget {
     final amount = paymentData['amount']?.toString() ?? 'N/A';
 
     return Scaffold(
-      backgroundColor: isSuccess ? Colors.green.shade50 : Colors.red.shade50,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                isSuccess ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                size: 80,
-                color: isSuccess ? Colors.green : Colors.red,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                isSuccess ? "Payment Successful" : "Payment Failed",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isSuccess ? Colors.green : Colors.red,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text("Order ID: $orderId", style: const TextStyle(fontSize: 16)),
-              Text("Amount: ₹$amount", style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(
-                    context,
-                  ); // You can also use pushNamed to go to a home screen
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSuccess ? Colors.green : Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // ✅ Animation (Success / Failed)
+                SizedBox(
+                  height: 160,
+                  child: Lottie.asset(
+                    isSuccess
+                        ? 'assets/lottie/Done.json'
+                        : 'assets/lottie/not_done.json',
+                    fit: BoxFit.contain,
+                    delegates: LottieDelegates(
+                      values: [
+                        ValueDelegate.color(const [
+                          '**',
+                        ], value: isSuccess ? Colors.green : Colors.red),
+                      ],
+                    ),
                   ),
                 ),
-                child: const Text(
-                  "Continue",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                const SizedBox(height: 24),
+
+                // ✅ Title
+                Text(
+                  isSuccess ? "Payment Successful" : "Payment Failed",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: isSuccess ? Colors.green : Colors.red,
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                Text(
+                  "Order ID: $orderId",
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                ),
+
+                const SizedBox(height: 40),
+
+                // ✅ Continue Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isSuccess ? Colors.green : Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Continue",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
