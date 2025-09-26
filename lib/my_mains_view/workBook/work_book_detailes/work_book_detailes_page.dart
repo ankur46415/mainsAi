@@ -1,6 +1,7 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/workBookBookDetailes.dart';
 import 'package:mains/my_mains_view/my_library/controller.dart';
+import 'package:mains/my_mains_view/workBook/work_book_detailes/count_down.dart';
 
 class WorkBookDetailesPage extends StatefulWidget {
   final String? bookId;
@@ -422,38 +423,170 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                           padding: EdgeInsets.only(bottom: Get.width * 0.05),
                           child: Column(
                             children:
-                                controller.sets.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final set = entry.value;
-                                  return Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: 4,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 18,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                        255,
-                                        110,
-                                        179,
-                                        243,
-                                      ).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.08,
-                                          ),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    child: InkWell(
+                                (() {
+                                  final sortedSets = controller.sets.toList();
+                                  DateTime _extractDate(dynamic dt) {
+                                    if (dt == null)
+                                      return DateTime.fromMillisecondsSinceEpoch(
+                                        8640000000000000,
+                                      ); // max
+                                    final parsed = DateTime.tryParse(
+                                      dt.toString(),
+                                    );
+                                    return parsed ??
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                          8640000000000000,
+                                        );
+                                  }
+
+                                  sortedSets.sort((a, b) {
+                                    final aStart = _extractDate(a.startsAt);
+                                    final bStart = _extractDate(b.startsAt);
+                                    final aKey =
+                                        aStart.millisecondsSinceEpoch ==
+                                                8640000000000000
+                                            ? _extractDate(a.endsAt)
+                                            : aStart;
+                                    final bKey =
+                                        bStart.millisecondsSinceEpoch ==
+                                                8640000000000000
+                                            ? _extractDate(b.endsAt)
+                                            : bStart;
+                                    return aKey.compareTo(bKey);
+                                  });
+
+                                  return sortedSets.asMap().entries.map((
+                                    entry,
+                                  ) {
+                                    final index = entry.key;
+                                    final set = entry.value;
+
+                                    return InkWell(
                                       onTap: () {
+                                        DateTime? startsAt;
+                                        try {
+                                          if (set.startsAt != null) {
+                                            startsAt = DateTime.tryParse(
+                                              set.startsAt.toString(),
+                                            );
+                                          }
+                                        } catch (_) {}
+
+                                        if (startsAt != null &&
+                                            DateTime.now().isBefore(startsAt)) {
+                                          Get.dialog(
+                                            Dialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  20,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFFFC107),
+                                                      Color.fromARGB(
+                                                        255,
+                                                        236,
+                                                        87,
+                                                        87,
+                                                      ),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    // Lock Icon
+                                                    CircleAvatar(
+                                                      radius: 35,
+                                                      backgroundColor: Colors
+                                                          .white
+                                                          .withOpacity(0.2),
+                                                      child: const Icon(
+                                                        Icons.lock_outline,
+                                                        size: 40,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+
+                                                    // Title
+                                                    Text(
+                                                      'Locked',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+
+                                                    // Message
+                                                    Text(
+                                                      'This set will be available at\n${_formatDateTime(startsAt)}',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            color:
+                                                                Colors.white70,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+
+                                                    // OK button
+                                                    SizedBox(
+                                                      width: Get.width * 0.5,
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          foregroundColor:
+                                                              Colors.orange,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 12,
+                                                              ),
+                                                        ),
+                                                        onPressed:
+                                                            () => Get.back(),
+                                                        child: Text(
+                                                          'OK',
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
                                         Get.toNamed(
                                           AppRoutes.allWorkbookquestions,
                                           arguments: {
@@ -465,49 +598,195 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           },
                                         );
                                       },
-                                      child: Row(
+                                      child: Stack(
                                         children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                          Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 8,
+                                              horizontal: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  104,
+                                                  231,
+                                                  225,
+                                                ),
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.05),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
                                               children: [
-                                                Text(
-                                                  "${index + 1} - ${set.name ?? ""}",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.black,
+                                                Container(
+                                                  height: 75,
+                                                  width: 40,
+
+                                                  child: Center(
+                                                    child: Text(
+                                                      "${index + 1}",
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.black,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                // Content section
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 10,
+                                                        ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          set.name ??
+                                                              "Untitled Set",
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color:
+                                                                    Colors
+                                                                        .black87,
+                                                              ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .play_circle_fill,
+                                                              size: 14,
+                                                              color:
+                                                                  Colors
+                                                                      .green[700],
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Text(
+                                                              set.startsAt !=
+                                                                      null
+                                                                  ? _formatDateTime(
+                                                                    set.startsAt,
+                                                                  )
+                                                                  : '-',
+                                                              style: GoogleFonts.poppins(
+                                                                fontSize: 11,
+                                                                color:
+                                                                    Colors
+                                                                        .grey[600],
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 12,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                SizedBox(
+                                                  height: Get.width * 0.04,
+                                                ),
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                    right: 12,
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 3,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue[50],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  child: Column(
+                                                    children: [
+                                                      Text(
+                                                        '${set.questions?.length ?? 0}',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 15,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors
+                                                                      .blue[900],
+                                                            ),
+                                                      ),
+                                                      Text(
+                                                        'Questions',
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 9,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color:
+                                                              Colors
+                                                                  .blueGrey[700],
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          Column(
-                                            children: [
-                                              Text(
-                                                '${set.questions?.length ?? 0}',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Questions',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 8,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
+                                          Positioned(
+                                            top: 1,
+                                            right: 8,
+                                            child: CountdownDisplay(
+                                              startsAt:
+                                                  set.startsAt != null
+                                                      ? DateTime.tryParse(
+                                                        set.startsAt.toString(),
+                                                      )
+                                                      : null,
+                                              endsAt:
+                                                  set.endsAt != null
+                                                      ? DateTime.tryParse(
+                                                        set.endsAt.toString(),
+                                                      )
+                                                      : null,
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
+                                    );
+                                  }).toList();
+                                })(),
                           ),
                         );
                       }),
@@ -794,5 +1073,35 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
         ),
       ],
     );
+  }
+
+  String _formatDateTime(dynamic date) {
+    if (date == null) return '-';
+    try {
+      final dt = date is String ? DateTime.parse(date) : date as DateTime;
+      return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
+          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return date.toString();
+    }
+  }
+
+  String _monthName(int m) {
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[m];
   }
 }

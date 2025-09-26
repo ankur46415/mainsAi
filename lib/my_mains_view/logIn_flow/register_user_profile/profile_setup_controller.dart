@@ -6,6 +6,8 @@ class ProfileSetupController extends GetxController {
   late SharedPreferences prefs;
   String? authToken;
   RxBool isLoading = false.obs;
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController pincodeController = TextEditingController();
   @override
   void onInit() async {
     super.onInit();
@@ -27,9 +29,9 @@ class ProfileSetupController extends GetxController {
   final exam = ''.obs;
   final age = ''.obs;
 
-  final stepCompleted = List<bool>.filled(5, false).obs;
+  final stepCompleted = List<bool>.filled(6, false).obs;
 
-  final formKeys = List.generate(5, (_) => GlobalKey<FormState>());
+  final formKeys = List.generate(6, (_) => GlobalKey<FormState>());
 
   final List<String> examTypes = [
     'UPSC',
@@ -65,6 +67,11 @@ class ProfileSetupController extends GetxController {
         return selectedGender.value != null;
       case 4:
         return selectedLanguage.value != null;
+      case 5:
+        final city = cityController.text.trim();
+        final pin = pincodeController.text.trim();
+        final pinValid = RegExp(r'^\d{6}$').hasMatch(pin);
+        return city.isNotEmpty && pinValid;
       default:
         return false;
     }
@@ -77,11 +84,14 @@ class ProfileSetupController extends GetxController {
         selectedCategories.isNotEmpty && selectedExam.value != null;
     stepCompleted[3] = selectedGender.value != null;
     stepCompleted[4] = selectedLanguage.value != null;
+    stepCompleted[5] =
+        cityController.text.trim().isNotEmpty &&
+        RegExp(r'^\d{6}$').hasMatch(pincodeController.text.trim());
     stepCompleted.refresh();
   }
 
   void nextStep() {
-    if (currentStep.value < 4) {
+    if (currentStep.value < 5) {
       currentStep.value += 1;
     } else {
       updateStepCompletion();
@@ -97,6 +107,13 @@ class ProfileSetupController extends GetxController {
     if (currentStep.value > step) return StepState.complete;
     if (currentStep.value == step) return StepState.editing;
     return StepState.indexed;
+  }
+
+  @override
+  void onClose() {
+    cityController.dispose();
+    pincodeController.dispose();
+    super.onClose();
   }
 
   Future<void> sendProfileData() async {
@@ -115,6 +132,8 @@ class ProfileSetupController extends GetxController {
               .where((e) => e.isNotEmpty)
               .toList(),
       "native_language": selectedLanguage.value ?? '',
+      "city": cityController.text.trim(),
+      "pincode": pincodeController.text.trim(),
     };
 
 
@@ -127,7 +146,7 @@ class ProfileSetupController extends GetxController {
         onResponse: (response) {
           if (response.statusCode == 200 || response.statusCode == 201) {
             Get.offAll(() => const Decider());
-       
+        
           } else if (response.statusCode == 401 || response.statusCode == 403) {
             SharedPreferences.getInstance().then((prefs) async {
               await prefs.clear();

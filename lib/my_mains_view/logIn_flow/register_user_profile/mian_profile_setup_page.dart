@@ -1,14 +1,15 @@
-
 import '../../../app_imports.dart';
 
 class ProfileSetupPage extends StatefulWidget {
+  const ProfileSetupPage({super.key});
+
   @override
   State<ProfileSetupPage> createState() => _ProfileSetupPageState();
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
-
   late ProfileSetupController controller;
+
   @override
   void initState() {
     controller = Get.put(ProfileSetupController());
@@ -29,10 +30,11 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             Get.back();
           },
-          child: Icon(Icons.arrow_back)),
+          child: Icon(Icons.arrow_back),
+        ),
         title: Text(
           "Complete Your Profile",
           style: GoogleFonts.poppins(
@@ -40,7 +42,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:CustomColors.primaryColor,
+        backgroundColor: CustomColors.primaryColor,
         iconTheme: IconThemeData(color: secondaryColor),
         elevation: 0,
         centerTitle: true,
@@ -82,9 +84,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     }
                   },
 
-
                   onStepCancel: controller.previousStep,
-                  onStepTapped: (step) => controller.currentStep.value = step,
+                  onStepTapped:
+                      (step) => controller.currentStep.value = step.clamp(0, 5),
                   controlsBuilder:
                       (context, details) => Padding(
                         padding: const EdgeInsets.only(top: 16.0),
@@ -126,7 +128,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                 elevation: 2,
                               ),
                               child: Text(
-                                controller.currentStep.value == 4
+                                controller.currentStep.value == 5
                                     ? "Submit"
                                     : "Next",
                                 style: GoogleFonts.poppins(
@@ -145,6 +147,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     _buildExamStep(),
                     _buildGenderStep(),
                     _buildLanguageStep(),
+                    _buildAddressStep(),
                   ],
                 ),
               ),
@@ -153,6 +156,13 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.cityController.dispose();
+    controller.pincodeController.dispose();
+    super.dispose();
   }
 
   Step _buildFullNameStep() {
@@ -291,41 +301,44 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: controller.examTypes.map((category) {
-              final isSelected = controller.selectedCategories.contains(category);
+            children:
+                controller.examTypes.map((category) {
+                  final isSelected = controller.selectedCategories.contains(
+                    category,
+                  );
 
-              return FilterChip(
-                label: Text(
-                  category,
-                  style: GoogleFonts.poppins(
-                    color: isSelected ? primaryColor : textColor,
-                  ),
-                ),
-                selected: isSelected,
-                onSelected: (selected) {
-                  if (selected) {
-                    if (controller.selectedCategories.length < 3) {
-                      controller.selectedCategories.add(category);
-                    }
-                    // else ignore or show message
-                  } else {
-                    controller.selectedCategories.remove(category);
-                  }
-                  // Clear related fields if needed
-                  controller.selectedExam.value = null;
-                  controller.exam.value = "";
-                  controller.updateStepCompletion();
-                },
-                selectedColor: activeChipColor,
-                backgroundColor: inactiveChipColor,
-                checkmarkColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                showCheckmark: true,
-                elevation: 0,
-              );
-            }).toList(),
+                  return FilterChip(
+                    label: Text(
+                      category,
+                      style: GoogleFonts.poppins(
+                        color: isSelected ? primaryColor : textColor,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        if (controller.selectedCategories.length < 3) {
+                          controller.selectedCategories.add(category);
+                        }
+                        // else ignore or show message
+                      } else {
+                        controller.selectedCategories.remove(category);
+                      }
+                      // Clear related fields if needed
+                      controller.selectedExam.value = null;
+                      controller.exam.value = "";
+                      controller.updateStepCompletion();
+                    },
+                    selectedColor: activeChipColor,
+                    backgroundColor: inactiveChipColor,
+                    checkmarkColor: primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    showCheckmark: true,
+                    elevation: 0,
+                  );
+                }).toList(),
           ),
 
           // Show TextField if "Others" is selected
@@ -454,6 +467,119 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       ),
       isActive: controller.currentStep.value >= 4,
       state: controller.getStepState(4),
+    );
+  }
+
+  Step _buildAddressStep() {
+    return Step(
+      title: _stepTitle("Address", 5),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Where are you located?",
+            style: GoogleFonts.poppins(
+              color: textColor.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // City
+          Text(
+            "City",
+            style: GoogleFonts.poppins(
+              color: textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextFormField(
+              controller: controller.cityController,
+              textInputAction: TextInputAction.next,
+              style: GoogleFonts.poppins(),
+              onChanged: (_) => controller.updateStepCompletion(),
+              decoration: InputDecoration(
+                hintText: "Enter your city",
+                hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                prefixIcon: const Icon(
+                  Icons.location_city_outlined,
+                  color: Colors.blueGrey,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+          Text(
+            "Pincode",
+            style: GoogleFonts.poppins(
+              color: textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextFormField(
+              controller: controller.pincodeController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              style: GoogleFonts.poppins(),
+              onChanged: (_) => controller.updateStepCompletion(),
+              decoration: InputDecoration(
+                counterText: "",
+                hintText: "Enter pincode",
+                hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                prefixIcon: const Icon(
+                  Icons.pin_drop_outlined,
+                  color: Colors.blueGrey,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+      isActive: controller.currentStep.value >= 5,
+      state: controller.getStepState(5),
     );
   }
 

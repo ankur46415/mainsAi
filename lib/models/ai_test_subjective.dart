@@ -30,14 +30,14 @@ class AiTestData {
   factory AiTestData.fromJson(Map<String, dynamic> json) {
     return AiTestData(
       categories:
-      (json['categories'] as List<dynamic>?)
-          ?.map((e) => Category.fromJson(e))
-          .toList(),
+          (json['categories'] as List<dynamic>?)
+              ?.map((e) => Category.fromJson(e))
+              .toList(),
       totalTests: json['totalTests'],
       pagination:
-      json['pagination'] != null
-          ? Pagination.fromJson(json['pagination'])
-          : null,
+          json['pagination'] != null
+              ? Pagination.fromJson(json['pagination'])
+              : null,
     );
   }
 
@@ -60,9 +60,9 @@ class Category {
     return Category(
       category: json['category'],
       subcategories:
-      (json['subcategories'] as List<dynamic>?)
-          ?.map((e) => Subcategory.fromJson(e))
-          .toList(),
+          (json['subcategories'] as List<dynamic>?)
+              ?.map((e) => Subcategory.fromJson(e))
+              .toList(),
       totalTests: json['total_tests'],
     );
   }
@@ -87,9 +87,9 @@ class Subcategory {
       name: json['name'],
       count: json['count'],
       tests:
-      (json['tests'] as List<dynamic>?)
-          ?.map((e) => Test.fromJson(e))
-          .toList(),
+          (json['tests'] as List<dynamic>?)
+              ?.map((e) => Test.fromJson(e))
+              .toList(),
     );
   }
 
@@ -118,7 +118,10 @@ class Test {
   bool? isPaid;
   String? createdAt;
   String? updatedAt;
+  String? startsAt;
+  String? endsAt;
   UserTestStatus? userTestStatus;
+
   Test({
     this.isEnabled,
     this.testId,
@@ -137,6 +140,8 @@ class Test {
     this.isPaid,
     this.createdAt,
     this.updatedAt,
+    this.startsAt,
+    this.endsAt,
     this.userTestStatus,
   });
 
@@ -159,10 +164,12 @@ class Test {
       isPaid: json['isPaid'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      startsAt: json['startsAt'],
+      endsAt: json['endsAt'],
       userTestStatus:
-      json['userTestStatus'] != null
-          ? UserTestStatus.fromJson(json['userTestStatus'])
-          : null,
+          json['userTestStatus'] != null
+              ? UserTestStatus.fromJson(json['userTestStatus'])
+              : null,
     );
   }
 
@@ -184,6 +191,8 @@ class Test {
     'isPaid': isPaid,
     'created_at': createdAt,
     'updated_at': updatedAt,
+    'startsAt': startsAt,
+    'endsAt': endsAt,
     'userTestStatus': userTestStatus?.toJson(),
   };
 }
@@ -272,9 +281,9 @@ class Meta {
       clientId: json['clientId'],
       timestamp: json['timestamp'],
       filtersApplied:
-      json['filters_applied'] != null
-          ? FiltersApplied.fromJson(json['filters_applied'])
-          : null,
+          json['filters_applied'] != null
+              ? FiltersApplied.fromJson(json['filters_applied'])
+              : null,
     );
   }
 

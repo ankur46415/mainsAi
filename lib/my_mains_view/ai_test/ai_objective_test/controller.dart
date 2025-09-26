@@ -16,7 +16,7 @@ class AiTestObjectiveController extends GetxController {
 
       await callWebApiGet(
         ticker,
-        ApiUrls.objectiveTestList, 
+        ApiUrls.objectiveTestList,
         token: token,
         showLoader: false,
         hideLoader: true,

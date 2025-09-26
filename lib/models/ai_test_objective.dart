@@ -1,4 +1,3 @@
-
 class AiTestHomeResponse {
   final bool success;
   final AiTestData data;
@@ -80,6 +79,8 @@ class AiTestItem {
   final bool? isEnabled;
   final bool? isPaid;
   final bool? isEnrolled;
+  final String? startsAt;
+  final String? endsAt;
   final List<PlanDetails> planDetails;
 
   AiTestItem({
@@ -96,6 +97,8 @@ class AiTestItem {
     this.isEnabled,
     this.isPaid,
     this.isEnrolled,
+    this.startsAt,
+    this.endsAt,
     this.planDetails = const [],
   });
 
@@ -120,6 +123,8 @@ class AiTestItem {
       isEnabled: json['isEnabled'] ?? false,
       isPaid: json['isPaid'] ?? false,
       isEnrolled: json['isEnrolled'] ?? false,
+      startsAt: json['startsAt'],
+      endsAt: json['endsAt'],
       planDetails:
           (json['planDetails'] as List<dynamic>?)
               ?.map((e) => PlanDetails.fromJson(e))
@@ -143,10 +148,13 @@ class AiTestItem {
       'isEnabled': isEnabled,
       'isPaid': isPaid,
       'isEnrolled': isEnrolled,
+      'startsAt': startsAt,
+      'endsAt': endsAt,
       'planDetails': planDetails.map((e) => e.toJson()).toList(),
     };
   }
 }
+
 class PlanDetails {
   String? id;
   String? name;

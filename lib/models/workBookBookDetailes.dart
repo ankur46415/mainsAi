@@ -410,6 +410,10 @@ class Sets {
   String? itemId;
   bool? isWorkbook;
   List<dynamic>? questions;
+  bool? isEnabled;
+  bool? isActive;
+  String? startsAt;
+  String? endsAt;
   String? createdAt;
   String? updatedAt;
   int? iV;
@@ -422,6 +426,10 @@ class Sets {
     this.itemId,
     this.isWorkbook,
     this.questions,
+    this.isEnabled,
+    this.isActive,
+    this.startsAt,
+    this.endsAt,
     this.createdAt,
     this.updatedAt,
     this.iV,
@@ -435,6 +443,10 @@ class Sets {
     itemId = json['itemId'];
     isWorkbook = json['isWorkbook'];
     questions = json['questions'];
+    isEnabled = json['isEnabled'];
+    isActive = json['isActive'];
+    startsAt = json['startsAt'];
+    endsAt = json['endsAt'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
@@ -448,6 +460,10 @@ class Sets {
     'itemId': itemId,
     'isWorkbook': isWorkbook,
     'questions': questions,
+    'isEnabled': isEnabled,
+    'isActive': isActive,
+    'startsAt': startsAt,
+    'endsAt': endsAt,
     'createdAt': createdAt,
     'updatedAt': updatedAt,
     '__v': iV,

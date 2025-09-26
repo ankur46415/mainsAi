@@ -1,6 +1,7 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/models/ai_test_subjective.dart';
 import 'package:mains/my_mains_view/ai_test/ai_test_subjective/subjective_test_name/test_analytics.dart';
+import 'package:mains/my_mains_view/workBook/work_book_detailes/count_down.dart';
 
 class SubjectiveTestNamePage extends StatefulWidget {
   const SubjectiveTestNamePage({super.key});
@@ -125,7 +126,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "Test Details"),
+      appBar: CustomAppBar(title: "Test Detailsa"),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -169,7 +170,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                                 ),
                             errorWidget:
                                 (context, url, error) => const Icon(
-                                   Icons.menu_book_rounded,
+                                  Icons.menu_book_rounded,
                                   color: Colors.white,
                                 ),
                           ),
@@ -191,9 +192,66 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                           color: Colors.white70,
                         ),
                       ),
+
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.play_circle_fill,
+                                  size: 18,
+                                  color: Colors.green[300],
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "Test Start On : " +
+                                      (testData.startsAt != null
+                                          ? _formatDateTime(testData.startsAt)
+                                          : '-'),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+                            Builder(
+                              builder: (context) {
+                                final DateTime? starts =
+                                    testData.startsAt != null
+                                        ? DateTime.tryParse(testData.startsAt!)
+                                        : null;
+                                final DateTime? ends =
+                                    testData.endsAt != null
+                                        ? DateTime.tryParse(testData.endsAt!)
+                                        : null;
+                                return CountdownDisplay(
+                                  startsAt: starts,
+                                  endsAt: ends,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       if (testData.description != null &&
                           testData.description!.isNotEmpty) ...[
-                        const SizedBox(height: 8),
                         Text(
                           testData.description!,
                           style: GoogleFonts.poppins(
@@ -307,5 +365,35 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
         ),
       ),
     );
+  }
+
+  String _formatDateTime(dynamic date) {
+    if (date == null) return '-';
+    try {
+      final dt = date is String ? DateTime.parse(date) : date as DateTime;
+      return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
+          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return date.toString();
+    }
+  }
+
+  String _monthName(int m) {
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[m];
   }
 }

@@ -199,7 +199,7 @@ class _SubjectiveTestAllquestionsState
               if (controller.questions.isEmpty) {
                 return Center(
                   child: Text(
-                    "This Test will open on 29/09/2025",
+                    "No Questions",
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       color: Colors.black,
