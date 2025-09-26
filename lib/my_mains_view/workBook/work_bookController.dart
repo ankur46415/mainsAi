@@ -17,7 +17,7 @@ class WorkBookcontroller extends GetxController
   var reels = <reel.Data>[].obs;
 
   var isLoading = true.obs;
-  var hasLoaded = false.obs; // marks first fetch completion
+  var hasLoaded = false.obs;
   var workbooks = <Workbooks>[].obs;
   var homePageAdds = adds_model.HomePageAdds().obs;
   @override

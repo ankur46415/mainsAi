@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:mains/app_imports.dart';
 import 'package:mains/common/custom_banner.dart';
 import 'package:mains/my_mains_view/workBook/work_bookController.dart';
@@ -192,7 +193,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                         ),
                                       )
-                                    else if ((book.isEnrolled != true) &&
+                                    else if ((book.isPurchased != true) &&
                                         (book.isForSale == true))
                                       Positioned(
                                         bottom: 8,
@@ -330,7 +331,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                         ),
                                       ),
                                     )
-                                  else if ((book.isEnrolled != true) &&
+                                  else if ((book.isPurchased != true) &&
                                       (book.isForSale == true))
                                     Positioned(
                                       bottom: 18,
@@ -424,23 +425,16 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                     ),
                     child: ListView(
                       shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(), //
                       children:
                           categoryMap.entries.map((entry) {
                             final mainCategory = entry.key;
                             final workbooks = entry.value;
-
-                            // Get subcategories and apply custom ordering
-                            final rawSubCategories =
+                            final subCategories =
                                 workbooks
                                     .map((w) => w.subCategory ?? 'Other')
                                     .toSet()
                                     .toList();
-
-                            // Define custom ordering for subcategories
-                            final subCategories = _getOrderedSubCategories(
-                              rawSubCategories,
-                            );
 
                             controller.expandedCategories.putIfAbsent(
                               mainCategory,
@@ -600,6 +594,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                               child: Stack(
                                                 fit: StackFit.expand,
                                                 children: [
+                                                  // Background images in 2x2 grid
                                                   ...List.generate(bgImages.length, (
                                                     i,
                                                   ) {
@@ -684,7 +679,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                           }).toList(),
                     ),
                   ),
-
                   Obx(() {
                     final items = controller.adsByLocation['bottom'] ?? [];
                     if (items.isEmpty) return const SizedBox.shrink();
@@ -710,29 +704,6 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
         }),
       ),
     );
-  }
-
-  List<String> _getOrderedSubCategories(List<String> subCategories) {
-    final priorityOrder = ['UPSC(IAS)', 'BPSC', 'UPPCS'];
-
-    List<String> orderedList = [];
-    List<String> remainingList = [];
-
-    for (String priority in priorityOrder) {
-      if (subCategories.contains(priority)) {
-        orderedList.add(priority);
-      }
-    }
-
-    for (String subCategory in subCategories) {
-      if (!priorityOrder.contains(subCategory)) {
-        remainingList.add(subCategory);
-      }
-    }
-
-    remainingList.sort();
-
-    return [...orderedList, ...remainingList];
   }
 
   Widget _buildImageBox(Workbooks book, {double height = 200}) {
@@ -815,7 +786,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                   ),
                 ),
               )
-            else if ((book.isEnrolled != true) && (book.isForSale == true))
+            else if ((book.isPurchased != true) && (book.isForSale == true))
               Positioned(
                 bottom: 8,
                 left: 8,
@@ -897,16 +868,11 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                   width: 120,
                   height: 180,
                   color: Colors.black12,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Thumbnail
+                  child:
                       thumbnailUrl != null
                           ? Image.network(
                             thumbnailUrl,
                             fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
                             errorBuilder:
                                 (context, error, stackTrace) =>
                                     const Icon(Icons.broken_image),
@@ -924,27 +890,14 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                 return Image.file(
                                   File(snapshot.data!),
                                   fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
                                 );
                               }
-                              return Container(color: Colors.black26);
+                              return const Icon(
+                                Icons.play_circle_fill,
+                                size: 48,
+                              );
                             },
                           ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black45,
-                          shape: BoxShape.circle,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             );

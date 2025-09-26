@@ -74,6 +74,7 @@ class WorkbookId {
   String? coverImageKey;
   String? coverImageUrl;
   int? mrp;
+  int? gst;
   String? currency;
   String? details;
   int? offerPrice;
@@ -85,6 +86,7 @@ class WorkbookId {
     this.coverImageKey,
     this.coverImageUrl,
     this.mrp,
+    this.gst,
     this.currency,
     this.details,
     this.offerPrice,
@@ -97,6 +99,7 @@ class WorkbookId {
     coverImageKey = json['coverImageKey'];
     coverImageUrl = json['coverImageUrl'];
     mrp = json['MRP'];
+    gst = json['GST'];
     currency = json['currency'];
     details = json['details'];
     offerPrice = json['offerPrice'];
@@ -110,6 +113,7 @@ class WorkbookId {
     data['coverImageKey'] = coverImageKey;
     data['coverImageUrl'] = coverImageUrl;
     data['MRP'] = mrp;
+    data['GST'] = gst;
     data['currency'] = currency;
     data['details'] = details;
     data['offerPrice'] = offerPrice;
@@ -127,9 +131,10 @@ class Items {
   Items({this.workbookId, this.title, this.price, this.currency});
 
   Items.fromJson(Map<String, dynamic> json) {
-    workbookId = json['workbookId'] != null
-        ? WorkbookId.fromJson(json['workbookId'])
-        : null;
+    workbookId =
+        json['workbookId'] != null
+            ? WorkbookId.fromJson(json['workbookId'])
+            : null;
     title = json['title'];
     price = json['price'];
     currency = json['currency'];

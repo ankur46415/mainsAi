@@ -38,7 +38,20 @@ class _AddToCartState extends State<AddToCart> {
     return sum;
   }
 
-  double get gstAmount => subTotal * 0.18;
+  double get gstAmount {
+    final items = controller.cartList.value?.data?.items;
+    if (items == null) return 0;
+    double gstSum = 0;
+    for (int i = 0; i < items.length; i++) {
+      if (selectedIndexes.contains(i)) {
+        final price = items[i].price ?? 0;
+        final gstPercent = items[i].workbookId?.gst ?? 0;
+        gstSum += price * (gstPercent / 100);
+      }
+    }
+    return gstSum;
+  }
+
   double get total => subTotal + gstAmount;
 
   @override
@@ -602,7 +615,7 @@ class _AddToCartState extends State<AddToCart> {
                       ),
                       const SizedBox(height: 8),
                       _buildPriceRow(
-                        "GST (18%)",
+                        "GST ",
                         "₹${gstAmount.toStringAsFixed(2)}",
                       ),
                       const SizedBox(height: 12),

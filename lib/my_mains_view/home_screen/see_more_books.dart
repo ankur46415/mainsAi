@@ -131,13 +131,13 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
               ),
             ),
 
-            if (book.isPurchased== true)
+            if (book.isPurchased == true)
               Positioned(
                 bottom: 8,
                 left: 8,
                 child: _buildBadge('ENROLLED', Colors.green),
               )
-            else if ((book.isEnrolled != true) && (book.isForSale == true))
+            else if ((book.isPurchased != true) && (book.isForSale == true))
               Positioned(bottom: 8, left: 8, child: _buildPriceBadge(book)),
           ],
         ),
@@ -211,9 +211,9 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      if (book.isPurchased== true)
+                      if (book.isPurchased == true)
                         _buildBadge('ENROLLED', Colors.green)
-                      else if ((book.isEnrolled != true) &&
+                      else if ((book.isPurchased != true) &&
                           (book.isForSale == true))
                         _buildPriceBadge(book),
                     ],
