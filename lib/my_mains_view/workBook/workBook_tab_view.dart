@@ -297,7 +297,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           ),
                                     ),
                                   ),
-                                  if (book.isForSale == true)
+                                  if (book.isEnrolled == true)
                                     Positioned(
                                       bottom: 18,
                                       left: 8,
@@ -360,7 +360,7 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                           (book.offerPrice != null &&
                                                   book.offerPrice! > 0)
                                               ? '₹ ${book.offerPrice}'
-                                              : 'PAID',
+                                              : '',
                                           style: GoogleFonts.poppins(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,

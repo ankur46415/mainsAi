@@ -342,227 +342,240 @@ class _AddToCartState extends State<AddToCart> {
               const SizedBox(height: 8),
 
               Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    final isSelected = selectedIndexes.contains(index);
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await controller.fetchCartList(null);
+                  },
+                  child: ListView.builder(
+                    itemCount: items.length,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      final isSelected = selectedIndexes.contains(index);
 
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Dismissible(
-                        key: Key(item.title ?? index.toString()),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          padding: const EdgeInsets.all(20),
-                          alignment: Alignment.centerRight,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.red.shade400,
-                                Colors.red.shade600,
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.delete_forever_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        onDismissed: (direction) async {
-                          final itemId = item.workbookId?.id;
-                          if (itemId != null && itemId.isNotEmpty) {
-                            await controller.deleteCartItem(itemId);
-                            setState(() {
-                              // Re-sync selectedIndexes with new cart items
-                              final newItems =
-                                  controller.cartList.value?.data?.items ?? [];
-                              selectedIndexes = Set<int>.from(
-                                List.generate(newItems.length, (i) => i),
-                              );
-                              initialSelectionDone = true;
-                            });
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  isSelected ? 0.1 : 0.05,
-                                ),
-                                blurRadius: isSelected ? 12 : 8,
-                                offset: const Offset(0, 4),
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Dismissible(
+                          key: Key(item.title ?? index.toString()),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            padding: const EdgeInsets.all(20),
+                            alignment: Alignment.centerRight,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red.shade400,
+                                  Colors.red.shade600,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
                               ),
-                            ],
-                          ),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(16),
-                            color: Colors.white,
-                            child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    selectedIndexes.remove(index);
-                                  } else {
-                                    selectedIndexes.add(index);
-                                  }
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color:
-                                        isSelected
-                                            ? Colors.orange.withOpacity(0.8)
-                                            : Colors.transparent,
-                                    width: 2,
+                            ),
+                            child: const Icon(
+                              Icons.delete_forever_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          onDismissed: (direction) async {
+                            final itemId = item.workbookId?.id;
+                            if (itemId != null && itemId.isNotEmpty) {
+                              await controller.deleteCartItem(itemId);
+                              setState(() {
+                                // Re-sync selectedIndexes with new cart items
+                                final newItems =
+                                    controller.cartList.value?.data?.items ??
+                                    [];
+                                selectedIndexes = Set<int>.from(
+                                  List.generate(newItems.length, (i) => i),
+                                );
+                                initialSelectionDone = true;
+                              });
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(
+                                    isSelected ? 0.1 : 0.05,
                                   ),
+                                  blurRadius: isSelected ? 12 : 8,
+                                  offset: const Offset(0, 4),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // Selection Indicator
-                                    Container(
-                                      width: 24,
-                                      height: 24,
-                                      margin: const EdgeInsets.only(right: 12),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            isSelected
-                                                ? Colors.orange
-                                                : Colors.grey.shade300,
-                                        border: Border.all(
+                              ],
+                            ),
+                            child: Material(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Colors.white,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      selectedIndexes.remove(index);
+                                    } else {
+                                      selectedIndexes.add(index);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color:
+                                          isSelected
+                                              ? Colors.orange.withOpacity(0.8)
+                                              : Colors.transparent,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Selection Indicator
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        margin: const EdgeInsets.only(
+                                          right: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
                                           color:
                                               isSelected
                                                   ? Colors.orange
-                                                  : Colors.grey.shade400,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child:
-                                          isSelected
-                                              ? const Icon(
-                                                Icons.check_rounded,
-                                                color: Colors.white,
-                                                size: 16,
-                                              )
-                                              : null,
-                                    ),
-
-                                    // Product Image
-                                    Container(
-                                      width: 70,
-                                      height: 70,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.orange.shade100,
-                                            Colors.orange.shade300,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.orange.withOpacity(
-                                              0.2,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
+                                                  : Colors.grey.shade300,
+                                          border: Border.all(
+                                            color:
+                                                isSelected
+                                                    ? Colors.orange
+                                                    : Colors.grey.shade400,
+                                            width: 2,
                                           ),
-                                        ],
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
+                                        ),
                                         child:
-                                            (item.workbookId?.coverImageUrl !=
-                                                        null &&
+                                            isSelected
+                                                ? const Icon(
+                                                  Icons.check_rounded,
+                                                  color: Colors.white,
+                                                  size: 16,
+                                                )
+                                                : null,
+                                      ),
+
+                                      // Product Image
+                                      Container(
+                                        width: 70,
+                                        height: 70,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.orange.shade100,
+                                              Colors.orange.shade300,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.orange.withOpacity(
+                                                0.2,
+                                              ),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child:
+                                              (item.workbookId?.coverImageUrl !=
+                                                          null &&
+                                                      item
+                                                          .workbookId!
+                                                          .coverImageUrl!
+                                                          .isNotEmpty)
+                                                  ? Image.network(
                                                     item
                                                         .workbookId!
-                                                        .coverImageUrl!
-                                                        .isNotEmpty)
-                                                ? Image.network(
-                                                  item
-                                                      .workbookId!
-                                                      .coverImageUrl!,
-                                                  width: 70,
-                                                  height: 70,
-                                                  fit: BoxFit.fill,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => Image.asset(
-                                                        'assets/images/bookb.png',
-                                                        width: 70,
-                                                        height: 70,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                )
-                                                : Image.asset(
-                                                  'assets/images/bookb.png',
-                                                  width: 70,
-                                                  height: 70,
-                                                  fit: BoxFit.cover,
-                                                ),
+                                                        .coverImageUrl!,
+                                                    width: 70,
+                                                    height: 70,
+                                                    fit: BoxFit.fill,
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Image.asset(
+                                                          'assets/images/bookb.png',
+                                                          width: 70,
+                                                          height: 70,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                  )
+                                                  : Image.asset(
+                                                    'assets/images/bookb.png',
+                                                    width: 70,
+                                                    height: 70,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                        ),
                                       ),
-                                    ),
 
-                                    const SizedBox(width: 16),
+                                      const SizedBox(width: 16),
 
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.title ?? 'Untitled Item',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.grey.shade800,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item.title ?? 'Untitled Item',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade800,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            "₹${(item.price ?? 0).toStringAsFixed(2)}",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.orange.shade700,
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              "₹${(item.price ?? 0).toStringAsFixed(2)}",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.orange.shade700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
 

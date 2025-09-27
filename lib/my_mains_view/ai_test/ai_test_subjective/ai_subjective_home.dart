@@ -116,10 +116,14 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
           );
         }
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children:
-              data.categories!.map((category) {
+        return RefreshIndicator(
+          onRefresh: () async {
+            await controller.fetchAiTestSubjective(this);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children:
+                data.categories!.map((category) {
                 if (category.category == null ||
                     category.subcategories == null) {
                   return const SizedBox.shrink();
@@ -356,6 +360,7 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                   ],
                 );
               }).toList(),
+          ),
         );
       }),
     );

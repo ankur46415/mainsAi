@@ -1,7 +1,7 @@
 import 'package:mains/app_imports.dart';
 import 'package:mains/my_mains_view/ai_test/start_test/attempts_result/attempts_results.dart';
 import 'package:mains/my_mains_view/ai_test/start_test/objective_test_name.dart';
-import 'package:mains/my_mains_view/workBook/work_book_detailes/count_down.dart';
+import 'package:mains/my_mains_view/ai_test/start_test/test_count_down.dart';
 
 class ObjectiveTestName extends StatefulWidget {
   const ObjectiveTestName({super.key});
@@ -126,53 +126,63 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.shade300),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  Icons.play_circle_fill,
-                                  size: 18,
-                                  color: Colors.green[700],
+                                const Icon(
+                                  Icons.access_time,
+                                  size: 22,
+                                  color: Colors.black87,
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  testData.startsAt != null
-                                      ? "Test Start On: ${_formatDateTime(testData.startsAt)}"
-                                      : "Test Start On: -",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey[800],
+                                Expanded(
+                                  child: Text(
+                                    testData.startsAt != null
+                                        ? "Scheduled On: ${_formatDateTime(testData.startsAt)}"
+                                        : "Scheduled On:",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[800],
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 10),
                             Builder(
                               builder: (context) {
                                 final DateTime? starts =
                                     testData.startsAt != null
-                                        ? DateTime.parse(testData.startsAt!)
-                                            .toLocal() // ✅ IST me
+                                        ? DateTime.parse(
+                                          testData.startsAt!,
+                                        ).toLocal()
                                         : null;
                                 final DateTime? ends =
                                     testData.endsAt != null
-                                        ? DateTime.parse(testData.endsAt!)
-                                            .toLocal() // ✅ IST me
+                                        ? DateTime.parse(
+                                          testData.endsAt!,
+                                        ).toLocal()
                                         : null;
 
-                                return CountdownDisplay(
+                                return TestCountdownDisplay(
                                   startsAt: starts,
                                   endsAt: ends,
                                 );
@@ -300,71 +310,89 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                 ] else ...[
                                   SizedBox(
                                     width: double.infinity,
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        final DateTime? startsAt =
-                                            testData.startsAt != null
-                                                ? DateTime.tryParse(
-                                                  testData.startsAt!,
-                                                )
-                                                : null;
-                                        final now = DateTime.now();
-                                        if (startsAt != null &&
-                                            now.isBefore(startsAt)) {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (context) => AlertDialog(
-                                                  title: const Text(
-                                                    'Test Not Started',
-                                                  ),
-                                                  content: Text(
-                                                    'Test will start on: '
-                                                    '${_formatDateTime(startsAt)}',
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed:
-                                                          () =>
-                                                              Navigator.of(
-                                                                context,
-                                                              ).pop(),
-                                                      child: const Text('OK'),
-                                                    ),
-                                                  ],
-                                                ),
-                                          );
-                                          return;
-                                        }
-                                        Get.toNamed(
-                                          AppRoutes.onjTestDescription,
-                                          arguments: testData,
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.play_arrow,
-                                        color: Colors.white,
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFFFC107), // Amber
+                                            Color.fromARGB(
+                                              255,
+                                              236,
+                                              87,
+                                              87,
+                                            ), // Red
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      label: Text(
-                                        "Let's Start",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          final DateTime? startsAt =
+                                              testData.startsAt != null
+                                                  ? DateTime.tryParse(
+                                                    testData.startsAt!,
+                                                  )
+                                                  : null;
+                                          final now = DateTime.now();
+                                          if (startsAt != null &&
+                                              now.isBefore(startsAt)) {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Test Not Started',
+                                                    ),
+                                                    content: Text(
+                                                      'Test will start on: ${_formatDateTime(startsAt)}',
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () =>
+                                                                Navigator.of(
+                                                                  context,
+                                                                ).pop(),
+                                                        child: const Text('OK'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                            );
+                                            return;
+                                          }
+                                          Get.toNamed(
+                                            AppRoutes.onjTestDescription,
+                                            arguments: testData,
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.play_arrow,
                                           color: Colors.white,
                                         ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 14,
-                                        ),
-                                        backgroundColor: Colors.red,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
+                                        label: Text(
+                                          "Let's Start",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                        elevation: 6,
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 14,
+                                          ),
+                                          backgroundColor: Colors.transparent,
+                                          shadowColor: Colors.transparent,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          elevation: 6,
+                                        ),
                                       ),
                                     ),
                                   ),

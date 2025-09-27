@@ -126,7 +126,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "Test Detailsa"),
+      appBar: CustomAppBar(title: "Test Details"),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -210,13 +210,13 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                             Row(
                               children: [
                                 Icon(
-                                  Icons.play_circle_fill,
-                                  size: 18,
+                                  Icons.access_time,
+                                  size: 22,
                                   color: Colors.green[300],
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  "Test Start On : " +
+                                  "Scheduled : " +
                                       (testData.startsAt != null
                                           ? _formatDateTime(testData.startsAt)
                                           : '-'),
@@ -397,16 +397,17 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
   String _formatDateTime(dynamic date) {
     if (date == null) return '-';
     try {
-      final dt = date is String
-          ? DateTime.parse(date).toLocal()
-          : (date as DateTime).toLocal();
-      
+      final dt =
+          date is String
+              ? DateTime.parse(date).toLocal()
+              : (date as DateTime).toLocal();
+
       // Convert to 12-hour format
       final hour = dt.hour;
       final minute = dt.minute.toString().padLeft(2, '0');
       final period = hour >= 12 ? 'PM' : 'AM';
       final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-      
+
       return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
           '$displayHour:$minute $period';
     } catch (e) {

@@ -43,10 +43,10 @@ class _CountdownChipState extends State<CountdownChip> {
       _label = 'Starts in: ' + _formatDuration(_diff!);
     } else if (_start != null &&
         (now.isAtSameMomentAs(_start!) || now.isAfter(_start!))) {
-      // Test has started
+      // Test has Available
       if (_end != null && now.isBefore(_end!)) {
         _diff = null;
-        _label = 'Started';
+        _label = 'Available';
       } else {
         _diff = null;
         _label = 'Closed';
@@ -55,7 +55,7 @@ class _CountdownChipState extends State<CountdownChip> {
       // No start provided; fallback to end if available
       if (_end != null && now.isBefore(_end!)) {
         _diff = null;
-        _label = 'Started';
+        _label = 'Available';
       } else {
         _diff = null;
         _label = 'Closed';
@@ -82,7 +82,7 @@ class _CountdownChipState extends State<CountdownChip> {
 
   @override
   Widget build(BuildContext context) {
-    final isNeutral = _label == 'Started' || _label == 'Closed';
+    final isNeutral = _label == 'Available' || _label == 'Closed';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -135,7 +135,7 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
       _label = 'Starts in';
       return widget.startsAt!.difference(now);
     } else {
-      _label = 'Started';
+      _label = 'Available';
       return Duration.zero;
     }
   }
@@ -155,7 +155,7 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
     final minutes = _remaining.inMinutes % 60;
     final seconds = _remaining.inSeconds % 60;
 
-    if (_label == 'Started' || _label == 'Closed') {
+    if (_label == 'Available' || _label == 'Closed') {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
         decoration: BoxDecoration(
@@ -172,9 +172,9 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
         child: Text(
           _label,
           style: GoogleFonts.poppins(
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: FontWeight.w600,
-            color: Colors.red,
+            color: Colors.green,
           ),
         ),
       );
@@ -184,10 +184,10 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
@@ -230,7 +230,7 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
         Text(
           value,
           style: GoogleFonts.poppins(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/common/loading_widget.dart';
+import 'package:mains/my_mains_view/plans/support_banner.dart';
 import '../../app_routes.dart';
 import '../../models/course_plans.dart';
 import 'controller/all_plan_controller.dart';
@@ -27,7 +28,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: const Color(0xFFF0F4F8), // Softer blue-gray background
         appBar: AppBar(
           title: Text(
             'Plans',
@@ -43,17 +44,21 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                colors: [
+                  Color(0xFFFF6B6B),
+                  Color(0xFFFF8E53),
+                  Color(0xFFFFC107),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
           ),
-          bottom: TabBar(
+          bottom: const TabBar(
             indicatorColor: Colors.white,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
-            tabs: const [Tab(text: 'All Plans'), Tab(text: 'Enrolled')],
+            tabs: [Tab(text: 'All Plans'), Tab(text: 'Enrolled')],
           ),
         ),
         body: Obx(() {
@@ -62,31 +67,9 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           }
 
           if (controller.hasError.value) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    controller.errorMessage.value,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => controller.refreshPlans(),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState();
           }
 
-          // Create filtered lists for tabs
           final enrolledPlans =
               controller.plans.where((p) => p.isEnrolled == true).toList();
           final notEnrolledPlans =
@@ -94,94 +77,15 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
 
           return TabBarView(
             children: [
-              // All Plans tab (not enrolled)
-              RefreshIndicator(
-                onRefresh: () => controller.refreshPlans(),
-                child:
-                    notEnrolledPlans.isEmpty
-                        ? ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(16),
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.55,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.inbox_outlined,
-                                      size: 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'No plans available',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                        : ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: notEnrolledPlans.length,
-                          itemBuilder: (context, index) {
-                            final plan = notEnrolledPlans[index];
-                            return _buildPlanCard(plan, index);
-                          },
-                        ),
+              _buildPlanListWithSupport(
+                notEnrolledPlans,
+                context,
+                'No plans available',
               ),
-
-              // Enrolled tab
-              RefreshIndicator(
-                onRefresh: () => controller.refreshPlans(),
-                child:
-                    enrolledPlans.isEmpty
-                        ? ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(16),
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.55,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.school_outlined,
-                                      size: 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'No enrolled plans',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                        : ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: enrolledPlans.length,
-                          itemBuilder: (context, index) {
-                            final plan = enrolledPlans[index];
-                            return _buildPlanCard(plan, index);
-                          },
-                        ),
+              _buildPlanListWithSupport(
+                enrolledPlans,
+                context,
+                'No enrolled plans',
               ),
             ],
           );
@@ -190,8 +94,99 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
     );
   }
 
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: Colors.grey[500]),
+          const SizedBox(height: 16),
+          Text(
+            controller.errorMessage.value,
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[700]),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => controller.refreshPlans(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A6572),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanListWithSupport(
+    List<Data> plans,
+    BuildContext context,
+    String emptyMsg,
+  ) {
+    if (plans.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () => controller.refreshPlans(),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          children: [
+            const SupportCard(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.55,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.inbox_outlined,
+                      size: 64,
+                      color: Colors.grey[500],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      emptyMsg,
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => controller.refreshPlans(),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: plans.length + 2,
+        itemBuilder: (context, index) {
+          // Show support card in the middle
+          if (index == (plans.length / 2).floor()) {
+            return const SupportCard();
+          }
+          
+          // Show support card at the end
+          if (index == plans.length + 1) {
+            return const SupportCard();
+          }
+          
+          // Show plan cards
+          final planIndex = index > (plans.length / 2).floor() ? index - 1 : index;
+          return _buildPlanCard(plans[planIndex], planIndex);
+        },
+      ),
+    );
+  }
+
   Widget _buildPlanCard(Data plan, int index) {
-    // Calculate discount percentage
     final originalPrice = plan.mRP ?? 0;
     final offerPrice = plan.offerPrice ?? 0;
     final discountPercentage =
@@ -201,7 +196,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
 
     return InkWell(
       onTap:
-          (plan.isEnrolled == true)
+          plan.isEnrolled == true
               ? null
               : () {
                 Get.toNamed(
@@ -213,52 +208,54 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 10,
-              spreadRadius: 2,
-              offset: const Offset(0, 4),
+              color: const Color(
+                0xFF344955,
+              ).withOpacity(0.1), // Dark blue shadow
+              blurRadius: 15,
+              spreadRadius: 0,
+              offset: const Offset(0, 6),
+            ),
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.06),
+              blurRadius: 8,
+              spreadRadius: 0,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title section with index badge
+            // Top header with gradient (unchanged as requested)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 236, 87, 87),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 112, 184, 243), // light blue
+                    Color.fromARGB(255, 235, 204, 114), // amber
+                  ],
 
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
-                ),
-                gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
                 ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Colors.white24,
+                    child: Text(
+                      '${index + 1}',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -270,7 +267,6 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        height: 1.3,
                       ),
                     ),
                   ),
@@ -278,217 +274,241 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
               ),
             ),
 
-            // Content section
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(16),
-                ),
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(16),
-                  ),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Validity section
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 18,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Validity: ${plan.duration ?? 365} days",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 26),
-                      child: Text(
-                        "Plan validity is 365 days total",
+            // Card content
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Validity
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 18,
+                        color: const Color(0xFF4A6572), // Dark blue-gray
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Validity: ${plan.duration ?? 365} days",
                         style: GoogleFonts.poppins(
-                          color: Colors.grey[600],
-                          fontSize: 12,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF344955), // Darker blue-gray
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 26),
+                    child: Text(
+                      "Plan validity is ${plan.duration ?? 365} days total",
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFF5D737E), // Medium blue-gray
+                        fontSize: 12,
+                      ),
                     ),
+                  ),
 
-                    const SizedBox(height: 16),
-                    const Divider(height: 1, color: Colors.grey),
-                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFE0E6ED),
+                  ), // Light blue-gray divider
+                  const SizedBox(height: 16),
 
-                    // Pricing section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Original Price',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '₹${plan.mRP ?? 0}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          ],
-                        ),
+                  // Pricing
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _priceColumn(
+                        "Original Price",
+                        '₹$originalPrice',
+                        isStrike: true,
+                        color: const Color(0xFF8A9BA8), // Gray-blue
+                      ),
+                      _discountChip(discountPercentage),
+                      _priceColumn(
+                        "Final Price",
+                        '₹$offerPrice',
+                        isBold: true,
+                        color: const Color(0xFF00BFA5), // Teal
+                      ),
+                    ],
+                  ),
 
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Discount',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                '$discountPercentage% OFF',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Final Price',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '₹${plan.offerPrice ?? 0}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Color.fromARGB(255, 236, 87, 87),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    (plan.isEnrolled == true)
-                        ? SizedBox(
-                          width: double.infinity,
-                          child: InkWell(
-                            onTap: () {
-                              Get.toNamed(
-                                AppRoutes.specificCourse,
-                                arguments: {'planId': plan.sId},
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.green),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Already purchased',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.green[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                        : SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              Get.toNamed(
-                                AppRoutes.specificCourse,
-                                arguments: {'planId': plan.sId},
-                              );
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: Color.fromARGB(255, 236, 87, 87),
-                                width: 1.2,
-                              ),
-                              foregroundColor: const Color.fromARGB(
-                                255,
-                                236,
-                                87,
-                                87,
-                              ),
-                              backgroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              'View Details',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: const Color.fromARGB(255, 236, 87, 87),
-                              ),
-                            ),
-                          ),
-                        ),
-                  ],
-                ),
+                  const SizedBox(height: 16),
+                  plan.isEnrolled == true
+                      ? _purchasedButton(plan.sId)
+                      : _viewDetailsButton(plan.sId),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _priceColumn(
+    String title,
+    String value, {
+    bool isStrike = false,
+    bool isBold = false,
+    Color? color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            color: const Color(0xFF5D737E), // Medium blue-gray
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: isBold ? 16 : 14,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+            color: color ?? const Color(0xFF344955), // Dark blue-gray
+            decoration: isStrike ? TextDecoration.lineThrough : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _discountChip(int discountPercentage) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00BFA5), Color(0xFF00897B)], // Teal gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00BFA5).withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        '$discountPercentage% OFF',
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _purchasedButton(String? planId) {
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        onTap: () {
+          Get.toNamed(AppRoutes.specificCourse, arguments: {'planId': planId});
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF00BFA5), Color(0xFF00897B)], // Teal gradient
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00BFA5).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Already purchased',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _viewDetailsButton(String? planId) {
+    return SizedBox(
+      width: double.infinity,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromARGB(255, 243, 182, 223),
+              Color.fromARGB(255, 90, 165, 209),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 219, 228, 233).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            Get.toNamed(
+              AppRoutes.specificCourse,
+              arguments: {'planId': planId},
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.visibility, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'View Details',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

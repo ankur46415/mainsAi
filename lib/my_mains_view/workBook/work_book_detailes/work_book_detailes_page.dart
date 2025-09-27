@@ -474,8 +474,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                             );
                                           }
                                         } catch (_) {}
-
-                                        // 1. Start date restriction
                                         if (startsAt != null &&
                                             DateTime.now().isBefore(startsAt)) {
                                           Get.dialog(
@@ -515,14 +513,14 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                           .white
                                                           .withOpacity(0.2),
                                                       child: const Icon(
-                                                        Icons.lock_outline,
+                                                        Icons.access_time,
                                                         size: 40,
                                                         color: Colors.white,
                                                       ),
                                                     ),
                                                     const SizedBox(height: 20),
                                                     Text(
-                                                      'Locked',
+                                                      'Sheduled ',
                                                       style:
                                                           GoogleFonts.poppins(
                                                             fontSize: 20,
@@ -670,10 +668,37 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                                 vertical: 12,
                                                               ),
                                                         ),
-                                                        onPressed:
-                                                            () => Get.back(),
+                                                        onPressed: () async {
+                                                          final bool isForSale =
+                                                              bookData
+                                                                  .isForSale ==
+                                                              true;
+                                                          final bool
+                                                          isPurchased =
+                                                              bookData
+                                                                  .isPurchased ==
+                                                              true;
+
+                                                          if (isForSale &&
+                                                              !isPurchased) {
+                                                            // Purchase flow
+                                                            final success =
+                                                                await controller
+                                                                    .addWorkbookToCart(
+                                                                      widget.bookId
+                                                                              ?.toString() ??
+                                                                          '',
+                                                                    );
+                                                            if (success) {
+                                                              Get.toNamed(
+                                                                AppRoutes
+                                                                    .addToCart,
+                                                              );
+                                                            }
+                                                          }
+                                                        },
                                                         child: Text(
-                                                          'OK',
+                                                          'Purchase',
                                                           style:
                                                               GoogleFonts.poppins(
                                                                 fontWeight:
@@ -765,11 +790,10 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                               .start,
                                                       children: [
                                                         Text(
-                                                          set.name ??
-                                                              "Untitled Set",
+                                                          set.name ?? "",
                                                           style:
                                                               GoogleFonts.poppins(
-                                                                fontSize: 14,
+                                                                fontSize: 17,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
@@ -784,9 +808,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                         Row(
                                                           children: [
                                                             Icon(
-                                                              Icons
-                                                                  .play_circle_fill,
-                                                              size: 14,
+                                                              Icons.access_time,
+                                                              size: 16,
                                                               color:
                                                                   Colors
                                                                       .green[700],
@@ -828,7 +851,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                   padding:
                                                       const EdgeInsets.symmetric(
                                                         horizontal: 6,
-                                                        vertical: 3,
+                                                        vertical: 6,
                                                       ),
                                                   decoration: BoxDecoration(
                                                     color: Colors.blue[50],
@@ -837,33 +860,21 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                           8,
                                                         ),
                                                   ),
-                                                  child: Column(
-                                                    children: [
-                                                      Text(
-                                                        '${set.questions?.length ?? 0}',
-                                                        style:
-                                                            GoogleFonts.poppins(
-                                                              fontSize: 15,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors
-                                                                      .blue[900],
-                                                            ),
-                                                      ),
-                                                      Text(
-                                                        'Questions',
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 9,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color:
-                                                              Colors
-                                                                  .blueGrey[700],
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  child: CountdownDisplay(
+                                                    startsAt:
+                                                        set.startsAt != null
+                                                            ? DateTime.tryParse(
+                                                              set.startsAt
+                                                                  .toString(),
+                                                            )
+                                                            : null,
+                                                    endsAt:
+                                                        set.endsAt != null
+                                                            ? DateTime.tryParse(
+                                                              set.endsAt
+                                                                  .toString(),
+                                                            )
+                                                            : null,
                                                   ),
                                                 ),
                                               ],
@@ -871,20 +882,26 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           ),
                                           Positioned(
                                             top: 1,
-                                            right: 8,
-                                            child: CountdownDisplay(
-                                              startsAt:
-                                                  set.startsAt != null
-                                                      ? DateTime.tryParse(
-                                                        set.startsAt.toString(),
-                                                      )
-                                                      : null,
-                                              endsAt:
-                                                  set.endsAt != null
-                                                      ? DateTime.tryParse(
-                                                        set.endsAt.toString(),
-                                                      )
-                                                      : null,
+                                            left: 16,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                "Scheduled",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],

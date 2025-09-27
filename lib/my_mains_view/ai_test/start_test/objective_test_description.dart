@@ -122,7 +122,10 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [CustomColors.primaryColor, Colors.redAccent],
+                          colors: [
+                            Color(0xFFFFC107),
+                            Color.fromARGB(255, 236, 87, 87),
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -203,7 +206,6 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
                       ),
                       const SizedBox(height: 30),
                     ],
-
                     Text(
                       "Test Instructions",
                       style: GoogleFonts.poppins(
@@ -287,15 +289,25 @@ class _OnjTestDescriptionState extends State<OnjTestDescription> {
             decoration: BoxDecoration(
               color:
                   testData.totalQuestions == 0
-                      ? Colors
-                          .grey // agar 0 questions ho to grey
-                      : CustomColors.primaryColor, // warna normal color
+                      ? Colors.grey
+                      : null, // grey fallback
+              gradient:
+                  testData.totalQuestions == 0
+                      ? null
+                      : const LinearGradient(
+                        colors: [
+                          Color(0xFFFFC107), // Amber
+                          Color.fromARGB(255, 236, 87, 87), // Red
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
                   color: (testData.totalQuestions == 0
                           ? Colors.grey
-                          : CustomColors.primaryColor)
+                          : const Color(0xFFFFC107))
                       .withOpacity(0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
