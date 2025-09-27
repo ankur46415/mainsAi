@@ -163,12 +163,15 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                               builder: (context) {
                                 final DateTime? starts =
                                     testData.startsAt != null
-                                        ? DateTime.tryParse(testData.startsAt!)
+                                        ? DateTime.parse(testData.startsAt!)
+                                            .toLocal() // ✅ IST me
                                         : null;
                                 final DateTime? ends =
                                     testData.endsAt != null
-                                        ? DateTime.tryParse(testData.endsAt!)
+                                        ? DateTime.parse(testData.endsAt!)
+                                            .toLocal() // ✅ IST me
                                         : null;
+
                                 return CountdownDisplay(
                                   startsAt: starts,
                                   endsAt: ends,
@@ -231,7 +234,8 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                           return Column(
                             children: [
                               if (totalAttempts < maxAttempts)
-                                if (testData.isPaid == true) ...[
+                                if (testData.isPaid == true &&
+                                    testData.isEnrolled != true) ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton.icon(
@@ -297,11 +301,46 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton.icon(
-                                      onPressed:
-                                          () => Get.toNamed(
-                                            AppRoutes.onjTestDescription,
-                                            arguments: testData,
-                                          ),
+                                      onPressed: () {
+                                        final DateTime? startsAt =
+                                            testData.startsAt != null
+                                                ? DateTime.tryParse(
+                                                  testData.startsAt!,
+                                                )
+                                                : null;
+                                        final now = DateTime.now();
+                                        if (startsAt != null &&
+                                            now.isBefore(startsAt)) {
+                                          showDialog(
+                                            context: context,
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  title: const Text(
+                                                    'Test Not Started',
+                                                  ),
+                                                  content: Text(
+                                                    'Test will start on: '
+                                                    '${_formatDateTime(startsAt)}',
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed:
+                                                          () =>
+                                                              Navigator.of(
+                                                                context,
+                                                              ).pop(),
+                                                      child: const Text('OK'),
+                                                    ),
+                                                  ],
+                                                ),
+                                          );
+                                          return;
+                                        }
+                                        Get.toNamed(
+                                          AppRoutes.onjTestDescription,
+                                          arguments: testData,
+                                        );
+                                      },
                                       icon: const Icon(
                                         Icons.play_arrow,
                                         color: Colors.white,
@@ -529,9 +568,19 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
   String _formatDateTime(dynamic date) {
     if (date == null) return '-';
     try {
-      final dt = date is String ? DateTime.parse(date) : date as DateTime;
+      final dt =
+          date is String
+              ? DateTime.parse(date).toLocal()
+              : (date as DateTime).toLocal();
+
+      // Convert to 12-hour format
+      final hour = dt.hour;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+
       return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
-          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+          '$displayHour:$minute $period';
     } catch (e) {
       return date.toString();
     }

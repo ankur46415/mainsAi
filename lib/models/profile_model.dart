@@ -41,6 +41,8 @@ class Profile {
   String? createdAt;
   String? updatedAt;
   bool? isEvaluator;
+  String? city;
+  String? pincode;
 
   Profile({
     this.name,
@@ -52,22 +54,26 @@ class Profile {
     this.createdAt,
     this.updatedAt,
     this.isEvaluator,
+    this.city,
+    this.pincode,
   });
 
   Profile.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     age = json['age'];
     gender = json['gender'];
-    exams = json['exams'].cast<String>();
+    exams = json['exams'] != null ? List<String>.from(json['exams']) : null;
     nativeLanguage = json['native_language'];
     mobile = json['mobile'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     isEvaluator = json['isEvaluator'];
+    city = json['city'];
+    pincode = json['pincode'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['name'] = this.name;
     data['age'] = this.age;
     data['gender'] = this.gender;
@@ -77,6 +83,8 @@ class Profile {
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
     data['isEvaluator'] = this.isEvaluator;
+    data['city'] = this.city;
+    data['pincode'] = this.pincode;
     return data;
   }
 }

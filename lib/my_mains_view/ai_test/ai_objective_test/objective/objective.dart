@@ -268,6 +268,7 @@ class _TestCategoriesObjectivePageState
                                         (test.planDetails.isNotEmpty)
                                             ? test.planDetails[0].offerPrice
                                             : null,
+                                    isEnrolled: test.isEnrolled,
                                   ),
                                 );
                               },
@@ -294,6 +295,7 @@ class _TestCategoriesObjectivePageState
     required String? imageUrl,
     bool? isPaid,
     int? offerPrice,
+    bool? isEnrolled,
   }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -316,7 +318,27 @@ class _TestCategoriesObjectivePageState
                   ),
                 ),
           ),
-          if (isPaid == true)
+          if (isEnrolled == true)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  "Enrolled",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            )
+          else if (isPaid == true && isEnrolled != true)
             Positioned(
               bottom: 8,
               left: 8,

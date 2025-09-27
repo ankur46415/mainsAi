@@ -383,9 +383,13 @@ class _AddToCartState extends State<AddToCart> {
                           if (itemId != null && itemId.isNotEmpty) {
                             await controller.deleteCartItem(itemId);
                             setState(() {
-                              selectedIndexes.remove(index);
-                              // If cart changes, allow initial selection again
-                              initialSelectionDone = false;
+                              // Re-sync selectedIndexes with new cart items
+                              final newItems =
+                                  controller.cartList.value?.data?.items ?? [];
+                              selectedIndexes = Set<int>.from(
+                                List.generate(newItems.length, (i) => i),
+                              );
+                              initialSelectionDone = true;
                             });
                           }
                         },

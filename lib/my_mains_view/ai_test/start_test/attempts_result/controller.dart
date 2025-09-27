@@ -17,7 +17,6 @@ class ResultAttemptController extends GetxController {
 
   double get totalPossibleMarks {
     if (questions.isEmpty) {
-      // fallback: assume 1 mark per question
       return attempt.totalQuestions.toDouble();
     }
     return questions.fold<double>(0.0, (sum, q) {
@@ -42,7 +41,6 @@ class ResultAttemptController extends GetxController {
 
   double get finalMarksWithNegative {
     if (questions.isEmpty) {
-      // fallback to API-provided total if available
       return totalMarksEarned;
     }
     double total = 0.0;
@@ -52,7 +50,7 @@ class ResultAttemptController extends GetxController {
       final correctAns = q['correctAnswer'];
       final pos = (q['positiveMarks'] as num?)?.toDouble() ?? 1.0;
       final neg = (q['negativeMarks'] as num?)?.toDouble() ?? 0.0;
-      if (userAns == null) continue; // no marks change
+      if (userAns == null) continue;
       if (userAns == correctAns) {
         total += pos;
       } else {
@@ -109,13 +107,9 @@ class ResultAttemptController extends GetxController {
                     'negativeMarks': q['negativeMarks'],
                   };
                 }).toList();
-          } else {
-            // no-op
-          }
+          } else {}
         },
-        onError: () {
-          // show error silently; UI already reflects state
-        },
+        onError: () {},
       );
     } catch (e) {
     } finally {
@@ -128,13 +122,12 @@ class ResultAttemptController extends GetxController {
 
   List<Map<String, dynamic>> get _allSolutions {
     if (questions.isEmpty) {
-      // fallback when questions not loaded
       return List.generate(attempt.totalQuestions, (i) {
         return {
           "sn": i + 1,
           "index": i,
           "question": "Question ${i + 1}",
-          "result": "-", // unattempted
+          "result": "-",
         };
       });
     }
@@ -147,7 +140,7 @@ class ResultAttemptController extends GetxController {
 
       String result;
       if (userAnswer == null) {
-        result = "-"; // unattempted
+        result = "-";
       } else if (userAnswer == correctAnswer) {
         result = "✓"; // correct
       } else {

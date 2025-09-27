@@ -42,7 +42,7 @@ class BriefOfQuestion extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            _buildExplanationCard(),
+            //    _buildExplanationCard(),
           ],
         ),
       ),

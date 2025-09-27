@@ -101,7 +101,6 @@ class _CountdownChipState extends State<CountdownChip> {
   }
 }
 
-/// Full sized, reusable countdown display with Days / Hours / Minutes / Seconds
 class CountdownDisplay extends StatefulWidget {
   final DateTime? startsAt;
   final DateTime? endsAt;
@@ -135,28 +134,10 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
     if (widget.startsAt != null && now.isBefore(widget.startsAt!)) {
       _label = 'Starts in';
       return widget.startsAt!.difference(now);
-    } else if (widget.startsAt != null &&
-        (now.isAtSameMomentAs(widget.startsAt!) ||
-            now.isAfter(widget.startsAt!))) {
-      if (widget.endsAt != null && now.isBefore(widget.endsAt!)) {
-        _label = 'Started';
-        return Duration.zero; // stop numeric countdown
-      } else {
-        _label = 'Closed';
-        return Duration.zero;
-      }
-    } else if (widget.startsAt == null && widget.endsAt != null) {
-      if (now.isBefore(widget.endsAt!)) {
-        _label = 'Started';
-        return Duration.zero;
-      } else {
-        _label = 'Closed';
-        return Duration.zero;
-      }
+    } else {
+      _label = 'Started';
+      return Duration.zero;
     }
-
-    _label = 'Closed';
-    return Duration.zero;
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');

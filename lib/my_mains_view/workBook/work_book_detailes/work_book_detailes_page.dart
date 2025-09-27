@@ -424,7 +424,10 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                           child: Column(
                             children:
                                 (() {
-                                  final sortedSets = controller.sets.toList();
+                                  final sortedSets =
+                                      controller.sets
+                                          .where((set) => set.isEnabled == true)
+                                          .toList();
                                   DateTime _extractDate(dynamic dt) {
                                     if (dt == null)
                                       return DateTime.fromMillisecondsSinceEpoch(
@@ -472,6 +475,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           }
                                         } catch (_) {}
 
+                                        // 1. Start date restriction
                                         if (startsAt != null &&
                                             DateTime.now().isBefore(startsAt)) {
                                           Get.dialog(
@@ -505,7 +509,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: [
-                                                    // Lock Icon
                                                     CircleAvatar(
                                                       radius: 35,
                                                       backgroundColor: Colors
@@ -518,8 +521,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                       ),
                                                     ),
                                                     const SizedBox(height: 20),
-
-                                                    // Title
                                                     Text(
                                                       'Locked',
                                                       style:
@@ -531,8 +532,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                           ),
                                                     ),
                                                     const SizedBox(height: 10),
-
-                                                    // Message
                                                     Text(
                                                       'This set will be available at\n${_formatDateTime(startsAt)}',
                                                       textAlign:
@@ -545,8 +544,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                           ),
                                                     ),
                                                     const SizedBox(height: 20),
-
-                                                    // OK button
                                                     SizedBox(
                                                       width: Get.width * 0.5,
                                                       child: ElevatedButton(
@@ -587,6 +584,114 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           return;
                                         }
 
+                                        // 2. Purchase/free logic
+                                        final isForSale =
+                                            bookData.isForSale == true;
+                                        final isPurchased =
+                                            bookData.isPurchased == true;
+                                        if (isForSale && !isPurchased) {
+                                          Get.dialog(
+                                            Dialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  20,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Colors.orange,
+                                                      Colors.redAccent,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 35,
+                                                      backgroundColor: Colors
+                                                          .white
+                                                          .withOpacity(0.2),
+                                                      child: const Icon(
+                                                        Icons.shopping_cart,
+                                                        size: 40,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    Text(
+                                                      'Purchase Required',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      'Please purchase this book to access the sets.',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 14,
+                                                            color:
+                                                                Colors.white70,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    SizedBox(
+                                                      width: Get.width * 0.5,
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          foregroundColor:
+                                                              Colors.orange,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 12,
+                                                              ),
+                                                        ),
+                                                        onPressed:
+                                                            () => Get.back(),
+                                                        child: Text(
+                                                          'OK',
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        // 3. Allow access
                                         Get.toNamed(
                                           AppRoutes.allWorkbookquestions,
                                           arguments: {
@@ -1078,9 +1183,19 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
   String _formatDateTime(dynamic date) {
     if (date == null) return '-';
     try {
-      final dt = date is String ? DateTime.parse(date) : date as DateTime;
+      final dt =
+          date is String
+              ? DateTime.parse(date).toLocal()
+              : (date as DateTime).toLocal();
+
+      // Convert to 12-hour format
+      final hour = dt.hour;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+
       return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
-          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+          '$displayHour:$minute $period';
     } catch (e) {
       return date.toString();
     }

@@ -28,14 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
     controller = Get.put(ProfileController());
     creditController = Get.put(CreditBalanceController());
 
-    // Call APIs on first load
     controller.fetchUserProfile();
     creditController.fetchCreditBalance();
   }
 
   @override
   void didPopNext() {
-    // Called when user comes back to ProfileScreen
     controller.fetchUserProfile();
     creditController.fetchCreditBalance();
   }
@@ -49,8 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
         child: RefreshIndicator(
           onRefresh: () async {
             await controller.fetchUserProfile();
-            creditController
-                .fetchCreditBalance(); // Call CreditCard API refresh
+            creditController.fetchCreditBalance();
           },
           child: Obx(() {
             final profile = controller.userProfile.value?.profile;
@@ -214,6 +211,12 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                 "Native Language",
                 profile.nativeLanguage,
               ),
+              if (profile.city != null && profile.city!.isNotEmpty)
+                _buildProfileDetailRow(
+                  Icons.location_city,
+                  "City",
+                  profile.city,
+                ),
               if (profile.exams?.isNotEmpty == true)
                 _buildProfileDetailRow(
                   Icons.school,

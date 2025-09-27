@@ -324,6 +324,32 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
+                        final DateTime? startsAt =
+                            testData.startsAt != null
+                                ? DateTime.tryParse(testData.startsAt!)
+                                : null;
+                        final now = DateTime.now();
+                        if (startsAt != null && now.isBefore(startsAt)) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Test Not Started'),
+                                  content: Text(
+                                    'Test will start on: '
+                                    '${_formatDateTime(startsAt)}',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          return;
+                        }
                         try {
                           Get.toNamed(
                             AppRoutes.subjectiveDescription,
@@ -332,7 +358,8 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                         } catch (e) {
                           Get.snackbar(
                             'Error',
-                            'Failed to navigate to test: $e',
+                            'Failed to navigate to test: '
+                                ' 24e',
                             snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
@@ -370,9 +397,18 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
   String _formatDateTime(dynamic date) {
     if (date == null) return '-';
     try {
-      final dt = date is String ? DateTime.parse(date) : date as DateTime;
+      final dt = date is String
+          ? DateTime.parse(date).toLocal()
+          : (date as DateTime).toLocal();
+      
+      // Convert to 12-hour format
+      final hour = dt.hour;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+      
       return '${dt.day.toString().padLeft(2, '0')} ${_monthName(dt.month)} ${dt.year}, '
-          '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+          '$displayHour:$minute $period';
     } catch (e) {
       return date.toString();
     }
