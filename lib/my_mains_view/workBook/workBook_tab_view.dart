@@ -436,6 +436,23 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                     .toSet()
                                     .toList();
 
+                            // Sort subcategories in desired order: UPSC, BPSC, UPPCS
+                            subCategories.sort((a, b) {
+                              const order = ['UPSC(IAS)', 'BPSC', 'UPPCS'];
+                              final aIndex = order.indexOf(a);
+                              final bIndex = order.indexOf(b);
+
+                              // If both are in the order list, sort by their position
+                              if (aIndex != -1 && bIndex != -1) {
+                                return aIndex.compareTo(bIndex);
+                              }
+                              // If only one is in the order list, prioritize it
+                              if (aIndex != -1) return -1;
+                              if (bIndex != -1) return 1;
+                              // If neither is in the order list, maintain original order
+                              return a.compareTo(b);
+                            });
+
                             controller.expandedCategories.putIfAbsent(
                               mainCategory,
                               () => subCategories.first,
