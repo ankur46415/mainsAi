@@ -172,14 +172,15 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           if (index == (plans.length / 2).floor()) {
             return const SupportCard();
           }
-          
+
           // Show support card at the end
           if (index == plans.length + 1) {
             return const SupportCard();
           }
-          
+
           // Show plan cards
-          final planIndex = index > (plans.length / 2).floor() ? index - 1 : index;
+          final planIndex =
+              index > (plans.length / 2).floor() ? index - 1 : index;
           return _buildPlanCard(plans[planIndex], planIndex);
         },
       ),
@@ -211,10 +212,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(
-                0xFF344955,
-              ).withOpacity(0.1), // Dark blue shadow
-              blurRadius: 15,
+              color: const Color(0xFF344955).withOpacity(0.1),
               spreadRadius: 0,
               offset: const Offset(0, 6),
             ),
@@ -229,7 +227,6 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top header with gradient (unchanged as requested)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
