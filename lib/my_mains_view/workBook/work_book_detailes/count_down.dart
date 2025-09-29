@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 class CountdownChip extends StatefulWidget {
   final dynamic startsAt;
   final dynamic endsAt;
-  const CountdownChip({Key? key, this.startsAt, this.endsAt}) : super(key: key);
+  const CountdownChip({super.key, this.startsAt, this.endsAt});
 
   @override
   State<CountdownChip> createState() => _CountdownChipState();
@@ -230,7 +230,7 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
         Text(
           value,
           style: GoogleFonts.poppins(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),

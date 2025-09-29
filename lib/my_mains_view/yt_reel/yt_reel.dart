@@ -6,7 +6,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
 class ReelsView extends StatefulWidget {
-  ReelsView({super.key});
+  const ReelsView({super.key});
 
   @override
   State<ReelsView> createState() => _ReelsViewState();
@@ -99,10 +99,6 @@ class _ReelItemState extends State<_ReelItem>
 
   void _onDoubleTap() {
     c.likeOnDoubleTap(widget.index);
-    likeBurst
-      ..stop()
-      ..reset()
-      ..forward();
   }
 
   @override
@@ -144,31 +140,7 @@ class _ReelItemState extends State<_ReelItem>
         children: [
           Positioned.fill(child: videoWidget),
 
-          // ---- Heart burst on double tap ----
-          Positioned.fill(
-            child: IgnorePointer(
-              ignoring: true,
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: likeBurst,
-                  builder: (context, _) {
-                    return Opacity(
-                      opacity: fadeAnim.value * (1 - likeBurst.value * 0.6),
-                      child: Transform.scale(
-                        scale: scaleAnim.value,
-                        child: const Icon(
-                          Icons.favorite,
-                          color: Colors.white70,
-                          size: 120,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-
+          // (Removed) Heart burst overlay on double tap
           Positioned(
             right: 10,
             bottom: 24,

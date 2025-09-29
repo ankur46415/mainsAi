@@ -6,7 +6,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 import 'main_analytics_controller.dart';
 
 class MainAnalytics extends StatefulWidget {
@@ -605,22 +604,48 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                       ),
 
                                       // ---- PDF icons ----
-                                      Positioned(
-                                        bottom: 8,
-                                        right: 8,
-                                        child: Row(
-                                          children: [
-                                            const SizedBox(width: 6),
-                                            _buildCircleIcon(
-                                              icon: Icons.download,
-                                              onTap:
-                                                  () => _exportAllImagesAsPdf(
-                                                    images,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      Obx(() {
+                                        final controller =
+                                            Get.find<MainAnalyticsController>();
+                                        final publishStatus =
+                                            controller
+                                                .answerAnalysis
+                                                .value
+                                                ?.data
+                                                ?.answer
+                                                ?.publishStatus;
+                                        final reviewSatus =
+                                            controller
+                                                .answerAnalysis
+                                                .value
+                                                ?.data
+                                                ?.answer
+                                                ?.reviewStatus;
+                                        if (publishStatus?.trim() ==
+                                                "not_published" ||
+                                            reviewSatus?.trim() ==
+                                                "review_pending" ||
+                                            reviewSatus?.trim() ==
+                                                "review_accepted") {
+                                          return const SizedBox.shrink();
+                                        }
+                                        return Positioned(
+                                          bottom: 8,
+                                          right: 8,
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(width: 6),
+                                              _buildCircleIcon(
+                                                icon: Icons.download,
+                                                onTap:
+                                                    () => _exportAllImagesAsPdf(
+                                                      images,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
                                     ],
                                   ),
                                 ),

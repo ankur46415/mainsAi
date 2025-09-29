@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/my_mains_view/add_to_cart/controller.dart';
+import 'package:mains/my_mains_view/bottomBar/MyHomePage.dart';
+import 'package:mains/my_mains_view/bottomBar/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/controller.dart';
 
 class AddToCart extends StatefulWidget {
@@ -257,7 +259,13 @@ class _AddToCartState extends State<AddToCart> {
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      // Set bottom bar index to 0 and go to dashboard
+                      final bottomNavController =
+                          Get.find<BottomNavController>();
+                      bottomNavController.changeIndex(0);
+                      Get.offAll(() => MyHomePage());
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(

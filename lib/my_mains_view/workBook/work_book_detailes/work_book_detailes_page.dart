@@ -19,12 +19,27 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
   void initState() {
     controller = Get.put(WorkBookBOOKDetailes());
     if (widget.bookId != null) {
-      controller.fetchWorkbookDetails(widget.bookId!);
+      controller.fetchWorkbookDetails(widget.bookId!).then((_) async {
+        final book = controller.workbook.value;
+        if (book != null &&
+            book.isPurchased == true &&
+            book.isMyWorkbookAdded != true) {
+          if (!_autoAddTriggered) {
+            _autoAddTriggered = true;
+            await controller.addToMyBooks(
+              widget.bookId.toString(),
+              showLoader: false,
+            );
+          }
+        }
+      });
     } else {
       Get.snackbar('Error', 'No Book ID found');
     }
     super.initState();
   }
+
+  bool _autoAddTriggered = false;
 
   @override
   void dispose() {
@@ -432,7 +447,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                     if (dt == null)
                                       return DateTime.fromMillisecondsSinceEpoch(
                                         8640000000000000,
-                                      ); // max
+                                      );
                                     final parsed = DateTime.tryParse(
                                       dt.toString(),
                                     );
@@ -466,123 +481,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
 
                                     return InkWell(
                                       onTap: () {
-                                        DateTime? startsAt;
-                                        try {
-                                          if (set.startsAt != null) {
-                                            startsAt = DateTime.tryParse(
-                                              set.startsAt.toString(),
-                                            );
-                                          }
-                                        } catch (_) {}
-                                        if (startsAt != null &&
-                                            DateTime.now().isBefore(startsAt)) {
-                                          Get.dialog(
-                                            Dialog(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  20,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFFFC107),
-                                                      Color.fromARGB(
-                                                        255,
-                                                        236,
-                                                        87,
-                                                        87,
-                                                      ),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 35,
-                                                      backgroundColor: Colors
-                                                          .white
-                                                          .withOpacity(0.2),
-                                                      child: const Icon(
-                                                        Icons.access_time,
-                                                        size: 40,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    Text(
-                                                      'Sheduled ',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: Colors.white,
-                                                          ),
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                    Text(
-                                                      'This set will be available at\n${_formatDateTime(startsAt)}',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                            color:
-                                                                Colors.white70,
-                                                          ),
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    SizedBox(
-                                                      width: Get.width * 0.5,
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          foregroundColor:
-                                                              Colors.orange,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  12,
-                                                                ),
-                                                          ),
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                vertical: 12,
-                                                              ),
-                                                        ),
-                                                        onPressed:
-                                                            () => Get.back(),
-                                                        child: Text(
-                                                          'OK',
-                                                          style:
-                                                              GoogleFonts.poppins(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                          return;
-                                        }
-
-                                        // 2. Purchase/free logic
                                         final isForSale =
                                             bookData.isForSale == true;
                                         final isPurchased =
@@ -678,7 +576,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                               bookData
                                                                   .isPurchased ==
                                                               true;
-
                                                           if (isForSale &&
                                                               !isPurchased) {
                                                             // Purchase flow
@@ -715,8 +612,154 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                           );
                                           return;
                                         }
+                                        DateTime? startsAt;
+                                        try {
+                                          if (set.startsAt != null) {
+                                            startsAt = DateTime.tryParse(
+                                              set.startsAt.toString(),
+                                            );
+                                          }
+                                        } catch (_) {}
+                                        if (startsAt != null &&
+                                            DateTime.now().isBefore(startsAt)) {
+                                          final Duration diff = startsAt
+                                              .difference(DateTime.now());
+                                          String countdown =
+                                              _formatDurationDDHHMMSS(diff);
+                                          Get.dialog(
+                                            Dialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  20,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFFFC107),
+                                                      Color.fromARGB(
+                                                        255,
+                                                        236,
+                                                        87,
+                                                        87,
+                                                      ),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 35,
+                                                      backgroundColor: Colors
+                                                          .white
+                                                          .withOpacity(0.2),
+                                                      child: const Icon(
+                                                        Icons.calendar_month,
+                                                        size: 40,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    Text(
+                                                      'Scheduled',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    // Countdown
+                                                    Text(
+                                                      countdown,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 28,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                            letterSpacing: 2,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      'This set will be available at',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 13,
+                                                            color:
+                                                                Colors.white70,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      _formatDateTime(startsAt),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: 16,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    SizedBox(
+                                                      width: Get.width * 0.5,
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          foregroundColor:
+                                                              Colors.orange,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 12,
+                                                              ),
+                                                        ),
+                                                        onPressed:
+                                                            () => Get.back(),
+                                                        child: Text(
+                                                          'OK',
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
 
-                                        // 3. Allow access
                                         Get.toNamed(
                                           AppRoutes.allWorkbookquestions,
                                           arguments: {
@@ -886,18 +929,23 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
+                                                    horizontal: 5,
+                                                    vertical: 3,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: Colors.orange,
+                                                color: const Color.fromARGB(
+                                                  255,
+                                                  103,
+                                                  194,
+                                                  236,
+                                                ),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
                                               child: Text(
                                                 "Scheduled",
                                                 style: GoogleFonts.poppins(
-                                                  fontSize: 10,
+                                                  fontSize: 9,
                                                   fontWeight: FontWeight.w600,
                                                   color: Colors.white,
                                                 ),
@@ -1086,7 +1134,10 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                 bottomNavController.changeIndex(1);
                 Get.offAll(() => MyHomePage());
 
-                controller.addToMyBooks(widget.bookId.toString());
+                controller.addToMyBooks(
+                  widget.bookId.toString(),
+                  showLoader: true,
+                );
               }
             },
             style: ElevatedButton.styleFrom(
@@ -1114,11 +1165,27 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                         strokeWidth: 2,
                       ),
                     )
+                    : (bookData.isForSale == true &&
+                        bookData.isPurchased != true)
+                    // 🔒 Lock icon with "Purchase Book" text
+                    ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.lock, color: Colors.white, size: 22),
+                        SizedBox(width: 8),
+                        Text(
+                          'Purchase Book',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    )
                     : Text(
-                      (bookData.isForSale == true &&
-                              bookData.isPurchased != true)
-                          ? 'Purchase Book'
-                          : bookData.isMyWorkbookAdded == true
+                      bookData.isMyWorkbookAdded == true
                           ? 'Go to My Library'
                           : 'Add to My Library',
                       style: GoogleFonts.poppins(
@@ -1235,5 +1302,15 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
       'Dec',
     ];
     return months[m];
+  }
+
+  String _formatDurationDDHHMMSS(Duration duration) {
+    int totalSeconds = duration.inSeconds;
+    if (totalSeconds < 0) totalSeconds = 0;
+    final days = totalSeconds ~/ 86400;
+    final hours = (totalSeconds % 86400) ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '${days.toString().padLeft(2, '0')}:${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }

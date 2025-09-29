@@ -16,7 +16,7 @@ class AllPlanScreen extends StatefulWidget {
 
 class _AllPlanScreenState extends State<AllPlanScreen> {
   late AllPlanController controller;
-
+  String? _selectedCategory;
   @override
   void initState() {
     super.initState();
@@ -70,22 +70,80 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
             return _buildErrorState();
           }
 
-          final enrolledPlans =
-              controller.plans.where((p) => p.isEnrolled == true).toList();
-          final notEnrolledPlans =
-              controller.plans.where((p) => p.isEnrolled != true).toList();
+          // Build categories (unique, non-empty)
+          final categories =
+              <String>{}..addAll(
+                controller.plans
+                    .map((p) => p.category?.trim() ?? '')
+                    .where((c) => c.isNotEmpty),
+              );
 
-          return TabBarView(
+          // Apply category filter
+          final enrolledPlans =
+              controller.plans
+                  .where((p) => p.isEnrolled == true)
+                  .where(
+                    (p) =>
+                        _selectedCategory == null ||
+                        (p.category?.trim() ?? '') == _selectedCategory,
+                  )
+                  .toList();
+          final notEnrolledPlans =
+              controller.plans
+                  .where((p) => p.isEnrolled != true)
+                  .where(
+                    (p) =>
+                        _selectedCategory == null ||
+                        (p.category?.trim() ?? '') == _selectedCategory,
+                  )
+                  .toList();
+
+          return Column(
             children: [
-              _buildPlanListWithSupport(
-                notEnrolledPlans,
-                context,
-                'No plans available',
+              // Filter Row
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                child: SizedBox(
+                  height: 38,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildFilterChip(
+                        label: 'All',
+                        selected: _selectedCategory == null,
+                        onTap: () => setState(() => _selectedCategory = null),
+                      ),
+                      const SizedBox(width: 8),
+                      ...categories.map(
+                        (cat) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: _buildFilterChip(
+                            label: cat,
+                            selected: _selectedCategory == cat,
+                            onTap:
+                                () => setState(() => _selectedCategory = cat),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              _buildPlanListWithSupport(
-                enrolledPlans,
-                context,
-                'No enrolled plans',
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildPlanListWithSupport(
+                      notEnrolledPlans,
+                      context,
+                      'No plans available',
+                    ),
+                    _buildPlanListWithSupport(
+                      enrolledPlans,
+                      context,
+                      'No enrolled plans',
+                    ),
+                  ],
+                ),
               ),
             ],
           );
@@ -233,10 +291,9 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color.fromARGB(255, 112, 184, 243), // light blue
-                    Color.fromARGB(255, 235, 204, 114), // amber
+                    Color(0xFF90CAF9), // light blue
+                    Color(0xFF42A5F5), // medium blue
                   ],
-
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -246,11 +303,11 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                 children: [
                   CircleAvatar(
                     radius: 14,
-                    backgroundColor: Colors.white24,
+                    backgroundColor: Colors.white70,
                     child: Text(
                       '${index + 1}',
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
+                        color: Color(0xFF344955),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -261,7 +318,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                     child: Text(
                       plan.name ?? 'Plan ${index + 1}',
                       style: GoogleFonts.poppins(
-                        color: Colors.white,
+                        color: Color(0xFF344955),
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -330,7 +387,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                         "Final Price",
                         '₹$offerPrice',
                         isBold: true,
-                        color: const Color(0xFF00BFA5), // Teal
+                        color: Color(0xFF00BFA5), // Teal highlight
                       ),
                     ],
                   ),
@@ -384,14 +441,14 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00BFA5), Color(0xFF00897B)], // Teal gradient
+          colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53), Color(0xFFFFC107)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00BFA5).withOpacity(0.3),
+            color: const Color(0xFFFF6B6B),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -419,14 +476,14 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF00BFA5), Color(0xFF00897B)], // Teal gradient
+              colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53), Color(0xFFFFC107)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00BFA5).withOpacity(0.3),
+                color: const Color(0xFFFF6B6B),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -459,22 +516,16 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
       width: double.infinity,
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 243, 182, 223),
-              Color.fromARGB(255, 90, 165, 209),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: const Color.fromARGB(255, 219, 228, 233).withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
           ],
+          border: Border.all(color: const Color(0xFF5C6BC0).withOpacity(0.5)),
         ),
         child: ElevatedButton(
           onPressed: () {
@@ -484,8 +535,9 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF3949AB),
+            elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
@@ -494,17 +546,72 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.visibility, color: Colors.white, size: 18),
+              const Icon(
+                Icons.info_outline,
+                color: Color(0xFF3949AB),
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 'View Details',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: const Color(0xFF3949AB),
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          gradient:
+              selected
+                  ? const LinearGradient(
+                    colors: [
+                      Color(0xFFFF6B6B),
+                      Color(0xFFFF8E53),
+                      Color(0xFFFFC107),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                  : null,
+          color: selected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? Colors.transparent : const Color(0xFFE0E6ED),
+          ),
+          boxShadow:
+              selected
+                  ? [
+                    BoxShadow(
+                      color: const Color(0xFFFF6B6B).withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                  : null,
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: selected ? Colors.white : const Color(0xFF344955),
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
           ),
         ),
       ),

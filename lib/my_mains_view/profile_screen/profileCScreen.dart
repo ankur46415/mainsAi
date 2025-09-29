@@ -64,12 +64,10 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
               child: Column(
                 children: [
                   _buildProfileCard(profile),
-                  const SizedBox(height: 24),
-
-                  CreditCard(),
-                  const SizedBox(height: 24),
-
+                  const SizedBox(height: 12),
                   _buildPlansCard(),
+                  const SizedBox(height: 6),
+                  CreditCard(),
                   const SizedBox(height: 24),
                   _buildSettingsOption(
                     icon: Icons.history,
@@ -312,7 +310,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
         onTap: () => Get.toNamed(AppRoutes.plans),
         child: Container(
           width: 340,
-          // 🔹 Removed fixed height so it wraps content
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: const LinearGradient(

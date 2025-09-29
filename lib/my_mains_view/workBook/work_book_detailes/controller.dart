@@ -67,7 +67,7 @@ class WorkBookBOOKDetailes extends GetxController {
     }
   }
 
-  Future<void> addToMyBooks(String bookId) async {
+  Future<void> addToMyBooks(String bookId, {bool showLoader = true}) async {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
@@ -80,7 +80,7 @@ class WorkBookBOOKDetailes extends GetxController {
       return;
     }
 
-    isActionLoading.value = true;
+    if (showLoader) isActionLoading.value = true;
     final String url = ApiUrls.addMyWorkBook;
 
     try {
@@ -93,7 +93,7 @@ class WorkBookBOOKDetailes extends GetxController {
         onResponse: (response) async {
           if (response.statusCode == 200) {
             isSaved.value = true;
-            await fetchWorkbookDetails(bookId);
+            await fetchWorkbookDetails(bookId, showLoader: showLoader);
             Get.find<MyLibraryController>().loadBooks();
           } else if (response.statusCode == 401 || response.statusCode == 403) {
             await prefs.clear();
@@ -112,7 +112,7 @@ class WorkBookBOOKDetailes extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      isActionLoading.value = false;
+      if (showLoader) isActionLoading.value = false;
     }
   }
 
