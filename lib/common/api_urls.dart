@@ -87,6 +87,7 @@ class ApiUrls {
   // Plans endpoints
   static const String creditPlans = '${apiUrl3}credit/plans';
   static const String creditPlanBase = '${apiUrl3}credit/plan/';
+  static const String creditAllPlans = '${apiUrl3}credit/allPlans';
 
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',

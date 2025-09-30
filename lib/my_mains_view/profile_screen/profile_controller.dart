@@ -1,5 +1,6 @@
 import 'package:mains/app_imports.dart';
 import '../../models/profile_model.dart';
+import '../../models/plans_name.dart';
 
 class ProfileController extends GetxController {
   late SharedPreferences prefs;
@@ -7,6 +8,7 @@ class ProfileController extends GetxController {
 
   var userProfile = Rxn<ProfileData>();
   final isLoading = true.obs;
+  final isPlansLoading = false.obs;
 
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -14,6 +16,7 @@ class ProfileController extends GetxController {
   final selectedLanguage = RxnString();
   final selectedAge = RxnString();
   final selectedExams = <String>[].obs;
+  final planCategories = <String>[].obs;
 
   final genderOptions = ['Male', 'Female', 'Other'];
   final languageOptions = ['Hindi', 'English', 'Bengali', 'Tamil', 'Other'];
@@ -40,12 +43,52 @@ class ProfileController extends GetxController {
     prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString(Constants.authToken);
     await fetchUserProfile();
+    await fetchPlanCategories();
   }
 
   @override
   void onClose() {
     nameController.dispose();
     super.onClose();
+  }
+
+  Future<void> fetchPlanCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(Constants.authToken);
+    if (token == null) return;
+
+    isPlansLoading.value = true;
+    final url = ApiUrls.creditAllPlans;
+
+    await callWebApiGet(
+      null,
+      url,
+      onResponse: (response) {
+        try {
+          if (response.statusCode == 200) {
+            final jsonData = jsonDecode(response.body);
+            final plans = PlansName.fromJson(jsonData);
+            planCategories.value =
+                plans.data
+                    .map((e) => e.category)
+                    .where(
+                      (c) =>
+                          c.trim().toLowerCase() !=
+                          'credit-recharge'.toLowerCase(),
+                    )
+                    .toSet()
+                    .toList();
+          }
+        } catch (_) {}
+        isPlansLoading.value = false;
+      },
+      onError: () {
+        isPlansLoading.value = false;
+      },
+      token: token,
+      showLoader: false,
+      hideLoader: false,
+    );
   }
 
   void initializeEditProfile() {

@@ -307,7 +307,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   Widget _buildPlansCard() {
     return Center(
       child: GestureDetector(
-        // onTap: () => Get.toNamed(AppRoutes.plans),
         child: Container(
           width: 340,
           padding: const EdgeInsets.all(12),
@@ -430,6 +429,58 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    Obx(() {
+                      final categories = controller.planCategories;
+                      if (controller.isPlansLoading.value) {
+                        return const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        );
+                      }
+                      if (categories.isEmpty) {
+                        return Text(
+                          'No categories available',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        );
+                      }
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            categories.map((c) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.35),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  c,
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),
