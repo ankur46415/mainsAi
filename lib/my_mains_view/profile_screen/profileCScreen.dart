@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   Widget _buildPlansCard() {
     return Center(
       child: GestureDetector(
-        onTap: () => Get.toNamed(AppRoutes.plans),
+        // onTap: () => Get.toNamed(AppRoutes.plans),
         child: Container(
           width: 340,
           padding: const EdgeInsets.all(12),
@@ -389,9 +389,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                         Align(
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            onTap: () {
-                              // TODO: Add your View action here
-                            },
+                            onTap: () => Get.toNamed(AppRoutes.plans),
+
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 17, // 🔼 same as Top Up

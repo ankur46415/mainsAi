@@ -102,6 +102,54 @@ Future<dynamic> callWebApiGet(
   }
 }
 
+Future<dynamic> callWebApiPut(
+  TickerProvider? tickerProvider,
+  String url,
+  Map data, {
+  required Function onResponse,
+  Function? onError,
+  String token = "",
+  bool showLoader = true,
+  bool hideLoader = true,
+  String authPrefix = "Bearer",
+}) async {
+  if (showLoader && tickerProvider != null)
+    Utils.showLoaderDialogNew(tickerProvider);
+  try {
+    Utils.print('request url: ' + url);
+    Utils.print('request data: ' + json.encode(data).toString());
+
+    Map<String, String> headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+    headers.addIf(token.isNotEmpty, "Authorization", "$authPrefix $token");
+    Utils.print('headers: ' + json.encode(headers));
+
+    final http.Response response = await http.put(
+      Uri.parse(url),
+      headers: headers,
+      body: json.encode(data),
+    );
+
+    return _returnResponse(response, onResponse, onError, hideLoader);
+  } on SocketException catch (e) {
+    Utils.print(e.toString());
+    if (onError != null) {
+      onError();
+    }
+    Utils.showToast('No Internet Connection');
+    if (hideLoader) Utils.hideLoader();
+    return;
+  } catch (e) {
+    if (onError != null) {
+      onError();
+    }
+    Utils.print(e.toString());
+    Utils.showToast('Something went wrong');
+    if (hideLoader) Utils.hideLoader();
+  }
+}
+
 Future<dynamic> callWebApiDelete(
   TickerProvider? tickerProvider,
   String url, {

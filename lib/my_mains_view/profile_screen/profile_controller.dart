@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:mains/app_imports.dart';
 import '../../models/profile_model.dart';
 
@@ -21,29 +20,18 @@ class ProfileController extends GetxController {
   final ageOptions = ['<15', '15-18', '19-25', '26-31', '32-40', '40+'];
   final List<String> examOptions = [
     'UPSC',
+    'JPSC',
+    'MPPCS',
+    'RAS',
+    'BPSC',
+    'UPPCS',
+    'Teacher',
     'CA',
     'CMA',
     'CS',
-    'ACCA',
-    'CFA',
-    'FRM',
-    'NEET',
-    'JEE',
-    'GATE',
-    'CAT',
-    'GMAT',
-    'GRE',
-    'IELTS',
-    'TOEFL',
     'NET/JRF',
-    'BPSC',
-    'UPPCS',
-    'NDA',
     'SSC',
-    'Teacher',
-    'CLAT',
     'Judiciary',
-    'Other',
   ];
 
   @override
@@ -447,7 +435,7 @@ class ProfileController extends GetxController {
     showSmallLoadingDialog();
     bool isSuccess = false;
 
-    await callWebApi(
+    await callWebApiPut(
       null,
       url,
       transformedData,
