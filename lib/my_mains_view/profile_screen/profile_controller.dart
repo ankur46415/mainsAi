@@ -64,57 +64,73 @@ class ProfileController extends GetxController {
     Get.dialog(
       Dialog(
         key: dialogKey,
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(20),
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Edit Profile',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                // Header with gradient background
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        CustomColors.gradientBueStart,
+                        CustomColors.gradientBueEnd,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => Get.back(),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
                     ),
-                  ],
-                ),
-                Divider(height: 24, thickness: 1),
-                SizedBox(height: 8),
-                Form(
-                  key: formKey,
-                  child: Column(
+                  ),
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        height: Get.width * 0.12,
-                        child: TextFormField(
+                      Text(
+                        'Edit Profile',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.white, size: 24),
+                        onPressed: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Form content
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Name field
+                        _buildFormField(
                           controller: nameController,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Name',
-                            labelStyle: GoogleFonts.poppins(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                          ),
+                          label: 'Name',
+                          hint: 'Enter your full name',
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your name';
@@ -122,40 +138,16 @@ class ProfileController extends GetxController {
                             return null;
                           },
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Obx(
-                        () => Container(
-                          height: Get.width * 0.12,
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Gender',
-                              labelStyle: GoogleFonts.poppins(),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
+
+                        SizedBox(height: 20),
+
+                        // Gender dropdown
+                        Obx(
+                          () => _buildDropdownField(
+                            label: 'Gender',
                             value: selectedGender.value,
-                            items:
-                                genderOptions.map((String gender) {
-                                  return DropdownMenuItem<String>(
-                                    value: gender,
-                                    child: Text(
-                                      gender,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                            onChanged: (String? newValue) {
-                              selectedGender.value = newValue;
-                            },
+                            items: genderOptions,
+                            onChanged: (value) => selectedGender.value = value,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please select a gender';
@@ -164,40 +156,17 @@ class ProfileController extends GetxController {
                             },
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Obx(
-                        () => Container(
-                          height: Get.width * 0.12,
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Language',
-                              labelStyle: GoogleFonts.poppins(),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
+
+                        SizedBox(height: 20),
+
+                        // Language dropdown
+                        Obx(
+                          () => _buildDropdownField(
+                            label: 'Native Language',
                             value: selectedLanguage.value,
-                            items:
-                                languageOptions.map((String language) {
-                                  return DropdownMenuItem<String>(
-                                    value: language,
-                                    child: Text(
-                                      language,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                            onChanged: (String? newValue) {
-                              selectedLanguage.value = newValue;
-                            },
+                            items: languageOptions,
+                            onChanged:
+                                (value) => selectedLanguage.value = value,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please select a language';
@@ -206,40 +175,16 @@ class ProfileController extends GetxController {
                             },
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Obx(
-                        () => Container(
-                          height: Get.width * 0.12,
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Age Group',
-                              labelStyle: GoogleFonts.poppins(),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
+
+                        SizedBox(height: 20),
+
+                        // Age dropdown
+                        Obx(
+                          () => _buildDropdownField(
+                            label: 'Age Group',
                             value: selectedAge.value,
-                            items:
-                                ageOptions.map((String age) {
-                                  return DropdownMenuItem<String>(
-                                    value: age,
-                                    child: Text(
-                                      age,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                            onChanged: (String? newValue) {
-                              selectedAge.value = newValue;
-                            },
+                            items: ageOptions,
+                            onChanged: (value) => selectedAge.value = value,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please select an age group';
@@ -248,130 +193,24 @@ class ProfileController extends GetxController {
                             },
                           ),
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Obx(
-                        () => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                        SizedBox(height: 24),
+
+                        // Exams section
+                        Obx(() => _buildExamsSection()),
+
+                        SizedBox(height: 32),
+
+                        // Action buttons
+                        Row(
                           children: [
-                            Text(
-                              'Exams',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 8,
-                              children:
-                                  examOptions.map((exam) {
-                                    final isSelected = selectedExams.contains(
-                                      exam,
-                                    );
-                                    return FilterChip(
-                                      label: Text(
-                                        exam,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 11,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      selected: isSelected,
-                                      onSelected: (selected) {
-                                        if (selected) {
-                                          if (selectedExams.length < 3) {
-                                            selectedExams.add(exam);
-                                          }
-                                        } else {
-                                          selectedExams.remove(exam);
-                                        }
-                                      },
-                                      selectedColor: Colors.blue.withAlpha(20),
-                                      checkmarkColor: Colors.blue,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
-                            if (selectedExams.isEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Please select at least one exam',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.red,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            Expanded(child: _buildCancelButton()),
+                            SizedBox(width: 16),
+                            Expanded(child: _buildSaveButton()),
                           ],
                         ),
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                padding: EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: () => Get.back(),
-                              child: Text(
-                                'Cancel',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                padding: EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: () async {
-                                if (formKey.currentState!.validate()) {
-                                  if (selectedExams.isEmpty) return;
-                                  final updatedProfileData = {
-                                    'name': nameController.text.trim(),
-                                    'gender': selectedGender.value,
-                                    'native_language': selectedLanguage.value,
-                                    'age': selectedAge.value,
-                                    'exams': selectedExams,
-                                  };
-                                  final bool success = await updateUserProfile(
-                                    updatedProfileData,
-                                  );
-                                  if (success && (Get.isDialogOpen ?? false)) {
-                                    Get.back();
-                                  }
-                                }
-                              },
-                              child: Text(
-                                'Save',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -380,7 +219,254 @@ class ProfileController extends GetxController {
         ),
       ),
       barrierDismissible: true,
-      transitionDuration: Duration.zero,
+      transitionDuration: Duration(milliseconds: 300),
+    );
+  }
+
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required FormFieldValidator<String> validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: CustomColors.textColor,
+          ),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: CustomColors.primaryColor,
+                width: 2,
+              ),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required FormFieldValidator<String> validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: CustomColors.textColor,
+          ),
+        ),
+        SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: value,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: CustomColors.primaryColor,
+                width: 2,
+              ),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+          items:
+              items.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              }).toList(),
+          onChanged: onChanged,
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExamsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Exams (Select up to 3)',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: CustomColors.textColor,
+          ),
+        ),
+        SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              examOptions.map((exam) {
+                final isSelected = selectedExams.contains(exam);
+                return FilterChip(
+                  label: Text(
+                    exam,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white : CustomColors.textColor,
+                    ),
+                  ),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      if (selectedExams.length < 3) {
+                        selectedExams.add(exam);
+                      }
+                    } else {
+                      selectedExams.remove(exam);
+                    }
+                  },
+                  selectedColor: CustomColors.primaryColor,
+                  checkmarkColor: Colors.white,
+                  backgroundColor: Colors.grey[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color:
+                          isSelected
+                              ? CustomColors.primaryColor
+                              : Colors.grey[300]!,
+                      width: 1,
+                    ),
+                  ),
+                );
+              }).toList(),
+        ),
+        if (selectedExams.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Please select at least one exam',
+              style: GoogleFonts.poppins(
+                color: CustomColors.errorRed,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCancelButton() {
+    return Container(
+      height: 48,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 12),
+        ),
+        onPressed: () => Get.back(),
+        child: Text(
+          'Cancel',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: CustomColors.primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return Container(
+      height: 48,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: CustomColors.primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 12),
+          elevation: 2,
+        ),
+        onPressed: () async {
+          if (formKey.currentState!.validate()) {
+            if (selectedExams.isEmpty) return;
+            final updatedProfileData = {
+              'name': nameController.text.trim(),
+              'gender': selectedGender.value,
+              'native_language': selectedLanguage.value,
+              'age': selectedAge.value,
+              'exams': selectedExams,
+            };
+            final bool success = await updateUserProfile(updatedProfileData);
+            if (success && (Get.isDialogOpen ?? false)) {
+              Get.back();
+            }
+          }
+        },
+        child: Text(
+          'Save Changes',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 
