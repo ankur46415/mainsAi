@@ -622,10 +622,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                         } catch (_) {}
                                         if (startsAt != null &&
                                             DateTime.now().isBefore(startsAt)) {
-                                          final Duration diff = startsAt
-                                              .difference(DateTime.now());
-                                          String countdown =
-                                              _formatDurationDDHHMMSS(diff);
+                                          // Countdown handled by CountdownDisplay now
                                           Get.dialog(
                                             Dialog(
                                               shape: RoundedRectangleBorder(
@@ -680,46 +677,53 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                           ),
                                                     ),
                                                     const SizedBox(height: 10),
-                                                    // Countdown
                                                     Text(
-                                                      countdown,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 28,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Colors.white,
-                                                            letterSpacing: 2,
+                                                      'This set will be available on ' +
+                                                          _formatDateTime(
+                                                            startsAt,
                                                           ),
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      'This set will be available at',
                                                       textAlign:
                                                           TextAlign.center,
                                                       style:
                                                           GoogleFonts.poppins(
-                                                            fontSize: 13,
-                                                            color:
-                                                                Colors.white70,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                    ),
-                                                    const SizedBox(height: 2),
-                                                    Text(
-                                                      _formatDateTime(startsAt),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 16,
+                                                            fontSize: 14,
                                                             color: Colors.white,
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                           ),
                                                     ),
-                                                    const SizedBox(height: 20),
+                                                    const SizedBox(height: 14),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          'Starting in: ',
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontSize: 13,
+                                                                color:
+                                                                    Colors
+                                                                        .white70,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                        ),
+                                                        CountdownDisplay(
+                                                          startsAt: startsAt,
+                                                          endsAt:
+                                                              set.endsAt != null
+                                                                  ? DateTime.tryParse(
+                                                                    set.endsAt
+                                                                        .toString(),
+                                                                  )
+                                                                  : null,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 16),
                                                     SizedBox(
                                                       width: Get.width * 0.5,
                                                       child: ElevatedButton(
@@ -1304,13 +1308,5 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
     return months[m];
   }
 
-  String _formatDurationDDHHMMSS(Duration duration) {
-    int totalSeconds = duration.inSeconds;
-    if (totalSeconds < 0) totalSeconds = 0;
-    final days = totalSeconds ~/ 86400;
-    final hours = (totalSeconds % 86400) ~/ 3600;
-    final minutes = (totalSeconds % 3600) ~/ 60;
-    final seconds = totalSeconds % 60;
-    return '${days.toString().padLeft(2, '0')}:${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
+  // Countdown formatting removed; CountdownDisplay widget handles live timer
 }

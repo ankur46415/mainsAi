@@ -362,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                   children: [
                     // Top badge
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(6),
@@ -376,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                             size: 28,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 8),
                         Text(
                           'Available Plans',
                           style: GoogleFonts.poppins(
@@ -385,42 +385,47 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        Spacer(),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.arrow_forward,
-                                  size: 18,
-                                  color: Color(0xFFFF6F00),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "View",
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                    color: Color(0xFFFF6F00),
+                          child: GestureDetector(
+                            onTap: () {
+                              // TODO: Add your View action here
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 17, // 🔼 same as Top Up
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                  12,
+                                ), // 🔼 same as Top Up
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.arrow_forward,
+                                    size: 18,
+                                    color: Color(
+                                      0xFFFF6F00,
+                                    ), // 🔼 same color as Top Up
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "View",
+                                    style: GoogleFonts.poppins(
+                                      fontWeight:
+                                          FontWeight
+                                              .w600, // 🔼 match Top Up font
+                                      fontSize: 14, // 🔼 match Top Up size
+                                      color: const Color(0xFFFF6F00),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
