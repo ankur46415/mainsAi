@@ -341,30 +341,42 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                           boxWidth,
                                                                       height:
                                                                           boxHeight,
-                                                                      child: FittedBox(
-                                                                        fit:
-                                                                            BoxFit.contain,
-                                                                        child: RotatedBox(
-                                                                          quarterTurns:
-                                                                              isLandscape
-                                                                                  ? 1
-                                                                                  : 0,
-                                                                          child: Image.network(
-                                                                            popupUrl,
+                                                                      child: ClipRect(
+                                                                        child: InteractiveViewer(
+                                                                          minScale:
+                                                                              1.0,
+                                                                          maxScale:
+                                                                              5.0,
+                                                                          panEnabled:
+                                                                              true,
+                                                                          scaleEnabled:
+                                                                              true,
+                                                                          child: FittedBox(
                                                                             fit:
                                                                                 BoxFit.contain,
-                                                                            errorBuilder:
-                                                                                (
-                                                                                  _,
-                                                                                  __,
-                                                                                  ___,
-                                                                                ) => const Icon(
-                                                                                  Icons.broken_image,
-                                                                                  color:
-                                                                                      Colors.white,
-                                                                                  size:
-                                                                                      80,
-                                                                                ),
+                                                                            child: RotatedBox(
+                                                                              quarterTurns:
+                                                                                  isLandscape
+                                                                                      ? 1
+                                                                                      : 0,
+                                                                              child: Image.network(
+                                                                                popupUrl,
+                                                                                fit:
+                                                                                    BoxFit.contain,
+                                                                                errorBuilder:
+                                                                                    (
+                                                                                      _,
+                                                                                      __,
+                                                                                      ___,
+                                                                                    ) => const Icon(
+                                                                                      Icons.broken_image,
+                                                                                      color:
+                                                                                          Colors.white,
+                                                                                      size:
+                                                                                          80,
+                                                                                    ),
+                                                                              ),
+                                                                            ),
                                                                           ),
                                                                         ),
                                                                       ),

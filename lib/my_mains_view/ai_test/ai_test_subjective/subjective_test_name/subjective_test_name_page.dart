@@ -65,7 +65,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
   }
 
   void _checkIfLongDescription() {
-    final buildCtx = this.context; // explicitly BuildContext use
+    final buildCtx = this.context;
     if (testData.description != null && testData.description!.isNotEmpty) {
       final textSpan = TextSpan(
         text: testData.description!,
@@ -130,7 +130,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -140,7 +140,10 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: LinearGradient(
-                      colors: [CustomColors.primaryColor, Colors.red.shade200],
+                      colors: [
+                        Color(0xFFFFC107),
+                        Color.fromARGB(255, 236, 87, 87),
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -377,7 +380,7 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                       ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: CustomColors.primaryColor,
+                        backgroundColor: Color(0xFFFFC107),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

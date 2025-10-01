@@ -124,242 +124,238 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
             padding: const EdgeInsets.all(16),
             children:
                 data.categories!.map((category) {
-                if (category.category == null ||
-                    category.subcategories == null) {
-                  return const SizedBox.shrink();
-                }
+                  if (category.category == null ||
+                      category.subcategories == null) {
+                    return const SizedBox.shrink();
+                  }
 
-                final subcategories = category.subcategories!;
-                if (subcategories.isEmpty) return const SizedBox.shrink();
+                  final subcategories = category.subcategories!;
+                  if (subcategories.isEmpty) return const SizedBox.shrink();
 
-                final subCatNames =
-                    subcategories
-                        .where(
-                          (sub) => sub.name != null && sub.name!.isNotEmpty,
-                        )
-                        .map((e) => e.name!)
-                        .toSet()
-                        .toList();
+                  final subCatNames =
+                      subcategories
+                          .where(
+                            (sub) => sub.name != null && sub.name!.isNotEmpty,
+                          )
+                          .map((e) => e.name!)
+                          .toSet()
+                          .toList();
 
-                if (subCatNames.isEmpty) return const SizedBox.shrink();
+                  if (subCatNames.isEmpty) return const SizedBox.shrink();
 
-                if (tabController.getSelected(category.category!) == null &&
-                    subCatNames.isNotEmpty) {
-                  tabController.setSelected(
-                    category.category!,
-                    subCatNames.first,
-                  );
-                }
-
-                final selectedSub =
-                    tabController.getSelected(category.category!) ?? "";
-                final selectedSubcategory = subcategories.firstWhereOrNull(
-                  (s) => s.name == selectedSub,
-                );
-
-                if (selectedSubcategory == null) return const SizedBox.shrink();
-                final enabledTests =
-                    (selectedSubcategory.tests ?? [])
-                        .where((t) => t.isEnabled == true)
-                        .toList();
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+                  if (tabController.getSelected(category.category!) == null &&
+                      subCatNames.isNotEmpty) {
+                    tabController.setSelected(
                       category.category!,
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue[900],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 40,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: subCatNames.length,
-                        itemBuilder: (context, index) {
-                          final subName = subCatNames[index];
-                          final isSelected =
-                              tabController.getSelected(category.category!) ==
-                              subName;
+                      subCatNames.first,
+                    );
+                  }
 
-                          return GestureDetector(
-                            onTap:
-                                () => tabController.setSelected(
-                                  category.category!,
-                                  subName,
-                                ),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    isSelected
-                                        ? Colors.blue[600]
-                                        : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? Colors.blue[600]!
-                                          : Colors.grey[300]!,
-                                ),
-                              ),
-                              child: Text(
-                                subName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      isSelected
-                                          ? Colors.white
-                                          : Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (enabledTests.isNotEmpty)
-                      Column(
-                        children: [
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                  childAspectRatio: 0.8,
-                                ),
-                            itemCount:
-                                enabledTests.length > 5
-                                    ? 6
-                                    : enabledTests.length,
-                            itemBuilder: (context, index) {
-                              if (index == 5) {
-                                final images =
-                                    enabledTests
-                                        .take(6)
-                                        .map(
-                                          (t) =>
-                                              t.imageUrl ??
-                                              'https://picsum.photos/300/200',
-                                        )
-                                        .toList();
+                  final selectedSub =
+                      tabController.getSelected(category.category!) ?? "";
+                  final selectedSubcategory = subcategories.firstWhereOrNull(
+                    (s) => s.name == selectedSub,
+                  );
 
-                                return GestureDetector(
-                                  onTap: () {
-                                    Get.to(
-                                      () => FullTestListPage(
-                                        tests: enabledTests,
-                                        subcategoryName:
-                                            selectedSubcategory.name ?? "",
-                                      ),
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.grey.shade400,
-                                          ),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          child: GridView.builder(
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            gridDelegate:
-                                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 2,
-                                                ),
-                                            itemCount: images.length,
-                                            itemBuilder: (context, imgIndex) {
-                                              return Image.network(
-                                                images[imgIndex],
-                                                fit: BoxFit.fill,
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.4,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          "See More",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                              final test = enabledTests[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  NavigationUtils.navigateToTestDetails(
-                                    test,
-                                    AppRoutes.subjectiveTestNamePage,
-                                  );
-                                },
-                                child: _buildTestCard(
-                                  imageUrl:
-                                      test.imageUrl ??
-                                      'https://picsum.photos/300/200',
-                                  isPaid: test.isPaid,
-                                  isEnrolled:
-                                      test.userTestStatus?.status == 'enrolled',
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Center(
-                          child: Text(
-                            "No tests available in this subcategory",
-                            style: TextStyle(color: Colors.grey),
-                          ),
+                  if (selectedSubcategory == null)
+                    return const SizedBox.shrink();
+                  final enabledTests =
+                      (selectedSubcategory.tests ?? [])
+                          .where((t) => t.isEnabled == true)
+                          .toList();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category.category!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blue[900],
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 40,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: subCatNames.length,
+                          itemBuilder: (context, index) {
+                            final subName = subCatNames[index];
+                            final isSelected =
+                                tabController.getSelected(category.category!) ==
+                                subName;
 
-                    const SizedBox(height: 20),
-                  ],
-                );
-              }).toList(),
+                            return GestureDetector(
+                              onTap:
+                                  () => tabController.setSelected(
+                                    category.category!,
+                                    subName,
+                                  ),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 9,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isSelected
+                                          ? Colors.blue
+                                          : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  subName,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        isSelected
+                                            ? Colors.white
+                                            : Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (enabledTests.isNotEmpty)
+                        Column(
+                          children: [
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.8,
+                                  ),
+                              itemCount:
+                                  enabledTests.length > 5
+                                      ? 6
+                                      : enabledTests.length,
+                              itemBuilder: (context, index) {
+                                if (index == 5) {
+                                  final images =
+                                      enabledTests
+                                          .take(6)
+                                          .map(
+                                            (t) =>
+                                                t.imageUrl ??
+                                                'https://picsum.photos/300/200',
+                                          )
+                                          .toList();
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Get.to(
+                                        () => FullTestListPage(
+                                          tests: enabledTests,
+                                          subcategoryName:
+                                              selectedSubcategory.name ?? "",
+                                        ),
+                                      );
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey.shade400,
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            child: GridView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              gridDelegate:
+                                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: 2,
+                                                  ),
+                                              itemCount: images.length,
+                                              itemBuilder: (context, imgIndex) {
+                                                return Image.network(
+                                                  images[imgIndex],
+                                                  fit: BoxFit.fill,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.4,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: const Text(
+                                            "See More",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                final test = enabledTests[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    NavigationUtils.navigateToTestDetails(
+                                      test,
+                                      AppRoutes.subjectiveTestNamePage,
+                                    );
+                                  },
+                                  child: _buildTestCard(
+                                    imageUrl:
+                                        test.imageUrl ??
+                                        'https://picsum.photos/300/200',
+                                    isPaid: test.isPaid,
+                                    isEnrolled:
+                                        test.userTestStatus?.status ==
+                                        'enrolled',
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: Center(
+                            child: Text(
+                              "No tests available in this subcategory",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 20),
+                    ],
+                  );
+                }).toList(),
           ),
         );
       }),

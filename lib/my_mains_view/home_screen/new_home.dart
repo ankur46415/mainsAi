@@ -23,8 +23,16 @@ class _HomeScreenPageState extends State<HomeScreenPage>
       initialTabIndex = args['tabIndex'] ?? 0;
     }
 
+    // Ensure initial index is within bounds of tabs length
+    const int tabsLength = 2;
+    if (initialTabIndex < 0 || initialTabIndex >= tabsLength) {
+      debugPrint(
+          'HomeScreenPage -> Adjusting out-of-range tabIndex: ' + initialTabIndex.toString() + ' to bounds of ' + tabsLength.toString());
+      initialTabIndex = 0;
+    }
+
     _tabController = TabController(
-      length: 2,
+      length: tabsLength,
       vsync: this,
       initialIndex: initialTabIndex,
     );
@@ -34,8 +42,12 @@ class _HomeScreenPageState extends State<HomeScreenPage>
         final tabControllerManager = Get.find<TabControllerManager>();
         tabControllerManager.setTabController(_tabController);
         tabControllerManager.setIndex(initialTabIndex);
-        tabControllerManager.animateTo(initialTabIndex);
-      } catch (e) {}
+        if (initialTabIndex >= 0 && initialTabIndex < _tabController.length) {
+          tabControllerManager.animateTo(initialTabIndex);
+        }
+      } catch (e) {
+        debugPrint('HomeScreenPage -> TabControllerManager not found: ' + e.toString());
+      }
     });
 
     super.initState();

@@ -171,6 +171,11 @@ class _User_Login_optionState extends State<User_Login_option>
                                           value.length == 10;
                                       controller.update();
                                       if (value.length == 10) {
+                                        // Auto-check Terms & Conditions when 10 digits entered
+                                        if (!controller.isTermsAccepted.value) {
+                                          controller.isTermsAccepted.value =
+                                              true;
+                                        }
                                         FocusScope.of(context).unfocus();
                                         Future.delayed(
                                           Duration(milliseconds: 200),
@@ -213,12 +218,19 @@ class _User_Login_optionState extends State<User_Login_option>
                               child: ElevatedButton(
                                 onPressed:
                                     controller.isPhoneValid.value &&
-                                            controller.isTermsAccepted.value &&
                                             !controller.isLoading.value
-                                        ? () => controller.getOtp(
-                                          this,
-                                          controller.phoneController.text,
-                                        )
+                                        ? () {
+                                          if (!controller
+                                              .isTermsAccepted
+                                              .value) {
+                                            controller.isTermsAccepted.value =
+                                                true;
+                                          }
+                                          controller.getOtp(
+                                            this,
+                                            controller.phoneController.text,
+                                          );
+                                        }
                                         : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:

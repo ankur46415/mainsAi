@@ -107,9 +107,6 @@ class _MyLibraryViewState extends State<MyLibraryView> {
                     },
                   ),
                 ),
-
-                // 🔴 Badge (item count)
-                // 🔴 Badge (SharedPreferences se)
                 Positioned(
                   right: 6,
                   top: 6,

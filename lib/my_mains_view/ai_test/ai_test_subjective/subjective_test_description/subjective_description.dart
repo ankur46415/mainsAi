@@ -30,13 +30,15 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Red header card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [CustomColors.primaryColor, Colors.redAccent],
+                    colors: [
+                      Color(0xFFFFC107),
+                      Color.fromARGB(255, 236, 87, 87),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -84,8 +86,6 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
               ),
 
               const SizedBox(height: 30),
-
-              // Description Section
               Text(
                 "Test Instructions",
                 style: GoogleFonts.poppins(
@@ -134,20 +134,20 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
                     AppRoutes.subjectiveTestAllquestions,
                     arguments: testData.testId,
                   )
-                  : null, // disables tap if totalQuestions == 0
+                  : null,
           child: Container(
             width: double.infinity,
             height: 60,
             decoration: BoxDecoration(
               color:
                   (testData.userTestStatus?.totalQuestions ?? 0) > 0
-                      ? CustomColors.primaryColor
-                      : Colors.grey.shade400, // greyed out if 0
+                      ? CustomColors.dayStart
+                      : Colors.grey.shade400,
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
                   color: ((testData.userTestStatus?.totalQuestions ?? 0) > 0
-                          ? CustomColors.primaryColor
+                          ? CustomColors.dayStart
                           : Colors.grey.shade400)
                       .withOpacity(0.4),
                   blurRadius: 8,

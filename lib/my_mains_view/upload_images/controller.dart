@@ -41,8 +41,7 @@ class UploadAnswersController extends GetxController {
           if ((Get.isDialogOpen ?? false) &&
               uploadStatus.value != 'Upload limit reached') {
             Get.back();
-          } else if (uploadStatus.value == 'Upload limit reached') {
-          }
+          } else if (uploadStatus.value == 'Upload limit reached') {}
         });
       }
     });
@@ -53,7 +52,6 @@ class UploadAnswersController extends GetxController {
   final ImagePicker _picker = ImagePicker();
 
   void showLimitReachedDialog() {
-
     if (Get.isDialogOpen ?? false) {
       Get.back();
     }
@@ -240,7 +238,6 @@ class UploadAnswersController extends GetxController {
       );
 
       await tempFile.writeAsBytes(compressed);
-      
 
       return tempFile;
     } catch (e) {
@@ -267,6 +264,7 @@ class UploadAnswersController extends GetxController {
     }
 
     try {
+      debugPrint('UploadImages: invoked');
       if (capturedImages.isEmpty) {
         showSnack('Error', 'No images to upload');
         return;
@@ -299,6 +297,7 @@ class UploadAnswersController extends GetxController {
       final uri = Uri.parse(
         '${ApiUrls.userAnswersBase}${questionId.value}/answers',
       );
+      debugPrint('UploadImages: endpoint -> ' + uri.toString());
       final request =
           http.MultipartRequest('POST', uri)
             ..headers.addAll({
@@ -308,12 +307,28 @@ class UploadAnswersController extends GetxController {
             })
             ..fields['reviewStatus'] = 'pending';
 
+      debugPrint('UploadImages: headers -> ' + request.headers.toString());
+      debugPrint('UploadImages: fields -> ' + request.fields.toString());
+
       List<File> tempFiles = [];
 
       for (var i = 0; i < totalImagesCount; i++) {
         try {
           uploadStatus.value = 'Processing image ${i + 1} of $totalImagesCount';
           final file = capturedImages[i];
+          try {
+            final size = await file.length();
+            debugPrint(
+              'UploadImages: image ' +
+                  (i + 1).toString() +
+                  '/' +
+                  totalImagesCount.toString() +
+                  ' path=' +
+                  file.path +
+                  ' size=' +
+                  size.toString(),
+            );
+          } catch (_) {}
 
           if (!await file.exists()) {
             continue;
@@ -333,9 +348,28 @@ class UploadAnswersController extends GetxController {
                 contentType: MediaType('image', 'jpeg'),
               ),
             );
+            try {
+              final csize = await compressedFile.length();
+              debugPrint(
+                'UploadImages: attached compressed image path=' +
+                    compressedFile.path +
+                    ' size=' +
+                    csize.toString(),
+              );
+            } catch (_) {}
           } else {
+            debugPrint(
+              'UploadImages: compressed file missing/empty for index ' +
+                  i.toString(),
+            );
           }
         } catch (e) {
+          debugPrint(
+            'UploadImages: error processing image index ' +
+                i.toString() +
+                ' -> ' +
+                e.toString(),
+          );
         }
 
         // Safe progress calculation using stored total count
@@ -372,11 +406,23 @@ class UploadAnswersController extends GetxController {
       final statusCode = response.statusCode;
       uploadProgress.value = 100;
 
+      debugPrint(
+        'UploadImages: response status=' +
+            statusCode.toString() +
+            ' in ' +
+            duration.inMilliseconds.toString() +
+            'ms',
+      );
+      debugPrint('UploadImages: response body=' + body);
+
       int? responseCodeFromBody;
       try {
         final jsonResponse = json.decode(body);
         responseCodeFromBody = jsonResponse['responseCode'];
       } catch (e) {
+        debugPrint(
+          'UploadImages: failed to parse json body -> ' + e.toString(),
+        );
       }
 
       if (statusCode == 555 || responseCodeFromBody == 1573) {
@@ -463,6 +509,7 @@ class UploadAnswersController extends GetxController {
               }
             } catch (_) {}
             showSnack('Error', message);
+            debugPrint('UploadImages: default failure -> message=' + message);
             if (Get.isDialogOpen ?? false) Get.back();
             // Clear status after 5 seconds for error cases too
             _clearStatusAfterDelay();
@@ -475,7 +522,8 @@ class UploadAnswersController extends GetxController {
     } catch (e, stackTrace) {
       uploadStatus.value = 'Error: ${e.toString()}';
       showSnack('Error', 'Upload failed: ${e.toString()}');
-  
+      debugPrint('UploadImages: exception -> ' + e.toString());
+      debugPrint('UploadImages: stack -> ' + stackTrace.toString());
       if (Get.isDialogOpen ?? false) Get.back();
       capturedImages.clear();
       _clearStatusAfterDelay();
@@ -490,16 +538,14 @@ class UploadAnswersController extends GetxController {
         if (file.existsSync()) {
           file.deleteSync();
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }
 
   void clearImages() {
     try {
       capturedImages.clear();
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void _clearStatusAfterDelay() {
@@ -521,12 +567,10 @@ class UploadAnswersController extends GetxController {
             if (file.existsSync()) {
               file.deleteSync();
             }
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   @override
@@ -546,9 +590,7 @@ class UploadAnswersController extends GetxController {
       uploadProgress.value = 0;
       totalImages.value = 0;
       questionId.value = null;
-
-    } catch (e) {
-    }
+    } catch (e) {}
     super.onClose();
   }
 }

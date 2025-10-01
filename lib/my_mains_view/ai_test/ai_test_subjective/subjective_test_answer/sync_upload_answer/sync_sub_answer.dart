@@ -8,6 +8,42 @@ class SyncSubAnswer extends StatelessWidget {
   final controller = Get.put(SyncUploadAnswerController());
   final uploadController = Get.find<SubTestAnswerUploadController>();
 
+  void _showImagePreview(String imagePath) {
+    final file = File(imagePath);
+    if (!file.existsSync()) return;
+    Get.dialog(
+      Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        backgroundColor: Colors.black,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: 9 / 16,
+              child: InteractiveViewer(
+                maxScale: 5,
+                minScale: 1,
+                child: Image.file(file, fit: BoxFit.contain),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Get.back(),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      barrierColor: Colors.black87,
+    );
+  }
+
   Widget _buildQuestionCard(Map<String, dynamic> question) {
     final questionId = question['id'] as String;
     final questionText = question['text'] as String;
@@ -64,28 +100,31 @@ class SyncSubAnswer extends StatelessWidget {
                 itemCount: images.length,
                 itemBuilder: (context, index) {
                   final imagePath = images[index];
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    width: 100,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(imagePath),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey.shade200,
-                            child: const Icon(
-                               Icons.menu_book_rounded,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
+                  return GestureDetector(
+                    onTap: () => _showImagePreview(imagePath),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      width: 100,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(imagePath),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: const Icon(
+                                Icons.menu_book_rounded,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -199,73 +238,131 @@ class SyncSubAnswer extends StatelessWidget {
     );
   }
 
-  Future<void> _uploadAllQuestions() async {
-    final bottomNavController = Get.find<BottomNavController>();
-    Get.defaultDialog(
-      title: "Confirm Upload",
-      titleStyle: GoogleFonts.poppins(
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
-        color: Colors.blue.shade800,
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      content: Column(
-        children: [
-          Icon(Icons.cloud_upload, size: 40, color: Colors.blue.shade400),
-          const SizedBox(height: 12),
-          Text(
-            "You're about to upload all saved answers to the server.",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+  Future<void> _uploadAllQuestions(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // outside tap se close na ho
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icon
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: Colors.white.withOpacity(0.7),
+                    child: Icon(
+                      Icons.cloud_upload,
+                      size: 40,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Title
+                  Text(
+                    "Confirm Upload",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "⚠️ Please ensure every answer has a relevant image attached before uploading.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          side: const BorderSide(color: Colors.white),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          "Cancel",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Get.snackbar(
+                            "Uploading...",
+                            "Answers are being uploaded in the background.",
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.blue,
+                            colorText: Colors.white,
+                          );
+                          controller
+                              .uploadAllQuestionsToAPI(
+                                testId: uploadController.testId,
+                              )
+                              .catchError((error) {});
+                          Get.offAllNamed(
+                            AppRoutes.mainNav,
+                            arguments: {'tabIndex': 2},
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.cloud_upload,
+                          size: 20,
+                          color: Colors.redAccent,
+                        ),
+                        label: Text(
+                          "Upload All",
+                          style: GoogleFonts.poppins(color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            "⚠️ Please ensure every answer has relevant image attached before uploading.",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
-          ),
-        ],
-      ),
-      radius: 12,
-      confirm: ElevatedButton.icon(
-        onPressed: () {
-          Get.back(); // Close dialog
-
-          // Notify background upload started
-          Get.snackbar(
-            "Uploading...",
-            "Answers are being uploaded in the background.",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.blue,
-            colorText: Colors.white,
-          );
-
-          // Start upload in background
-          controller
-              .uploadAllQuestionsToAPI(testId: uploadController.testId)
-              .then((_) {})
-              .catchError((error) {});
-
-          Get.offAllNamed(AppRoutes.mainNav, arguments: {'tabIndex': 2});
-        },
-        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white),
-        label: const Text("Upload All", style: TextStyle(color: Colors.white)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue.shade600,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      ),
-      cancel: TextButton(
-        onPressed: () => Get.back(),
-        child: Text(
-          "Cancel",
-          style: GoogleFonts.poppins(color: Colors.grey.shade700),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -280,7 +377,6 @@ class SyncSubAnswer extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: CustomColors.primaryColor,
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -312,6 +408,18 @@ class SyncSubAnswer extends StatelessWidget {
             tooltip: "Clear All Data",
           ),
         ],
+
+        // ✅ Gradient background
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -359,7 +467,10 @@ class SyncSubAnswer extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue.shade600, Colors.red.shade800],
+                    colors: [
+                      Color(0xFFFFC107),
+                      Color.fromARGB(255, 236, 87, 87),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -401,8 +512,9 @@ class SyncSubAnswer extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    ...controller.questions.map((question) {
-                      final questionId = question['id'] as String;
+                    ...controller.questions.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final question = entry.value as Map<String, dynamic>;
                       final List<String> images = List<String>.from(
                         question['images'] ?? [],
                       );
@@ -415,33 +527,30 @@ class SyncSubAnswer extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: const Color.fromARGB(
+                            255,
+                            224,
+                            191,
+                            2,
+                          ).withOpacity(0.2),
+                          border: Border.all(
+                            color: const Color.fromARGB(
+                              255,
+                              209,
+                              3,
+                              3,
+                            ).withOpacity(0.08),
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                "ID: $questionId",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                "$imageCount image${imageCount != 1 ? 's' : ''}",
+                                'Question ${index + 1} = ' +
+                                    imageCount.toString() +
+                                    ' image' +
+                                    (imageCount == 1 ? '' : 's'),
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -462,7 +571,7 @@ class SyncSubAnswer extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                imageCount > 0 ? "✓" : "!",
+                                imageCount > 0 ? '✓' : '!',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -479,6 +588,7 @@ class SyncSubAnswer extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               ...controller.questions.map(_buildQuestionCard).toList(),
+              SizedBox(height: Get.width * 0.25),
             ],
           ),
         );
@@ -486,22 +596,46 @@ class SyncSubAnswer extends StatelessWidget {
       floatingActionButton: Obx(() {
         if (controller.questions.isEmpty) return const SizedBox();
 
-        return FloatingActionButton.extended(
-          onPressed: () {
-            _uploadAllQuestions(); // 👈 Call dialog-confirm method
-          },
-          backgroundColor: CustomColors.primaryColor,
-          icon: const Icon(Icons.cloud_upload, color: Colors.white),
-          label: Text(
-            "Upload All",
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        return Padding(
+          padding: EdgeInsets.only(
+            left: Get.width * 0.03,
+            right: Get.width * 0.03,
+          ),
+          child: Container(
+            width: Get.width,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: Offset(2, 2),
+                ),
+              ],
+            ),
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                _uploadAllQuestions(context);
+              },
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              icon: const Icon(Icons.cloud_upload, color: Colors.white),
+              label: Text(
+                "Submit Test",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         );
       }),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

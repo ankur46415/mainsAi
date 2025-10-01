@@ -1,17 +1,139 @@
 import 'package:mains/app_imports.dart';
 import 'sync_upload_answer/controller.dart';
+import 'dart:io';
 
 class SubjectiveTestAnswerUpload extends StatelessWidget {
   SubjectiveTestAnswerUpload({super.key});
 
   final controller = Get.put(SubTestAnswerUploadController());
 
+  void _showImagePreview(String questionId, int index, File file) {
+    Get.dialog(
+      Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        backgroundColor: Colors.black,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: Get.height * 0.8,
+                  minHeight: 100,
+                ),
+                child: AspectRatio(
+                  aspectRatio: 9 / 16,
+                  child: InteractiveViewer(
+                    maxScale: 5,
+                    minScale: 1,
+                    child: Image.file(file, fit: BoxFit.contain),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: Get.width * 0.1,
+                  runSpacing: 8,
+                  children: [
+                    // Delete (small outlined red)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.redAccent),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        controller.answerImages[questionId]![index].value =
+                            null;
+                        Get.back();
+                      },
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                    ),
+
+                    // Close (small outlined)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.grey.shade400),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: Colors.white,
+                      ),
+                      onPressed: () => Get.back(),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(color: Colors.black87),
+                      ),
+                    ),
+
+                    // Replace (small filled)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () async {
+                        Get.back();
+                        await controller.pickImage(questionId, index);
+                      },
+                      child: const Text('Replace'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierColor: Colors.black87,
+    );
+  }
+
   Widget _buildImageBox(String questionId, int index) {
     return Obx(() {
       final file = controller.answerImages[questionId]![index].value;
 
       return GestureDetector(
-        onTap: () => controller.pickImage(questionId, index),
+        onTap: () {
+          if (file != null) {
+            _showImagePreview(questionId, index, file);
+          } else {
+            controller.pickImage(questionId, index);
+          }
+        },
         child: Container(
           width: Get.width * 0.3,
           height: Get.width * 0.4,
@@ -116,7 +238,7 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                   : () async {
                     try {
                       controller.isSaving.value = true;
-final syncController = Get.put(
+                      final syncController = Get.put(
                         SyncUploadAnswerController(),
                       );
 
@@ -139,7 +261,7 @@ final syncController = Get.put(
                       await Future.delayed(const Duration(milliseconds: 1000));
                       Get.toNamed(AppRoutes.syncSubAnswer);
                     } catch (e) {
-Get.snackbar(
+                      Get.snackbar(
                         "Error",
                         "Failed to save to database: $e",
                         snackPosition: SnackPosition.BOTTOM,

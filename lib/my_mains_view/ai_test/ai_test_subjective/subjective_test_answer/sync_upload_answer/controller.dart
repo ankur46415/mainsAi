@@ -266,12 +266,21 @@ class SyncUploadAnswerController extends GetxController {
 
       final url =
           '${ApiUrls.subjectiveAnswersBase}/$dynamicTestId/questions/$questionId/answers';
+      // Add logging
+      final maskedToken = authToken.length > 8
+          ? authToken.substring(0, 4) + '...' + authToken.substring(authToken.length - 4)
+          : '***';
+      debugPrint('SyncUpload: uploadQuestionToAPI url=' + url);
+      debugPrint('SyncUpload: questionId=' + questionId + ', images=' + imagePaths.length.toString());
+      debugPrint('SyncUpload: token(masked)=' + maskedToken);
+      print('SyncUpload URL: ' + url);
 
       var request = http.MultipartRequest('POST', Uri.parse(url));
       request.headers.addAll({
         'Authorization': 'Bearer $authToken',
         'User-Agent': 'Kitabai-App',
       });
+      debugPrint('SyncUpload: headers=' + request.headers.toString());
 
       for (int i = 0; i < imagePaths.length; i++) {
         final path = imagePaths[i];
@@ -288,10 +297,20 @@ class SyncUploadAnswerController extends GetxController {
         );
 
         request.files.add(multipartFile);
+        try {
+          final f = File(path);
+          final size = await f.length();
+          debugPrint('SyncUpload: attach image[' + i.toString() + '] path=' + path + ' size=' + size.toString());
+        } catch (_) {}
       }
 
+      final start = DateTime.now();
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
+      final elapsed = DateTime.now().difference(start).inMilliseconds;
+      debugPrint('SyncUpload: status=' + response.statusCode.toString() + ' timeMs=' + elapsed.toString());
+      debugPrint('SyncUpload: body=' + responseBody);
+      print('SyncUpload Status: ' + response.statusCode.toString());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {"success": true, "message": "Upload successful"};
@@ -305,6 +324,8 @@ class SyncUploadAnswerController extends GetxController {
         }
       }
     } catch (e) {
+      debugPrint('SyncUpload: exception -> ' + e.toString());
+      print('SyncUpload Error: ' + e.toString());
       return {"success": false, "message": "Network error: $e"};
     }
   }
@@ -314,6 +335,7 @@ class SyncUploadAnswerController extends GetxController {
     bool anyFailures = false;
 
     try {
+      debugPrint('SyncUpload: uploadAllQuestionsToAPI called, total=' + questions.length.toString() + ', testId=' + (testId ?? ''));
       for (var question in questions) {
         final questionId = question['id'] as String;
         final List<String> images = List<String>.from(question['images'] ?? []);
@@ -327,10 +349,12 @@ class SyncUploadAnswerController extends GetxController {
             );
 
             if (result['success'] == true) {
+              debugPrint('SyncUpload: question ' + questionId + ' uploaded successfully');
             } else {
               anyFailures = true;
               final errorMessage =
                   result['message'] ?? "Failed to upload question";
+              debugPrint('SyncUpload: question ' + questionId + ' failed -> ' + errorMessage);
 
               Get.snackbar(
                 'Upload Failed',
@@ -343,6 +367,7 @@ class SyncUploadAnswerController extends GetxController {
             }
           } catch (e) {
             anyFailures = true;
+            debugPrint('SyncUpload: question ' + questionId + ' exception -> ' + e.toString());
             Get.snackbar(
               'Upload Error',
               'Failed to upload question: $e',
@@ -405,6 +430,8 @@ class SyncUploadAnswerController extends GetxController {
     final url = '${ApiUrls.subjectiveTestSubmitBase}$testId/submit';
 
     try {
+      debugPrint('SyncUpload: submitSubjectiveTest url=' + url);
+      print('SyncSubmit URL: ' + url);
       await callWebApi(
         null,
         url,
@@ -413,6 +440,8 @@ class SyncUploadAnswerController extends GetxController {
         showLoader: false,
         onResponse: (response) {
           try {
+            debugPrint('SyncUpload: submit status=' + response.statusCode.toString());
+            debugPrint('SyncUpload: submit body=' + response.body.toString());
             json.decode(response.body);
           } catch (e) {}
         },
