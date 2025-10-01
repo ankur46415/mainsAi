@@ -204,14 +204,31 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
           Obx(() {
             final imageList = controller.answerImages[questionId]!;
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(
-                  imageList.length,
-                  (index) => _buildImageBox(questionId, index),
+            final hasAtLeastOne = imageList.any((img) => img.value != null);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(
+                      imageList.length,
+                      (index) => _buildImageBox(questionId, index),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 6),
+                if (!hasAtLeastOne)
+                  Text(
+                    'Minimum 1 image required',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
             );
           }),
         ],
@@ -237,6 +254,24 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                   ? null
                   : () async {
                     try {
+                      // Validate: at least 1 image per question
+                      for (final q in controller.questions) {
+                        final qid = q['id'];
+                        final list =
+                            controller.answerImages[qid] ?? <Rx<File?>>[].obs;
+                        final hasImage = list.any((rx) => rx.value != null);
+                        if (!hasImage) {
+                          Get.snackbar(
+                            'Add Image',
+                            'Please add at least 1 image for each question before continuing.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                          return;
+                        }
+                      }
+
                       controller.isSaving.value = true;
                       final syncController = Get.put(
                         SyncUploadAnswerController(),
