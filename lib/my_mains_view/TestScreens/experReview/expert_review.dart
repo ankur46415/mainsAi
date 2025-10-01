@@ -344,16 +344,36 @@ class _ExpertReviewsState extends State<ExpertReviews> {
   Widget Remark() {
     return Card(
       elevation: 7,
-      color: Colors.white,
+      color: const Color.fromARGB(255, 230, 225, 245),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          widget.expertReview.remarks.toString(),
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-            color: Colors.grey[800],
-          ),
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Remark',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.expertReview.remarks.toString(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: Colors.grey[800],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -362,16 +382,31 @@ class _ExpertReviewsState extends State<ExpertReviews> {
   Widget comment() {
     return Card(
       elevation: 7,
-      color: Colors.white,
+      color: const Color.fromARGB(255, 243, 223, 224),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          widget.expertReview.result.toString(),
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-            color: Colors.grey[800],
-          ),
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Comments',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Colors.red[800],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.expertReview.result.toString(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: Colors.grey[800],
+              ),
+            ),
+          ],
         ),
       ),
     );
