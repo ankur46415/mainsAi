@@ -1,9 +1,7 @@
 import 'package:http/http.dart' as http;
-
 import '../../../../app_imports.dart';
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'main_analytics_controller.dart';
@@ -50,7 +48,6 @@ class _MainAnalyticsState extends State<MainAnalytics>
       for (final url in urls) {
         final resp = await http.get(Uri.parse(url));
         if (resp.statusCode != 200) {
-          // Skip bad image, continue
           continue;
         }
         final pwImage = pw.MemoryImage(resp.bodyBytes);
@@ -555,11 +552,10 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                         ),
                                       ),
 
-                                      // ---- DOTS indicator ----
                                       Positioned(
                                         bottom: 8,
                                         left: 0,
-                                        right: 64, // icons के लिए space
+                                        right: 64,
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,

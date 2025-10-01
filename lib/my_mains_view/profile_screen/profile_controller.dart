@@ -17,6 +17,7 @@ class ProfileController extends GetxController {
   final selectedAge = RxnString();
   final selectedExams = <String>[].obs;
   final planCategories = <String>[].obs;
+  final allPlansData = Rxn<PlansName>();
 
   final genderOptions = ['Male', 'Female', 'Other'];
   final languageOptions = ['Hindi', 'English', 'Bengali', 'Tamil', 'Other'];
@@ -67,19 +68,26 @@ class ProfileController extends GetxController {
         try {
           if (response.statusCode == 200) {
             final jsonData = jsonDecode(response.body);
+            print('DEBUG: Raw JSON response: $jsonData');
             final plans = PlansName.fromJson(jsonData);
-            planCategories.value =
-                plans.data
-                    .map((e) => e.category)
-                    .where(
-                      (c) =>
-                          c.trim().toLowerCase() !=
-                          'credit-recharge'.toLowerCase(),
-                    )
-                    .toSet()
-                    .toList();
+            print('DEBUG: Parsed plans data: ${plans.data.length} items');
+            print('DEBUG: Total plans from API: ${plans.totalPlans}');
+            allPlansData.value = plans;
+            final categories = plans.data
+                .map((e) => e.category)
+                .where(
+                  (c) =>
+                      c.trim().toLowerCase() !=
+                      'credit-recharge'.toLowerCase(),
+                )
+                .toSet()
+                .toList();
+            print('DEBUG: Filtered categories: $categories');
+            planCategories.value = categories;
           }
-        } catch (_) {}
+        } catch (e) {
+          print('DEBUG: Error parsing plans data: $e');
+        }
         isPlansLoading.value = false;
       },
       onError: () {
@@ -90,6 +98,32 @@ class ProfileController extends GetxController {
       hideLoader: false,
     );
   }
+
+  // Get total plans excluding recharge plans
+  int get totalPlansExcludingRecharge {
+    if (allPlansData.value == null) return 0;
+    print('DEBUG: Total plans in data: ${allPlansData.value!.data.length}');
+    print('DEBUG: All categories: ${allPlansData.value!.data.map((e) => e.category).toList()}');
+    final filtered = allPlansData.value!.data
+        .where((plan) => plan.category.toLowerCase() != 'credit-recharge')
+        .toList();
+    print('DEBUG: Filtered plans count: ${filtered.length}');
+    return filtered.length;
+  }
+
+  // Get count of plans for a specific category
+  int getPlansCountForCategory(String category) {
+    if (allPlansData.value == null) return 0;
+    print('DEBUG: Looking for category: $category');
+    final matching = allPlansData.value!.data
+        .where((plan) => plan.category.toLowerCase() == category.toLowerCase())
+        .toList();
+    print('DEBUG: Found ${matching.length} plans for category: $category');
+    return matching.length;
+  }
+
+  // Get BPSC plans count specifically
+  int get bpscPlansCount => getPlansCountForCategory('BPSC');
 
   void initializeEditProfile() {
     final profile = userProfile.value?.profile;

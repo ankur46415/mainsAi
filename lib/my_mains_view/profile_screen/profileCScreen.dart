@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
     return Center(
       child: GestureDetector(
         child: Container(
-          width: 340,
+          width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -392,14 +392,12 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
 
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 17, // 🔼 same as Top Up
+                                horizontal: 17,
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  12,
-                                ), // 🔼 same as Top Up
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -407,18 +405,14 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                                   const Icon(
                                     Icons.arrow_forward,
                                     size: 18,
-                                    color: Color(
-                                      0xFFFF6F00,
-                                    ), // 🔼 same color as Top Up
+                                    color: Color(0xFFFF6F00),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
                                     "View",
                                     style: GoogleFonts.poppins(
-                                      fontWeight:
-                                          FontWeight
-                                              .w600, // 🔼 match Top Up font
-                                      fontSize: 14, // 🔼 match Top Up size
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
                                       color: const Color(0xFFFF6F00),
                                     ),
                                   ),
@@ -431,7 +425,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     ),
                     const SizedBox(height: 12),
                     Obx(() {
-                      final categories = controller.planCategories;
                       if (controller.isPlansLoading.value) {
                         return const SizedBox(
                           height: 24,
@@ -442,43 +435,86 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                           ),
                         );
                       }
-                      if (categories.isEmpty) {
-                        return Text(
-                          'No categories available',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        );
-                      }
-                      return Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children:
-                            categories.map((c) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
+                      final totalPlans = controller.totalPlansExcludingRecharge;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.library_books,
+                                  color: Colors.white,
+                                  size: 16,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.35),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  c,
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Total Plans: $totalPlans',
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              );
-                            }).toList(),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (controller.planCategories.isNotEmpty)
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  controller.planCategories.map((c) {
+                                    final count = controller
+                                        .getPlansCountForCategory(c);
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.35),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '$c ($count)',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
+
+                          if (controller.planCategories.isEmpty)
+                            Text(
+                              'No categories available',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
                       );
                     }),
                   ],

@@ -7,7 +7,6 @@ import 'package:mains/common/api_urls.dart';
 import 'package:mains/models/GetAnswerAnalysis.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../common/shred_pref.dart';
-import '../../../../models/GetQAnalysis.dart';
 import '../../../logIn_flow/logIn_page_screen/User_Login_option.dart';
 import '../../../../common/api_services.dart';
 
@@ -152,7 +151,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     answerImagesList.clear();
   }
 
-  // Event Handlers
   void _handleTabChange() {
     if (tabController.indexIsChanging) {
       currentColor.value = tabColors[tabController.index];
@@ -165,7 +163,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     }
   }
 
-  // UI State Management
   void setFeedbackOption(String value) {
     selectedFeedbackOption.value = value;
   }
@@ -174,7 +171,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     selectedReviewOption.value = value;
   }
 
-  // Add a method to get image URL from AnswerImage
   String getImageUrl(int index) {
     if (index >= 0 && index < answerImagesList.length) {
       return answerImagesList[index].imageUrl ?? '';
@@ -182,7 +178,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     return '';
   }
 
-  // Add a method to check if we can move to next/previous image
   bool canMoveToNext() {
     return currentPage.value < answerImagesList.length - 1;
   }
@@ -191,7 +186,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     return currentPage.value > 0;
   }
 
-  // Add a method to move to next/previous image
   void moveToNextImage() {
     if (canMoveToNext()) {
       currentPage.value++;
@@ -214,7 +208,6 @@ Discuss the significance of the Directive Principles of State Policy (DPSP) in t
     }
   }
 
-  // Cleanup
   @override
   void onClose() {
     tabController.removeListener(_handleTabChange);

@@ -294,7 +294,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                       ),
                                     ),
                                   ),
-                                  // Divider
                                   Container(
                                     height: 20,
                                     width: 1,

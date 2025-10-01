@@ -260,7 +260,6 @@ class _AddToCartState extends State<AddToCart> {
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: () {
-                      // Set bottom bar index to 0 and go to dashboard
                       final bottomNavController =
                           Get.find<BottomNavController>();
                       bottomNavController.changeIndex(0);
