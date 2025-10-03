@@ -371,8 +371,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       ),
                       _buildBookInfoCard(bookData),
                       const SizedBox(height: 8),
-                      _buildStatsCard(),
-                      const SizedBox(height: 16),
+                      //    _buildStatsCard(),
                       const SizedBox(height: 12),
                       SizedBox(
                         width: Get.width,
@@ -1024,12 +1023,17 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
           const SizedBox(height: 8),
           const Divider(height: 1),
           const SizedBox(height: 8),
-          Text(
-            'Description',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Description',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 6),
           Obx(() {
@@ -1038,7 +1042,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final baseStyle = GoogleFonts.poppins(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 );
                 bool isOverflow = false;
@@ -1127,41 +1131,41 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
     );
   }
 
-  Widget _buildStatsCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatItem(
-            context,
-            label: 'Total Submissions',
-            value:
-                '${controller.workbookDetailes.value?.totalQuestionsCount ?? 0}',
-            icon: Icons.forum_outlined,
-          ),
-          Container(height: 40, width: 1, color: Colors.grey[200]),
-          _buildStatItem(
-            context,
-            label: 'Users',
-            value: '76,346',
-            icon: Icons.people_outline,
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildStatsCard() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(vertical: 12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey[50],
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withValues(alpha: 0.1),
+  //           blurRadius: 4,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //       borderRadius: BorderRadius.circular(8),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //       children: [
+  //         _buildStatItem(
+  //           context,
+  //           label: 'Total Submissions',
+  //           value:
+  //               '${controller.workbookDetailes.value?.totalQuestionsCount ?? 0}',
+  //           icon: Icons.forum_outlined,
+  //         ),
+  //         Container(height: 40, width: 1, color: Colors.grey[200]),
+  //         _buildStatItem(
+  //           context,
+  //           label: 'Users',
+  //           value: '76,346',
+  //           icon: Icons.people_outline,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildFloatingActionButton(Workbook bookData) {
     final bool isForSale = bookData.isForSale == true;

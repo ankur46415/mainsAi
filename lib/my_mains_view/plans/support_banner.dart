@@ -20,24 +20,27 @@ class SupportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 231, 212, 152),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.grey.shade200, width: 1),
-      ),
-      margin: const EdgeInsets.all(12),
+      color: Colors.transparent,
+      shape: const RoundedRectangleBorder(),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.08),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Colors.grey.shade50],
+      child: ClipPath(
+        clipper: _SupportBannerZigZagClipper(),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 236, 102, 102),
+                Color.fromARGB(255, 231, 182, 156),
+                Color.fromARGB(255, 233, 206, 125),
+              ],
+            ),
+            borderRadius: BorderRadius.zero,
           ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Padding(
+          child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +77,10 @@ class SupportCard extends StatelessWidget {
               const SizedBox(height: 16),
 
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10),
@@ -82,19 +88,28 @@ class SupportCard extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildContactItem(
-                      icon: Icons.phone_in_talk_rounded,
-                      text: "8147540362",
+                    Text(
+                      "Contact Us..",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue.shade700,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    InkWell(
-                      onTap: () {
-                        _launchEmail("vijay.wiz@gmail.com");
-                      },
-                      child: _buildContactItem(
-                        icon: Icons.mail_rounded,
-                        text: "vijay.wiz@gmail.com",
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            _launchEmail("vijay.wiz@gmail.com");
+                          },
+                          child: _buildContactItem(
+                            icon: Icons.mail_rounded,
+                            text: "contact@mainsapp.com",
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -164,6 +179,7 @@ class SupportCard extends StatelessWidget {
             ],
           ),
         ),
+        ),
       ),
     );
   }
@@ -198,4 +214,57 @@ class SupportCard extends StatelessWidget {
       ],
     );
   }
+}
+
+class _SupportBannerZigZagClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final Path path = Path();
+    final double width = size.width;
+    final double height = size.height;
+
+    // Tune these for density and depth of triangles
+    const double toothWidth = 28; // px per triangle base
+    const double topDepth = 14; // px depth of top cut
+    const double bottomDepth = 12; // px depth of bottom cut
+
+    // Start at top-left
+    path.moveTo(0, 0);
+
+    // Top zig-zag (inverted triangles cut into the banner)
+    double x = 0;
+    while (x + toothWidth <= width) {
+      path.lineTo(x + toothWidth / 2, topDepth);
+      path.lineTo(x + toothWidth, 0);
+      x += toothWidth;
+    }
+    // Handle any remainder to reach full width cleanly
+    if (x < width) {
+      final double rem = width - x;
+      path.lineTo(x + rem / 2, topDepth * (rem / toothWidth));
+      path.lineTo(width, 0);
+    }
+
+    // Right edge down
+    path.lineTo(width, height);
+
+    // Bottom zig-zag (upright triangles cut into the banner)
+    x = width;
+    while (x - toothWidth >= 0) {
+      path.lineTo(x - toothWidth / 2, height - bottomDepth);
+      path.lineTo(x - toothWidth, height);
+      x -= toothWidth;
+    }
+    if (x > 0) {
+      final double rem = x; // remaining width to left edge
+      path.lineTo(rem / 2, height - bottomDepth * (rem / toothWidth));
+      path.lineTo(0, height);
+    }
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }

@@ -58,7 +58,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
             indicatorColor: Colors.white,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
-            tabs: [Tab(text: 'All Plans'), Tab(text: 'Enrolled')],
+            tabs: [Tab(text: 'Plans'), Tab(text: 'Enrolled')],
           ),
         ),
         body: Obx(() {
@@ -188,30 +188,36 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
         onRefresh: () => controller.refreshPlans(),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           children: [
-            const SupportCard(),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.55,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.inbox_outlined,
-                      size: 64,
-                      color: Colors.grey[500],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      emptyMsg,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.grey[700],
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: SupportCard(),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.55,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 64,
+                        color: Colors.grey[500],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Text(
+                        emptyMsg,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -223,23 +229,32 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
     return RefreshIndicator(
       onRefresh: () => controller.refreshPlans(),
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         itemCount: plans.length + 2,
         itemBuilder: (context, index) {
           // Show support card in the middle
           if (index == (plans.length / 2).floor()) {
-            return const SupportCard();
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: SupportCard(),
+            );
           }
 
           // Show support card at the end
           if (index == plans.length + 1) {
-            return const SupportCard();
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: SupportCard(),
+            );
           }
 
-          // Show plan cards
+          // Show plan cards with horizontal padding
           final planIndex =
               index > (plans.length / 2).floor() ? index - 1 : index;
-          return _buildPlanCard(plans[planIndex], planIndex);
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _buildPlanCard(plans[planIndex], planIndex),
+          );
         },
       ),
     );
