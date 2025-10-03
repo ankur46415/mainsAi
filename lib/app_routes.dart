@@ -6,6 +6,7 @@ import 'package:mains/my_mains_view/ai_test/ai_test_subjective/subjective_test_a
 import 'package:mains/my_mains_view/ai_test/start_test/objective_test_description.dart';
 import 'package:mains/my_mains_view/help/help_screen.dart';
 import 'package:mains/my_mains_view/manaul_qr_result/chapter_detailes.dart';
+import 'package:mains/my_mains_view/my_progress/my_prpgress_scren.dart';
 import 'package:mains/my_mains_view/plans/all_plan_screen.dart';
 import 'package:mains/my_mains_view/plans/make_paymnet/make_payment.dart';
 import 'package:mains/my_mains_view/plans/specific_course_plans/specific_course%20plans.dart';
@@ -59,9 +60,10 @@ class AppRoutes {
   static const String makePayment = '/makePayment';
   static const String questionAnswerPage = '/questionAnswerPage';
   static const String addToCart = '/addToCart';
+  static const String myProgressScreen = '/myProgressScreen';
 }
 
-//AddToCart
+//MyProgressScreen
 final List<GetPage> appPages = [
   GetPage(name: AppRoutes.questionAnswerPage, page: () => QuestionAnswerPage()),
   GetPage(name: AppRoutes.introScreen, page: () => IntroMainScreen()),
@@ -72,6 +74,7 @@ final List<GetPage> appPages = [
   GetPage(name: AppRoutes.helpScreen, page: () => HelpScreen()),
   GetPage(name: AppRoutes.feedback, page: () => FeedbackForm()),
   GetPage(name: AppRoutes.addToCart, page: () => AddToCart()),
+  GetPage(name: AppRoutes.myProgressScreen, page: () => MyProgressScreen()),
   GetPage(
     name: AppRoutes.home,
     page: () => MyHomePage(),
