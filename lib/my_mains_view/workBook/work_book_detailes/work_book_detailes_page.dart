@@ -51,6 +51,17 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Obx(() {
+        final bookData = controller.workbook.value;
+        if (bookData == null) return const SizedBox.shrink();
+        return Container(
+          width: Get.width,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+
+          child: _buildFloatingActionButton(bookData),
+        );
+      }),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(
@@ -362,7 +373,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                       const SizedBox(height: 8),
                       _buildStatsCard(),
                       const SizedBox(height: 16),
-                      _buildActionButtons(bookData),
                       const SizedBox(height: 12),
                       SizedBox(
                         width: Get.width,
@@ -926,35 +936,36 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                               ],
                                             ),
                                           ),
-                                          Positioned(
-                                            top: 1,
-                                            left: 16,
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 5,
-                                                    vertical: 3,
+                                          if (set.startsAt != null)
+                                            Positioned(
+                                              top: 1,
+                                              left: 16,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 5,
+                                                      vertical: 3,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromARGB(
+                                                    255,
+                                                    103,
+                                                    194,
+                                                    236,
                                                   ),
-                                              decoration: BoxDecoration(
-                                                color: const Color.fromARGB(
-                                                  255,
-                                                  103,
-                                                  194,
-                                                  236,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: Text(
-                                                "Scheduled",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 9,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                                child: Text(
+                                                  "Scheduled",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     );
@@ -963,7 +974,7 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                           ),
                         );
                       }),
-                      SizedBox(height: Get.width * 0.1),
+                      SizedBox(height: Get.width * 0.18),
                     ],
                   ),
                 ),
@@ -1013,7 +1024,71 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
           const SizedBox(height: 8),
           const Divider(height: 1),
           const SizedBox(height: 8),
-          _buildMetaDataRow(bookData),
+          Text(
+            'Description',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Obx(() {
+            final bool expanded = controller.isDescriptionExpanded.value;
+            final String desc = bookData.description ?? '';
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final baseStyle = GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                );
+                bool isOverflow = false;
+                if (!expanded && desc.isNotEmpty) {
+                  final tp = TextPainter(
+                    text: TextSpan(text: desc, style: baseStyle),
+                    maxLines: 4,
+                    textDirection: TextDirection.ltr,
+                  );
+                  tp.layout(maxWidth: constraints.maxWidth);
+                  isOverflow = tp.didExceedMaxLines;
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      desc,
+                      maxLines: expanded ? null : 4,
+                      overflow:
+                          expanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                      textAlign: TextAlign.justify,
+                      style: baseStyle,
+                    ),
+                    const SizedBox(height: 6),
+                    if (desc.isNotEmpty && (isOverflow || expanded))
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          overlayColor: Colors.transparent,
+                        ),
+                        onPressed: controller.toggleDescriptionExpanded,
+                        child: Text(
+                          expanded ? 'See less' : 'See more',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            );
+          }),
         ],
       ),
     );
@@ -1047,26 +1122,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
             fontWeight: FontWeight.w500,
             color: Colors.grey,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMetaDataRow(Workbook bookData) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildMetaDataItem(
-          label: 'Creator',
-          value: bookData.author ?? 'Unknown',
-        ),
-        _buildMetaDataItem(
-          label: 'Institution',
-          value: bookData.publisher ?? 'Unknown',
-        ),
-        _buildMetaDataItem(
-          label: 'Language',
-          value: bookData.language ?? 'Unknown',
         ),
       ],
     );
@@ -1108,98 +1163,77 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
     );
   }
 
-  Widget _buildActionButtons(Workbook bookData) {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () async {
-              final bool isForSale = bookData.isForSale == true;
-              final bool isPurchased = bookData.isPurchased == true;
+  Widget _buildFloatingActionButton(Workbook bookData) {
+    final bool isForSale = bookData.isForSale == true;
+    final bool isPurchased = bookData.isPurchased == true;
+    final bool isInLibrary = bookData.isMyWorkbookAdded == true;
 
-              if (isForSale && !isPurchased) {
-                // Purchase flow
-                final success = await controller.addWorkbookToCart(
-                  widget.bookId?.toString() ?? '',
-                );
-                if (success) Get.toNamed(AppRoutes.addToCart);
-              } else {
-                // Add to library flow
-                if (!Get.isRegistered<MyLibraryController>()) {
-                  Get.put(MyLibraryController(), permanent: true);
-                }
+    final Color bgColor =
+        (isForSale && !isPurchased)
+            ? Colors.orange
+            : isInLibrary
+            ? Colors.green
+            : Colors.blue;
 
-                final myLibraryController = Get.find<MyLibraryController>();
-                myLibraryController.loadBooks();
+    return FloatingActionButton.extended(
+      backgroundColor: bgColor,
+      shape: const StadiumBorder(),
+      elevation: 3,
+      onPressed: () async {
+        if (isForSale && !isPurchased) {
+          final success = await controller.addWorkbookToCart(
+            widget.bookId?.toString() ?? '',
+          );
+          if (success) Get.toNamed(AppRoutes.addToCart);
+          return;
+        }
 
-                final bottomNavController = Get.find<BottomNavController>();
-                bottomNavController.changeIndex(1);
-                Get.offAll(() => MyHomePage());
+        if (!Get.isRegistered<MyLibraryController>()) {
+          Get.put(MyLibraryController(), permanent: true);
+        }
 
-                controller.addToMyBooks(
-                  widget.bookId.toString(),
-                  showLoader: true,
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  (bookData.isForSale == true && bookData.isPurchased != true)
-                      ? Colors
-                          .orange // purchase
-                      : bookData.isMyWorkbookAdded == true
-                      ? Colors
-                          .green // already in library
-                      : Colors.blue, // add to library
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+        final myLibraryController = Get.find<MyLibraryController>();
+        myLibraryController.loadBooks();
+
+        final bottomNavController = Get.find<BottomNavController>();
+        bottomNavController.changeIndex(1);
+        Get.offAll(() => MyHomePage());
+
+        controller.addToMyBooks(widget.bookId.toString(), showLoader: true);
+      },
+      icon:
+          controller.isActionLoading.value
+              ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2,
+                ),
+              )
+              : (isForSale && !isPurchased)
+              ? const Icon(Icons.lock, color: Colors.white)
+              : const Icon(Icons.library_add),
+      label:
+          controller.isActionLoading.value
+              ? const Text('Please wait...')
+              : (isForSale && !isPurchased)
+              ? Text(
+                'Purchase Book',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+              : Text(
+                isInLibrary ? 'Go to My Library' : 'Add to My Library',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              minimumSize: const Size.fromHeight(52),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child:
-                controller.isActionLoading.value
-                    ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        strokeWidth: 2,
-                      ),
-                    )
-                    : (bookData.isForSale == true &&
-                        bookData.isPurchased != true)
-                    // 🔒 Lock icon with "Purchase Book" text
-                    ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.lock, color: Colors.white, size: 22),
-                        SizedBox(width: 8),
-                        Text(
-                          'Purchase Book',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    )
-                    : Text(
-                      bookData.isMyWorkbookAdded == true
-                          ? 'Go to My Library'
-                          : 'Add to My Library',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1306,6 +1340,4 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
     ];
     return months[m];
   }
-
-  // Countdown formatting removed; CountdownDisplay widget handles live timer
 }

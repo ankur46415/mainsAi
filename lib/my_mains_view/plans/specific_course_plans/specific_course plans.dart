@@ -14,6 +14,7 @@ class SpecificCourse extends StatefulWidget {
 
 class _SpecificCourseState extends State<SpecificCourse> {
   late SpecificCourseController controller;
+
   final RxInt selectedTabIndex = 0.obs;
   final RxString selectedSubCategory = ''.obs;
   String? planId;

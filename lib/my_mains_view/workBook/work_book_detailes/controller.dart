@@ -11,10 +11,16 @@ class WorkBookBOOKDetailes extends GetxController {
   RxBool isLoading = false.obs;
   var count = 0.obs;
   var error = ''.obs;
+  // Controls expand/collapse state of description without using setState
+  RxBool isDescriptionExpanded = false.obs;
   void increment() {
     if (count.value == 0) {
       count.value = 1;
     }
+  }
+
+  void toggleDescriptionExpanded() {
+    isDescriptionExpanded.value = !isDescriptionExpanded.value;
   }
 
   var isSaved = false.obs;
