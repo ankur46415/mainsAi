@@ -1,11 +1,10 @@
 class AppConfig {
   static const String appName = 'Mains';
-  static const String appId = 'com.mains.ai';
+  static const String appId = 'com.mainsapp';
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=';
 
-  static const String baseUrl = 'https://your-api-domain.com';
-  static const String versionCheckEndpoint = '/api/app-version';
+  // No need for custom API endpoints - using Play Store directly
 
   static const bool enableAutoUpdateCheck = true;
   static const Duration updateCheckDelay = Duration(seconds: 2);

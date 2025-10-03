@@ -218,16 +218,37 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                               ),
                                             ],
                                           ),
-                                          child: Text(
-                                            (book.offerPrice != null &&
-                                                    book.offerPrice! > 0)
-                                                ? '₹ ${book.offerPrice}'
-                                                : 'PAID',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (book.MRP != null &&
+                                                  book.MRP! > 0)
+                                                Text(
+                                                  '₹ ${book.MRP}',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 7,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                    decoration:
+                                                        TextDecoration
+                                                            .lineThrough,
+                                                    decorationColor:
+                                                        Colors.white,
+                                                  ),
+                                                ),
+                                              SizedBox(width: Get.width * 0.01),
+                                              Text(
+                                                (book.offerPrice != null &&
+                                                        book.offerPrice! > 0)
+                                                    ? '₹ ${book.offerPrice}'
+                                                    : 'PAID',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -356,16 +377,36 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                                             ),
                                           ],
                                         ),
-                                        child: Text(
-                                          (book.offerPrice != null &&
-                                                  book.offerPrice! > 0)
-                                              ? '₹ ${book.offerPrice}'
-                                              : '',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (book.MRP != null &&
+                                                book.MRP! > 0)
+                                              Text(
+                                                '₹${book.MRP}',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 7,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.white,
+                                                  decoration:
+                                                      TextDecoration
+                                                          .lineThrough,
+                                                  decorationColor: Colors.white,
+                                                ),
+                                              ),
+                                            SizedBox(width: Get.width * 0.01),
+                                            Text(
+                                              (book.offerPrice != null &&
+                                                      book.offerPrice! > 0)
+                                                  ? '₹${book.offerPrice}'
+                                                  : '',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -823,15 +864,32 @@ class _WorkBookBookPageState extends State<WorkBookBookPage> {
                       ),
                     ],
                   ),
-                  child: Text(
-                    (book.offerPrice != null && book.offerPrice! > 0)
-                        ? '₹ ${book.offerPrice}'
-                        : 'PAID',
-                    style: GoogleFonts.poppins(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (book.MRP != null && book.MRP! > 0)
+                        Text(
+                          '₹ ${book.MRP}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 7,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            decoration: TextDecoration.lineThrough,
+                            decorationColor: Colors.white,
+                          ),
+                        ),
+                      SizedBox(width: Get.width * 0.01),
+                      Text(
+                        (book.offerPrice != null && book.offerPrice! > 0)
+                            ? '₹ ${book.offerPrice}'
+                            : 'PAID',
+                        style: GoogleFonts.poppins(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

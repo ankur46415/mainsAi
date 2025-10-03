@@ -494,7 +494,7 @@ class _SpecificCourseState extends State<SpecificCourse> {
             final bool isEnrolled = plan?.isEnrolled ?? false;
             return Container(
               width: double.infinity,
-              height: 50,
+              height: Get.width * 0.15,
               alignment: Alignment.center,
               decoration:
                   isEnrolled
@@ -503,15 +503,8 @@ class _SpecificCourseState extends State<SpecificCourse> {
                         borderRadius: BorderRadius.circular(12),
                       )
                       : const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFFFFC107),
-                            Color.fromARGB(255, 236, 87, 87),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        color: Colors.green,
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,

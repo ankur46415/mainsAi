@@ -89,6 +89,8 @@ class ApiUrls {
   static const String creditPlanBase = '${apiUrl3}credit/plan/';
   static const String creditAllPlans = '${apiUrl3}credit/allPlans';
 
+  // App version check now handled by new_version_plus package
+
   static Map<String, String> get headers => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
