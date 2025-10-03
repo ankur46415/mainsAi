@@ -242,13 +242,19 @@ class _MyLibraryViewState extends State<MyLibraryView> {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final workbook = controller.MyWorkBookLists[index];
-          return _buildWorkbookItem(workbook);
+          return _buildWorkbookItem(workbook, index);
         }, childCount: controller.MyWorkBookLists.length),
       );
     });
   }
 
-  Widget _buildWorkbookItem(Workbooks workbook) {
+  Widget _buildWorkbookItem(Workbooks workbook, int index) {
+    final String key =
+        workbook.workbookId ??
+        workbook.myWorkbookId ??
+        '${workbook.title}-${index}';
+    final String description = (workbook.description ?? '').trim();
+    final bool showToggle = description.length > 120;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
@@ -312,6 +318,51 @@ class _MyLibraryViewState extends State<MyLibraryView> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        // Pricing
+                        if (workbook.offerPrice != null ||
+                            workbook.MRP != null) ...[
+                          const SizedBox(height: 6),
+                          Builder(
+                            builder: (context) {
+                              final String currencySymbol =
+                                  (workbook.currency != null &&
+                                          workbook.currency!.isNotEmpty)
+                                      ? workbook.currency!
+                                      : '₹';
+                              final num? offer = workbook.offerPrice;
+                              final num? mrp = workbook.MRP;
+                              final bool hasOffer = offer != null && offer > 0;
+                              final bool hasMrp = mrp != null && mrp > 0;
+                              return Row(
+                                children: [
+                                  if (hasOffer)
+                                    Text(
+                                      "$currencySymbol${offer.toStringAsFixed(0)}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.green[700],
+                                      ),
+                                    ),
+                                  if (hasOffer && hasMrp)
+                                    const SizedBox(width: 8),
+                                  if (hasMrp)
+                                    Text(
+                                      "$currencySymbol${mrp.toStringAsFixed(0)}",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                        decoration:
+                                            hasOffer
+                                                ? TextDecoration.lineThrough
+                                                : TextDecoration.none,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                         if (workbook.rating != null) ...[
                           const SizedBox(height: 4),
                           Row(
@@ -331,6 +382,51 @@ class _MyLibraryViewState extends State<MyLibraryView> {
                               ),
                             ],
                           ),
+                        ],
+                        if (description.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Obx(() {
+                            final bool isExpanded = controller.isDescExpanded(
+                              key,
+                            );
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  description,
+                                  maxLines: isExpanded ? null : 2,
+                                  overflow:
+                                      isExpanded
+                                          ? TextOverflow.visible
+                                          : TextOverflow.ellipsis,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                if (showToggle)
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(0, 0),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed:
+                                        () =>
+                                            controller.toggleDescExpanded(key),
+                                    child: Text(
+                                      isExpanded ? 'See less' : 'See more',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }),
                         ],
                         Row(
                           children: [

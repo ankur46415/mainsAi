@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:mains/models/my_workBook_List.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -23,6 +22,8 @@ class MyLibraryController extends GetxController {
   final error = ''.obs;
   late SharedPreferences prefs;
   String? authToken;
+  // Track which descriptions are expanded (keys: workbookId/myWorkbookId/title-index)
+  final expandedDescKeys = <String>{}.obs;
 
   @override
   void onInit() async {
@@ -41,11 +42,7 @@ class MyLibraryController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    final url = Uri.parse(ApiUrls.getMyFavBooks);
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $authToken',
-    };
+    // Note: headers/url prepared by API helper
 
     await callWebApiGet(
       null,
@@ -85,7 +82,7 @@ class MyLibraryController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    final url = Uri.parse(ApiUrls.removeMyFavBooks);
+    // final url = Uri.parse(ApiUrls.removeMyFavBooks);
 
     await callWebApi(
       null,
@@ -170,9 +167,7 @@ class MyLibraryController extends GetxController {
             final workbooks =
                 myWorkBookList.data ?? [];
 
-            for (var book in workbooks) {
-            
-            }
+            // Workbooks parsed; can be used for any preprocessing if needed
 
             MyWorkBookLists.value = workbooks;
             isBooksLoaded.value = true;
@@ -204,7 +199,7 @@ class MyLibraryController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    final url = ApiUrls.dleteMyWorkBookLibrary; 
+    final url = ApiUrls.dleteMyWorkBookLibrary;
     await callWebApi(
       null,
       url, 
@@ -229,6 +224,17 @@ class MyLibraryController extends GetxController {
       showLoader: false,
       hideLoader: false,
     );
+  }
+
+  // UI helpers for description expand/collapse
+  bool isDescExpanded(String key) => expandedDescKeys.contains(key);
+  void toggleDescExpanded(String key) {
+    if (expandedDescKeys.contains(key)) {
+      expandedDescKeys.remove(key);
+    } else {
+      expandedDescKeys.add(key);
+    }
+    expandedDescKeys.refresh();
   }
 
   @override

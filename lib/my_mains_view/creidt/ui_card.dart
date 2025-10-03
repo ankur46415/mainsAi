@@ -20,7 +20,7 @@ class CreditCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF6F00), Color(0xFFE53935)],
+            colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53), Color(0xFFFFC107)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

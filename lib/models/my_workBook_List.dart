@@ -49,6 +49,10 @@ class Workbooks {
   String? lastAccessedAt;
   String? personalNote;
   String? priority;
+  // Pricing (optional)
+  num? MRP;
+  num? offerPrice;
+  String? currency;
 
   Workbooks({
     this.myWorkbookId,
@@ -72,6 +76,9 @@ class Workbooks {
     this.lastAccessedAt,
     this.personalNote,
     this.priority,
+    this.MRP,
+    this.offerPrice,
+    this.currency,
   });
 
   Workbooks.fromJson(Map<String, dynamic> json) {
@@ -103,6 +110,10 @@ class Workbooks {
     lastAccessedAt = json['last_accessed_at']?.toString();
     personalNote = json['personal_note']?.toString();
     priority = json['priority']?.toString();
+    // Pricing (if provided by API)
+    MRP = json['MRP'] as num?;
+    offerPrice = json['offerPrice'] as num?;
+    currency = json['currency']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -128,6 +139,10 @@ class Workbooks {
       'last_accessed_at': lastAccessedAt,
       'personal_note': personalNote,
       'priority': priority,
+      // Pricing
+      'MRP': MRP,
+      'offerPrice': offerPrice,
+      'currency': currency,
     };
   }
 }
