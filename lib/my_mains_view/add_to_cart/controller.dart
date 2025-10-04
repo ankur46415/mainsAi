@@ -2,6 +2,118 @@ import 'package:mains/app_imports.dart';
 import 'package:mains/models/get_all_cart_list.dart';
 import 'package:mains/my_mains_view/creidt/addCredit/paytm_page.dart';
 
+class AddToCartController extends GetxController {
+  // Cart UI state management
+  var selectedIndexes = <int>{}.obs;
+  var initialSelectionDone = false.obs;
+  var showSummary = false.obs;
+
+  // Get cart list from CreditCardController
+  Rxn<GetCartList> get cartList {
+    try {
+      final creditController = Get.find<CreditCardController>();
+      return creditController.cartList;
+    } catch (e) {
+      return Rxn<GetCartList>();
+    }
+  }
+
+  // Computed properties
+  double get subTotal {
+    final items = cartList.value?.data?.items;
+    if (items == null) return 0;
+    double sum = 0;
+    for (int i = 0; i < (items.length); i++) {
+      if (selectedIndexes.contains(i)) {
+        sum += (items[i].price ?? 0) * 1;
+      }
+    }
+    return sum;
+  }
+
+  double get gstAmount {
+    final items = cartList.value?.data?.items;
+    if (items == null) return 0;
+    double gstSum = 0;
+    for (int i = 0; i < items.length; i++) {
+      if (selectedIndexes.contains(i)) {
+        final price = items[i].price ?? 0;
+        final gstPercent = items[i].workbookId?.gst ?? 0;
+        gstSum += price * (gstPercent / 100);
+      }
+    }
+    return gstSum;
+  }
+
+  double get total => subTotal + gstAmount;
+
+  // Methods for managing selection
+  void toggleItemSelection(int index) {
+    if (selectedIndexes.contains(index)) {
+      selectedIndexes.remove(index);
+    } else {
+      selectedIndexes.add(index);
+    }
+  }
+
+  void toggleSelectAll() {
+    final items = cartList.value?.data?.items ?? [];
+    if (selectedIndexes.length == items.length) {
+      selectedIndexes.clear();
+    } else {
+      selectedIndexes.value = Set<int>.from(
+        List.generate(items.length, (i) => i),
+      );
+    }
+  }
+
+  void initializeSelection() {
+    final items = cartList.value?.data?.items ?? [];
+    if (!initialSelectionDone.value && items.isNotEmpty) {
+      selectedIndexes.value = Set<int>.from(
+        List.generate(items.length, (i) => i),
+      );
+      initialSelectionDone.value = true;
+    }
+    // If cart becomes empty, reset the flag
+    if (items.isEmpty && initialSelectionDone.value) {
+      initialSelectionDone.value = false;
+    }
+  }
+
+  void resetSelectionAfterDelete() {
+    final items = cartList.value?.data?.items ?? [];
+    selectedIndexes.value = Set<int>.from(
+      List.generate(items.length, (i) => i),
+    );
+    initialSelectionDone.value = true;
+  }
+
+  void toggleSummary() {
+    showSummary.value = !showSummary.value;
+  }
+
+  void hideSummary() {
+    showSummary.value = false;
+  }
+
+  // Get CreditCardController instance
+  CreditCardController get creditController {
+    return Get.find<CreditCardController>();
+  }
+
+  // Proceed to payment method
+  Future<void> proceedToPayment() async {
+    final items = cartList.value?.data?.items ?? [];
+    final selectedWorkbookIds = selectedIndexes
+        .map((i) => items[i].workbookId?.id)
+        .whereType<String>()
+        .toList();
+
+    await creditController.proceedToPayment(selectedWorkbookIds);
+  }
+}
+
 class CreditCardController extends GetxController {
   late SharedPreferences prefs;
   String? authToken;
@@ -9,6 +121,9 @@ class CreditCardController extends GetxController {
   var cartList = Rxn<GetCartList>();
   var isLoading = false.obs;
   var error = ''.obs;
+
+  // Getter to access cart list from AddToCartController
+  Rxn<GetCartList> get cartListData => cartList;
   @override
   void onInit() async {
     super.onInit();

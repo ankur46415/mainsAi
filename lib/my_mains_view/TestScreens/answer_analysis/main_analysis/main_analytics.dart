@@ -320,28 +320,30 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                 ) {
                                                                   final popupUrl =
                                                                       images[i];
-                                                                  final double
-                                                                  boxWidth =
-                                                                      isLandscape
-                                                                          ? screenSize
-                                                                              .height
-                                                                          : screenSize
-                                                                              .width;
-                                                                  final double
-                                                                  boxHeight =
-                                                                      isLandscape
-                                                                          ? screenSize
-                                                                              .width
-                                                                          : screenSize
-                                                                              .height;
-
                                                                   return Center(
-                                                                    child: SizedBox(
+                                                                    child: AnimatedContainer(
+                                                                      duration: const Duration(
+                                                                        milliseconds:
+                                                                            300,
+                                                                      ),
+                                                                      curve:
+                                                                          Curves
+                                                                              .easeInOut,
                                                                       width:
-                                                                          boxWidth,
+                                                                          isLandscape
+                                                                              ? screenSize.width
+                                                                              : screenSize.width *
+                                                                                  0.9,
                                                                       height:
-                                                                          boxHeight,
-                                                                      child: ClipRect(
+                                                                          isLandscape
+                                                                              ? screenSize.height
+                                                                              : screenSize.height *
+                                                                                  0.6,
+                                                                      child: ClipRRect(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              12,
+                                                                            ),
                                                                         child: InteractiveViewer(
                                                                           minScale:
                                                                               1.0,
@@ -351,9 +353,12 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                               true,
                                                                           scaleEnabled:
                                                                               true,
-                                                                          child: FittedBox(
-                                                                            fit:
-                                                                                BoxFit.contain,
+                                                                          child: Padding(
+                                                                            padding: EdgeInsets.all(
+                                                                              isLandscape
+                                                                                  ? 16.0
+                                                                                  : 0.0,
+                                                                            ), // 👈 Padding in landscape mode
                                                                             child: RotatedBox(
                                                                               quarterTurns:
                                                                                   isLandscape
@@ -362,7 +367,10 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                               child: Image.network(
                                                                                 popupUrl,
                                                                                 fit:
-                                                                                    BoxFit.contain,
+                                                                                    isLandscape
+                                                                                        ? BoxFit
+                                                                                            .fill // 👈 Fill in landscape
+                                                                                        : BoxFit.contain, // 👈 Normal in portrait
                                                                                 errorBuilder:
                                                                                     (
                                                                                       _,
@@ -384,6 +392,8 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                   );
                                                                 },
                                                               ),
+
+                                                              // ---- TOP RIGHT ICONS ----
                                                               Positioned(
                                                                 top: 40,
                                                                 right: 20,
@@ -394,7 +404,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                         Icons
                                                                             .screen_rotation,
                                                                         color:
-                                                                            Colors.white,
+                                                                            Colors.red, // 👈 red icon
                                                                         size:
                                                                             30,
                                                                       ),
@@ -426,6 +436,8 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                                   ],
                                                                 ),
                                                               ),
+
+                                                              // ---- BOTTOM DOT INDICATORS ----
                                                               Positioned(
                                                                 bottom: 30,
                                                                 left: 0,
@@ -478,6 +490,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                                   },
                                                 );
                                               },
+
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -532,7 +545,6 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                           ),
                                         ),
                                       ),
-                                      // ---- RIGHT ARROW ----
                                       Positioned(
                                         right: 0,
                                         top: 0,
@@ -564,6 +576,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                         ),
                                       ),
 
+                                      // ---- PAGE INDICATORS ----
                                       Positioned(
                                         bottom: 8,
                                         left: 0,
@@ -611,7 +624,7 @@ class _MainAnalyticsState extends State<MainAnalytics>
                                         ),
                                       ),
 
-                                      // ---- PDF icons ----
+                                      // ---- PDF ICONS ----
                                       Obx(() {
                                         final controller =
                                             Get.find<MainAnalyticsController>();
@@ -666,8 +679,6 @@ class _MainAnalyticsState extends State<MainAnalytics>
                       ],
                     ),
                   ),
-
-                  // helper
                   SliverPersistentHeader(
                     delegate: _SliverAppBarDelegate(
                       minHeight: 48,

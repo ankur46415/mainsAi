@@ -14,47 +14,16 @@ class AddToCart extends StatefulWidget {
 }
 
 class _AddToCartState extends State<AddToCart> {
-  late CreditCardController controller;
+  late CreditCardController creditController;
+  late AddToCartController cartController;
   String token = '';
-
-  Set<int> selectedIndexes = {};
-  bool initialSelectionDone = false;
 
   @override
   void initState() {
     super.initState();
-    controller = Get.put(CreditCardController());
+    creditController = Get.put(CreditCardController());
+    cartController = Get.put(AddToCartController());
   }
-
-  bool showSummary = false;
-
-  double get subTotal {
-    final items = controller.cartList.value?.data?.items;
-    if (items == null) return 0;
-    double sum = 0;
-    for (int i = 0; i < (items.length); i++) {
-      if (selectedIndexes.contains(i)) {
-        sum += (items[i].price ?? 0) * 1;
-      }
-    }
-    return sum;
-  }
-
-  double get gstAmount {
-    final items = controller.cartList.value?.data?.items;
-    if (items == null) return 0;
-    double gstSum = 0;
-    for (int i = 0; i < items.length; i++) {
-      if (selectedIndexes.contains(i)) {
-        final price = items[i].price ?? 0;
-        final gstPercent = items[i].workbookId?.gst ?? 0;
-        gstSum += price * (gstPercent / 100);
-      }
-    }
-    return gstSum;
-  }
-
-  double get total => subTotal + gstAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +68,10 @@ class _AddToCartState extends State<AddToCart> {
               size: 20,
             ),
             onPressed: () async {
-              final controller = Get.find<WorkBookBOOKDetailes>();
-              if (controller.workbook.value != null) {
-                await controller.fetchWorkbookDetails(
-                  controller.workbook.value!.sId!,
+              final workBookController = Get.find<WorkBookBOOKDetailes>();
+              if (workBookController.workbook.value != null) {
+                await workBookController.fetchWorkbookDetails(
+                  workBookController.workbook.value!.sId!,
                 );
               }
               Navigator.pop(context);
@@ -136,7 +105,7 @@ class _AddToCartState extends State<AddToCart> {
       ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoading.value) {
+          if (creditController.isLoading.value) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -160,7 +129,7 @@ class _AddToCartState extends State<AddToCart> {
               ),
             );
           }
-          if (controller.error.value.isNotEmpty) {
+          if (creditController.error.value.isNotEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -174,7 +143,7 @@ class _AddToCartState extends State<AddToCart> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
-                      controller.error.value,
+                      creditController.error.value,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
@@ -185,7 +154,7 @@ class _AddToCartState extends State<AddToCart> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => controller.fetchCartList(null),
+                    onPressed: () => creditController.fetchCartList(null),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(
@@ -208,19 +177,10 @@ class _AddToCartState extends State<AddToCart> {
               ),
             );
           }
-          final items = controller.cartList.value?.data?.items ?? [];
+          final items = creditController.cartList.value?.data?.items ?? [];
 
-          // By default, select all items only on initial load or when cart changes
-          if (!initialSelectionDone && items.isNotEmpty) {
-            selectedIndexes = Set<int>.from(
-              List.generate(items.length, (i) => i),
-            );
-            initialSelectionDone = true;
-          }
-          // If cart becomes empty, reset the flag
-          if (items.isEmpty && initialSelectionDone) {
-            initialSelectionDone = false;
-          }
+          // Initialize selection using controller
+          cartController.initializeSelection();
           if (items.isEmpty) {
             return Center(
               child: Column(
@@ -300,44 +260,41 @@ class _AddToCartState extends State<AddToCart> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${selectedIndexes.length} item${selectedIndexes.length != 1 ? 's' : ''} selected',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
+                    Obx(
+                      () => Text(
+                        '${cartController.selectedIndexes.length} item${cartController.selectedIndexes.length != 1 ? 's' : ''} selected',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ),
                     if (items.isNotEmpty)
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            if (selectedIndexes.length == items.length) {
-                              selectedIndexes.clear();
-                            } else {
-                              selectedIndexes = Set<int>.from(
-                                List.generate(items.length, (i) => i),
-                              );
-                            }
-                          });
+                          cartController.toggleSelectAll();
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            selectedIndexes.length == items.length
-                                ? 'Deselect All'
-                                : 'Select All',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.orange.shade700,
+                        child: Obx(
+                          () => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              cartController.selectedIndexes.length ==
+                                      items.length
+                                  ? 'Deselect All'
+                                  : 'Select All',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.orange.shade700,
+                              ),
                             ),
                           ),
                         ),
@@ -351,7 +308,7 @@ class _AddToCartState extends State<AddToCart> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    await controller.fetchCartList(null);
+                    await creditController.fetchCartList(null);
                   },
                   child: ListView.builder(
                     itemCount: items.length,
@@ -361,7 +318,8 @@ class _AddToCartState extends State<AddToCart> {
                     ),
                     itemBuilder: (context, index) {
                       final item = items[index];
-                      final isSelected = selectedIndexes.contains(index);
+                      final isSelected = cartController.selectedIndexes
+                          .contains(index);
 
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
@@ -392,16 +350,8 @@ class _AddToCartState extends State<AddToCart> {
                           onDismissed: (direction) async {
                             final itemId = item.workbookId?.id;
                             if (itemId != null && itemId.isNotEmpty) {
-                              await controller.deleteCartItem(itemId);
-                              setState(() {
-                                final newItems =
-                                    controller.cartList.value?.data?.items ??
-                                    [];
-                                selectedIndexes = Set<int>.from(
-                                  List.generate(newItems.length, (i) => i),
-                                );
-                                initialSelectionDone = true;
-                              });
+                              await creditController.deleteCartItem(itemId);
+                              cartController.resetSelectionAfterDelete();
                             }
                           },
                           child: Container(
@@ -423,13 +373,7 @@ class _AddToCartState extends State<AddToCart> {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedIndexes.remove(index);
-                                    } else {
-                                      selectedIndexes.add(index);
-                                    }
-                                  });
+                                  cartController.toggleItemSelection(index);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
@@ -560,16 +504,7 @@ class _AddToCartState extends State<AddToCart> {
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
-                                            Text(
-                                              item.title ?? 'Untitled Item',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.grey.shade800,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+
                                             const SizedBox(height: 8),
                                             Text(
                                               "₹${(item.price ?? 0).toStringAsFixed(2)}",
@@ -596,136 +531,126 @@ class _AddToCartState extends State<AddToCart> {
               ),
 
               // Bottom Checkout Section
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(showSummary ? 24 : 0),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 16,
-                      offset: const Offset(0, -4),
+              Obx(
+                () => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(
+                        cartController.showSummary.value ? 24 : 0,
+                      ),
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (showSummary) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Order Summary",
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.close_rounded,
-                              color: Colors.grey.shade600,
-                              size: 22,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                showSummary = false;
-                              });
-                            },
-                          ),
-                        ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 16,
+                        offset: const Offset(0, -4),
                       ),
-                      const SizedBox(height: 16),
-                      _buildPriceRow(
-                        "Subtotal",
-                        "₹${subTotal.toStringAsFixed(2)}",
-                      ),
-                      const SizedBox(height: 8),
-                      _buildPriceRow(
-                        "GST ",
-                        "₹${gstAmount.toStringAsFixed(2)}",
-                      ),
-                      const SizedBox(height: 12),
-                      const Divider(height: 1, thickness: 1),
-                      const SizedBox(height: 12),
-                      _buildPriceRow(
-                        "Total Amount",
-                        "₹${total.toStringAsFixed(2)}",
-                        isBold: true,
-                      ),
-                      const SizedBox(height: 20),
                     ],
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed:
-                            selectedIndexes.isEmpty
-                                ? null
-                                : () async {
-                                  if (!showSummary &&
-                                      selectedIndexes.isNotEmpty) {
-                                    setState(() {
-                                      showSummary = true;
-                                    });
-                                  } else if (showSummary) {
-                                    // Gather selected workbook IDs
-                                    final items =
-                                        controller
-                                            .cartList
-                                            .value
-                                            ?.data
-                                            ?.items ??
-                                        [];
-                                    final selectedWorkbookIds =
-                                        selectedIndexes
-                                            .map((i) => items[i].workbookId?.id)
-                                            .whereType<String>()
-                                            .toList();
-
-                                    // Call API
-                                    await controller.proceedToPayment(
-                                      selectedWorkbookIds,
-                                    );
-                                  }
-                                },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              selectedIndexes.isEmpty
-                                  ? Colors.grey.shade300
-                                  : Colors.orange,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          elevation: 2,
-                          shadowColor: Colors.orange.withOpacity(0.3),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (cartController.showSummary.value) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Order Summary",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: Colors.grey.shade600,
+                                size: 22,
+                              ),
+                              onPressed: () {
+                                cartController.hideSummary();
+                              },
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          showSummary
-                              ? "Proceed to Payment"
-                              : selectedIndexes.isEmpty
-                              ? "Select Items to Checkout"
-                              : "Checkout (${selectedIndexes.length} items)",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                selectedIndexes.isEmpty
-                                    ? Colors.grey.shade600
-                                    : Colors.white,
+                        const SizedBox(height: 16),
+                        _buildPriceRow(
+                          "Subtotal",
+                          "₹${cartController.subTotal.toStringAsFixed(2)}",
+                        ),
+                        const SizedBox(height: 8),
+                        _buildPriceRow(
+                          "GST ",
+                          "₹${cartController.gstAmount.toStringAsFixed(2)}",
+                        ),
+                        const SizedBox(height: 12),
+                        const Divider(height: 1, thickness: 1),
+                        const SizedBox(height: 12),
+                        _buildPriceRow(
+                          "Total Amount",
+                          "₹${cartController.total.toStringAsFixed(2)}",
+                          isBold: true,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: Obx(
+                          () => ElevatedButton(
+                            onPressed:
+                                cartController.selectedIndexes.isEmpty
+                                    ? null
+                                    : () async {
+                                      if (!cartController.showSummary.value &&
+                                          cartController
+                                              .selectedIndexes
+                                              .isNotEmpty) {
+                                        cartController.toggleSummary();
+                                      } else if (cartController
+                                          .showSummary
+                                          .value) {
+                                        // Call API through controller
+                                        await cartController.proceedToPayment();
+                                      }
+                                    },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  cartController.selectedIndexes.isEmpty
+                                      ? Colors.grey.shade300
+                                      : Colors.orange,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              elevation: 2,
+                              shadowColor: Colors.orange.withOpacity(0.3),
+                            ),
+                            child: Text(
+                              cartController.showSummary.value
+                                  ? "Proceed to Payment"
+                                  : cartController.selectedIndexes.isEmpty
+                                  ? "Select Items to Checkout"
+                                  : "Checkout (${cartController.selectedIndexes.length} items)",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    cartController.selectedIndexes.isEmpty
+                                        ? Colors.grey.shade600
+                                        : Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
