@@ -16,7 +16,7 @@ class AllPlanScreen extends StatefulWidget {
 
 class _AllPlanScreenState extends State<AllPlanScreen> {
   late AllPlanController controller;
-  String? _selectedCategory;
+  
   @override
   void initState() {
     super.initState();
@@ -70,33 +70,10 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
             return _buildErrorState();
           }
 
-          // Build categories (unique, non-empty)
-          final categories =
-              <String>{}..addAll(
-                controller.plans
-                    .map((p) => p.category?.trim() ?? '')
-                    .where((c) => c.isNotEmpty),
-              );
-
-          // Apply category filter
-          final enrolledPlans =
-              controller.plans
-                  .where((p) => p.isEnrolled == true)
-                  .where(
-                    (p) =>
-                        _selectedCategory == null ||
-                        (p.category?.trim() ?? '') == _selectedCategory,
-                  )
-                  .toList();
-          final notEnrolledPlans =
-              controller.plans
-                  .where((p) => p.isEnrolled != true)
-                  .where(
-                    (p) =>
-                        _selectedCategory == null ||
-                        (p.category?.trim() ?? '') == _selectedCategory,
-                  )
-                  .toList();
+          // Get categories and filtered plans from controller
+          final categories = controller.categories;
+          final enrolledPlans = controller.enrolledPlans;
+          final notEnrolledPlans = controller.notEnrolledPlans;
 
           return Column(
             children: [
@@ -110,8 +87,8 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                     children: [
                       _buildFilterChip(
                         label: 'All',
-                        selected: _selectedCategory == null,
-                        onTap: () => setState(() => _selectedCategory = null),
+                        selected: controller.selectedCategory.value == null,
+                        onTap: () => controller.clearCategoryFilter(),
                       ),
                       const SizedBox(width: 8),
                       ...categories.map(
@@ -119,9 +96,8 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
                           padding: const EdgeInsets.only(right: 8),
                           child: _buildFilterChip(
                             label: cat,
-                            selected: _selectedCategory == cat,
-                            onTap:
-                                () => setState(() => _selectedCategory = cat),
+                            selected: controller.selectedCategory.value == cat,
+                            onTap: () => controller.selectCategory(cat),
                           ),
                         ),
                       ),

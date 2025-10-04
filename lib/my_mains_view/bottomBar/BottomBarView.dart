@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'bottom_bar_controller.dart';
 
 class BottomBarView extends StatefulWidget {
   const BottomBarView({
@@ -8,11 +9,13 @@ class BottomBarView extends StatefulWidget {
     this.tabIconsList,
     this.changeIndex,
     this.addClick,
+    this.controller,
   }) : super(key: key);
 
   final Function(int index)? changeIndex;
   final Function()? addClick;
   final List<TabIconData>? tabIconsList;
+  final BottomBarController? controller;
 
   @override
   _BottomBarViewState createState() => _BottomBarViewState();
@@ -21,6 +24,7 @@ class BottomBarView extends StatefulWidget {
 class _BottomBarViewState extends State<BottomBarView>
     with TickerProviderStateMixin {
   AnimationController? animationController;
+  BottomBarController? _controller;
 
   @override
   void initState() {
@@ -29,12 +33,19 @@ class _BottomBarViewState extends State<BottomBarView>
       duration: const Duration(milliseconds: 1000),
     );
     animationController?.forward();
+
+    _controller = widget.controller ?? BottomBarController();
+    _controller?.initializeTabs(widget.tabIconsList);
+
     super.initState();
   }
 
   @override
   void dispose() {
     animationController?.dispose();
+    if (widget.controller == null) {
+      _controller?.dispose();
+    }
     super.dispose();
   }
 
@@ -46,99 +57,100 @@ class _BottomBarViewState extends State<BottomBarView>
         AnimatedBuilder(
           animation: animationController!,
           builder: (BuildContext context, Widget? child) {
-            return Transform(
-              transform: Matrix4.translationValues(0.0, 0.0, 0.0),
-              child: PhysicalShape(
-                color: Colors.white,
-                elevation: 16.0,
-                clipper: TabClipper(
-                  radius:
-                      Tween<double>(begin: 0.0, end: 1.0)
-                          .animate(
-                            CurvedAnimation(
-                              parent: animationController!,
-                              curve: Curves.fastOutSlowIn,
-                            ),
-                          )
-                          .value *
-                      38.0,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 62,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 8,
-                          right: 8,
-                          top: 4,
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: TabIcons(
-                                tabIconData: widget.tabIconsList?[0],
-                                removeAllSelect: () {
-                                  setRemoveAllSelection(
-                                    widget.tabIconsList?[0],
-                                  );
-                                  widget.changeIndex!(0);
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: TabIcons(
-                                tabIconData: widget.tabIconsList?[1],
-                                removeAllSelect: () {
-                                  setRemoveAllSelection(
-                                    widget.tabIconsList?[1],
-                                  );
-                                  widget.changeIndex!(1);
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                              width:
-                                  Tween<double>(begin: 0.0, end: 1.0)
-                                      .animate(
-                                        CurvedAnimation(
-                                          parent: animationController!,
-                                          curve: Curves.fastOutSlowIn,
-                                        ),
-                                      )
-                                      .value *
-                                  64.0,
-                            ),
-                            Expanded(
-                              child: TabIcons(
-                                tabIconData: widget.tabIconsList?[3],
-                                removeAllSelect: () {
-                                  setRemoveAllSelection(
-                                    widget.tabIconsList?[3],
-                                  );
-                                  widget.changeIndex!(3);
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: TabIcons(
-                                tabIconData: widget.tabIconsList?[4],
-                                removeAllSelect: () {
-                                  setRemoveAllSelection(
-                                    widget.tabIconsList?[4],
-                                  );
-                                  widget.changeIndex!(4);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+            return AnimatedBuilder(
+              animation: _controller!,
+              builder: (context, child) {
+                return Transform(
+                  transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                  child: PhysicalShape(
+                    color: Colors.white,
+                    elevation: 16.0,
+                    clipper: TabClipper(
+                      radius:
+                          Tween<double>(begin: 0.0, end: 1.0)
+                              .animate(
+                                CurvedAnimation(
+                                  parent: animationController!,
+                                  curve: Curves.fastOutSlowIn,
+                                ),
+                              )
+                              .value *
+                          38.0,
                     ),
-                    SizedBox(height: MediaQuery.of(context).padding.bottom),
-                  ],
-                ),
-              ),
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: 62,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 8,
+                              right: 8,
+                              top: 4,
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: TabIcons(
+                                    tabIconData: _controller?.tabIconsList?[0],
+                                    controller: _controller,
+                                    onTap: () {
+                                      _controller?.selectTab(0);
+                                      widget.changeIndex!(0);
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: TabIcons(
+                                    tabIconData: _controller?.tabIconsList?[1],
+                                    controller: _controller,
+                                    onTap: () {
+                                      _controller?.selectTab(1);
+                                      widget.changeIndex!(1);
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width:
+                                      Tween<double>(begin: 0.0, end: 1.0)
+                                          .animate(
+                                            CurvedAnimation(
+                                              parent: animationController!,
+                                              curve: Curves.fastOutSlowIn,
+                                            ),
+                                          )
+                                          .value *
+                                      64.0,
+                                ),
+                                Expanded(
+                                  child: TabIcons(
+                                    tabIconData: _controller?.tabIconsList?[3],
+                                    controller: _controller,
+                                    onTap: () {
+                                      _controller?.selectTab(3);
+                                      widget.changeIndex!(3);
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: TabIcons(
+                                    tabIconData: _controller?.tabIconsList?[4],
+                                    controller: _controller,
+                                    onTap: () {
+                                      _controller?.selectTab(4);
+                                      widget.changeIndex!(4);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: MediaQuery.of(context).padding.bottom),
+                      ],
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -209,26 +221,15 @@ class _BottomBarViewState extends State<BottomBarView>
       ],
     );
   }
-
-  void setRemoveAllSelection(TabIconData? tabIconData) {
-    if (!mounted) return;
-    setState(() {
-      widget.tabIconsList?.forEach((TabIconData tab) {
-        tab.isSelected = false;
-        if (tabIconData!.index == tab.index) {
-          tab.isSelected = true;
-        }
-      });
-    });
-  }
 }
 
 class TabIcons extends StatefulWidget {
-  const TabIcons({Key? key, this.tabIconData, this.removeAllSelect})
+  const TabIcons({Key? key, this.tabIconData, this.controller, this.onTap})
     : super(key: key);
 
   final TabIconData? tabIconData;
-  final Function()? removeAllSelect;
+  final BottomBarController? controller;
+  final Function()? onTap;
 
   @override
   _TabIconsState createState() => _TabIconsState();
@@ -243,7 +244,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
     )..addStatusListener((AnimationStatus status) {
       if (status == AnimationStatus.completed) {
         if (!mounted) return;
-        widget.removeAllSelect!();
+        widget.onTap?.call();
         widget.tabIconData?.animationController?.reverse();
       }
     });
@@ -269,75 +270,81 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
               setAnimation();
             }
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              IgnorePointer(
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: <Widget>[
-                    ScaleTransition(
-                      alignment: Alignment.center,
-                      scale: Tween<double>(begin: 0.88, end: 1.0).animate(
-                        CurvedAnimation(
-                          parent: widget.tabIconData!.animationController!,
-                          curve: Interval(
-                            0.1,
-                            1.0,
-                            curve: Curves.fastOutSlowIn,
+          child: AnimatedBuilder(
+            animation: widget.controller!,
+            builder: (context, child) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  IgnorePointer(
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: <Widget>[
+                        ScaleTransition(
+                          alignment: Alignment.center,
+                          scale: Tween<double>(begin: 0.88, end: 1.0).animate(
+                            CurvedAnimation(
+                              parent: widget.tabIconData!.animationController!,
+                              curve: Interval(
+                                0.1,
+                                1.0,
+                                curve: Curves.fastOutSlowIn,
+                              ),
+                            ),
+                          ),
+                          child: Image.asset(
+                            widget.tabIconData!.isSelected
+                                ? widget.tabIconData!.selectedImagePath
+                                : widget.tabIconData!.imagePath,
+                            width: 24,
+                            height: 24,
+                            color:
+                                widget.tabIconData!.isSelected
+                                    ? Color(0xFFFFC107)
+                                    : Colors.grey,
                           ),
                         ),
-                      ),
-                      child: Image.asset(
-                        widget.tabIconData!.isSelected
-                            ? widget.tabIconData!.selectedImagePath
-                            : widget.tabIconData!.imagePath,
-                        width: 24,
-                        height: 24,
-                        color:
-                            widget.tabIconData!.isSelected
-                                ? Color(0xFFFFC107)
-                                : Colors.grey,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 12, right: 6),
-                      child: ScaleTransition(
-                        alignment: Alignment.center,
-                        scale: Tween<double>(begin: 0.0, end: 1.0).animate(
-                          CurvedAnimation(
-                            parent: widget.tabIconData!.animationController!,
-                            curve: Interval(
-                              0.2,
-                              1.0,
-                              curve: Curves.fastOutSlowIn,
+                        Container(
+                          margin: EdgeInsets.only(bottom: 12, right: 6),
+                          child: ScaleTransition(
+                            alignment: Alignment.center,
+                            scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+                              CurvedAnimation(
+                                parent:
+                                    widget.tabIconData!.animationController!,
+                                curve: Interval(
+                                  0.2,
+                                  1.0,
+                                  curve: Curves.fastOutSlowIn,
+                                ),
+                              ),
+                            ),
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Color(0xFFFFC107),
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
                         ),
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFFFC107),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              Text(
-                widget.tabIconData!.title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      widget.tabIconData!.isSelected
-                          ? Color(0xFFFFC107)
-                          : Colors.grey,
-                ),
-              ),
-            ],
+                  ),
+                  Text(
+                    widget.tabIconData!.title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color:
+                          widget.tabIconData!.isSelected
+                              ? Color(0xFFFFC107)
+                              : Colors.grey,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -413,23 +420,4 @@ class TabClipper extends CustomClipper<Path> {
     final double redian = (math.pi / 180) * degree;
     return redian;
   }
-}
-
-class TabIconData {
-  TabIconData({
-    this.imagePath = '',
-    this.selectedImagePath = '',
-    this.index = 0,
-    this.isSelected = false,
-    this.title = '',
-    this.animationController,
-  });
-
-  String imagePath;
-  String selectedImagePath;
-  String title;
-  bool isSelected;
-  int index;
-
-  AnimationController? animationController;
 }

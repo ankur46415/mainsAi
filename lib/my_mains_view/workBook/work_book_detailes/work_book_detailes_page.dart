@@ -872,18 +872,21 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                             const SizedBox(
                                                               width: 4,
                                                             ),
-                                                            Text(
-                                                              set.startsAt !=
-                                                                      null
-                                                                  ? _formatDateTime(
-                                                                    set.startsAt,
-                                                                  )
-                                                                  : '-',
-                                                              style: GoogleFonts.poppins(
-                                                                fontSize: 11,
-                                                                color:
-                                                                    Colors
-                                                                        .grey[600],
+                                                            Flexible(
+                                                              child: Text(
+                                                                set.startsAt !=
+                                                                        null
+                                                                    ? _formatDateTime(
+                                                                      set.startsAt,
+                                                                    )
+                                                                    : '-',
+                                                                style: GoogleFonts.poppins(
+                                                                  fontSize: 11,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey[600],
+                                                                ),
+                                                                overflow: TextOverflow.ellipsis,
                                                               ),
                                                             ),
                                                             const SizedBox(

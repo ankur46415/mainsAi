@@ -1,49 +1,33 @@
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../app_imports.dart';
+import 'controller.dart';
 
 class MyProgressScreen extends StatefulWidget {
-  const MyProgressScreen({super.key});
+  const MyProgressScreen({super.key, this.controller});
+
+  final MyProgressController? controller;
 
   @override
   State<MyProgressScreen> createState() => _MyProgressScreenState();
 }
 
 class _MyProgressScreenState extends State<MyProgressScreen> {
-  final List<_ChartData> data = [
-    _ChartData('BPSC', 35, Colors.blue),
-    _ChartData('UPPCS', 45, Colors.orange),
-    _ChartData('MPPCS', 20, Colors.green),
-  ];
+  MyProgressController? _controller;
 
-  String selectedExam = 'BPSC';
-  final Map<String, double> overallCompletion = {
-    'BPSC': 72,
-    'UPPCS': 58,
-    'MPPCS': 41,
-  };
-  final Map<String, double> accuracy = {'BPSC': 68, 'UPPCS': 61, 'MPPCS': 54};
-  final Map<String, int> attempts = {'BPSC': 24, 'UPPCS': 17, 'MPPCS': 9};
-  final Map<String, List<_BarData>> subjectWise = {
-    'BPSC': [
-      _BarData('GS1', 65),
-      _BarData('GS2', 72),
-      _BarData('GS3', 58),
-      _BarData('GS4', 80),
-    ],
-    'UPPCS': [
-      _BarData('GS1', 52),
-      _BarData('GS2', 60),
-      _BarData('GS3', 47),
-      _BarData('GS4', 71),
-    ],
-    'MPPCS': [
-      _BarData('GS1', 40),
-      _BarData('GS2', 46),
-      _BarData('GS3', 38),
-      _BarData('GS4', 55),
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? MyProgressController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _controller?.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,282 +40,282 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
     ];
     return Scaffold(
       appBar: CustomAppBar(title: "My Progress"),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF2196F3),
-                    Color(0xFF1976D2),
-                    Color(0xFF0D47A1),
+      body: AnimatedBuilder(
+        animation: _controller!,
+        builder: (context, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF2196F3),
+                        Color(0xFF1976D2),
+                        Color(0xFF0D47A1),
+                      ],
+
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF344955).withOpacity(0.1),
+                        spreadRadius: 0,
+                        offset: const Offset(0, 6),
+                      ),
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.06),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Your Progress Dashboard',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${_controller!.currentCompletion.toStringAsFixed(0)}% Complete',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          _ExamToggle(
+                            selected: _controller!.selectedExam,
+                            onChanged: (v) => _controller!.selectExam(v),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: _controller!.currentCompletion / 100,
+                          minHeight: 10,
+                          backgroundColor: Colors.white.withOpacity(0.25),
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${_controller!.currentAttempts}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Attempts',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${_controller!.currentAccuracy.toStringAsFixed(0)}%',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Accuracy',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '80%',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Target',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _CardShell(
+                        title: 'Overall',
+                        child: _PieChartCard(
+                          slices: [
+                            _ChartData(
+                              'Done',
+                              _controller!.overallAverageCompletion,
+                              gradientColors[0],
+                            ),
+                            _ChartData(
+                              'Remaining',
+                              _controller!.overallRemaining,
+                              remainingColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF344955).withOpacity(0.1),
-                    spreadRadius: 0,
-                    offset: const Offset(0, 6),
-                  ),
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.06),
-                    blurRadius: 8,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Your Progress Dashboard',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${overallCompletion[selectedExam]?.toStringAsFixed(0)}% Complete',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
+                SizedBox(height: Get.width * 0.05),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _CardShell(
+                        title: 'BPSC',
+                        child: _PieChartCard(
+                          slices: [
+                            _ChartData(
+                              'Done',
+                              _controller!.overallCompletion['BPSC']!
+                                  .toDouble(),
+                              gradientColors[1],
+                            ),
+                            _ChartData(
+                              'Remaining',
+                              100 - _controller!.overallCompletion['BPSC']!,
+                              remainingColor,
+                            ),
+                          ],
                         ),
                       ),
-                      _ExamToggle(
-                        selected: selectedExam,
-                        onChanged: (v) => setState(() => selectedExam = v),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: (overallCompletion[selectedExam] ?? 0) / 100,
-                      minHeight: 10,
-                      backgroundColor: Colors.white.withOpacity(0.25),
-                      color: Colors.white,
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${attempts[selectedExam]}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _CardShell(
+                        title: 'UPPCS',
+                        child: _PieChartCard(
+                          slices: [
+                            _ChartData(
+                              'Done',
+                              _controller!.overallCompletion['UPPCS']!
+                                  .toDouble(),
+                              gradientColors[2],
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            'Attempts',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
+                            _ChartData(
+                              'Remaining',
+                              100 - _controller!.overallCompletion['UPPCS']!,
+                              remainingColor,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${accuracy[selectedExam]?.toStringAsFixed(0)}%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            'Accuracy',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '80%',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Target',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                    ),
+                  ],
+                ),
 
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _CardShell(
-                    title: 'Overall',
-                    child: _PieChartCard(
-                      slices: [
-                        _ChartData(
-                          'Done',
-                          (overallCompletion['BPSC']! +
-                                  overallCompletion['UPPCS']! +
-                                  overallCompletion['MPPCS']!) /
-                              3,
-                          gradientColors[0],
+                const SizedBox(height: 16),
+                // Row 2: Subject-wise bar chart with exam toggle
+                _CardShell(
+                  title: 'Subject-wise Performance',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _ExamToggle(
+                          selected: _controller!.selectedExam,
+                          onChanged: (v) => _controller!.selectExam(v),
                         ),
-                        _ChartData(
-                          'Remaining',
-                          100 -
-                              ((overallCompletion['BPSC']! +
-                                      overallCompletion['UPPCS']! +
-                                      overallCompletion['MPPCS']!) /
-                                  3),
-                          remainingColor,
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 220,
+                        child: SfCartesianChart(
+                          primaryXAxis: CategoryAxis(
+                            majorGridLines: const MajorGridLines(width: 0),
+                            labelStyle: TextStyle(
+                              color: scheme.onSurfaceVariant,
+                              fontSize: 11,
+                            ),
+                          ),
+                          primaryYAxis: NumericAxis(
+                            minimum: 0,
+                            maximum: 100,
+                            interval: 20,
+                            labelStyle: TextStyle(
+                              color: scheme.onSurfaceVariant,
+                              fontSize: 11,
+                            ),
+                          ),
+                          legend: const Legend(isVisible: false),
+                          series: <CartesianSeries<BarData, String>>[
+                            ColumnSeries<BarData, String>(
+                              dataSource: _controller!.currentSubjectWise,
+                              xValueMapper: (BarData d, _) => d.label,
+                              yValueMapper: (BarData d, _) => d.value,
+                              color: gradientColors[1],
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(6),
+                              ),
+                              dataLabelSettings: const DataLabelSettings(
+                                isVisible: true,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: Get.width * 0.05),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _CardShell(
-                    title: 'BPSC',
-                    child: _PieChartCard(
-                      slices: [
-                        _ChartData(
-                          'Done',
-                          overallCompletion['BPSC']!.toDouble(),
-                          gradientColors[1],
-                        ),
-                        _ChartData(
-                          'Remaining',
-                          100 - overallCompletion['BPSC']!,
-                          remainingColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _CardShell(
-                    title: 'UPPCS',
-                    child: _PieChartCard(
-                      slices: [
-                        _ChartData(
-                          'Done',
-                          overallCompletion['UPPCS']!.toDouble(),
-                          gradientColors[2],
-                        ),
-                        _ChartData(
-                          'Remaining',
-                          100 - overallCompletion['UPPCS']!,
-                          remainingColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-            // Row 2: Subject-wise bar chart with exam toggle
-            _CardShell(
-              title: 'Subject-wise Performance',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _ExamToggle(
-                      selected: selectedExam,
-                      onChanged: (v) => setState(() => selectedExam = v),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 220,
-                    child: SfCartesianChart(
-                      primaryXAxis: CategoryAxis(
-                        majorGridLines: const MajorGridLines(width: 0),
-                        labelStyle: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: 11,
-                        ),
-                      ),
-                      primaryYAxis: NumericAxis(
-                        minimum: 0,
-                        maximum: 100,
-                        interval: 20,
-                        labelStyle: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: 11,
-                        ),
-                      ),
-                      legend: const Legend(isVisible: false),
-                      series: <CartesianSeries<_BarData, String>>[
-                        ColumnSeries<_BarData, String>(
-                          dataSource: subjectWise[selectedExam] ?? [],
-                          xValueMapper: (_BarData d, _) => d.label,
-                          yValueMapper: (_BarData d, _) => d.value,
-                          color: gradientColors[1],
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(6),
-                          ),
-                          dataLabelSettings: const DataLabelSettings(
-                            isVisible: true,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -345,12 +329,6 @@ class _ChartData {
   final Color color;
 
   _ChartData(this.label, this.value, this.color);
-}
-
-class _BarData {
-  final String label;
-  final double value;
-  _BarData(this.label, this.value);
 }
 
 class _PieChartCard extends StatelessWidget {

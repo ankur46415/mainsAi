@@ -28,7 +28,6 @@ class _VoiceScreenState extends State<VoiceScreen>
   late VoiceController controller;
   bool _isControllerInitialized = false;
   late AudioPlayer welcomePlayer;
-  bool showWelcome = true;
 
   List<FAQs> get initialFaqs {
     if (widget.welcomeAiFAQsForChat == null) return [];
@@ -835,7 +834,9 @@ class _VoiceScreenState extends State<VoiceScreen>
         final showThinking = controller.showThinkingBubble.value;
         final List<Widget> chatBubbles = [];
 
-        if (widget.isFromBottomNav && showWelcome && messages.isEmpty) {
+        if (widget.isFromBottomNav &&
+            controller.showWelcome.value &&
+            messages.isEmpty) {
           chatBubbles.add(
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -1069,9 +1070,7 @@ class _VoiceScreenState extends State<VoiceScreen>
                                   color: Colors.white,
                                 ),
                                 onPressed: () {
-                                  setState(() {
-                                    showWelcome = false;
-                                  });
+                                  controller.hideWelcome();
                                   controller.sendChatMessage();
                                 },
                               ),
@@ -1290,7 +1289,6 @@ class _VoiceScreenState extends State<VoiceScreen>
                         final bookId = controller.bookDetails.value?.id;
                         final chapterId = chapter.chapterId;
 
-            
                         if (bookId != null && chapterId != null) {
                           final assetUrl = '$bookId/chapters/$chapterId';
                           Get.toNamed(
@@ -1330,8 +1328,6 @@ class _VoiceScreenState extends State<VoiceScreen>
                               final bookId = controller.bookDetails.value?.id;
                               final topicId = topic.topicId;
                               final chapterId = chapter.chapterId;
-
-                            
 
                               if (bookId != null && topicId != null) {
                                 final assetUrl =

@@ -23,7 +23,6 @@ class MyLibraryView extends StatefulWidget {
 class _MyLibraryViewState extends State<MyLibraryView> {
   late final MyLibraryController controller;
   final ScrollController _scrollController = ScrollController();
-  bool _isScrollingDown = false;
 
   @override
   void initState() {
@@ -36,14 +35,14 @@ class _MyLibraryViewState extends State<MyLibraryView> {
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
-        if (!_isScrollingDown) {
-          setState(() => _isScrollingDown = true);
+        if (!controller.isScrollingDown.value) {
+          controller.updateScrollDirection(true);
         }
       }
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.forward) {
-        if (_isScrollingDown) {
-          setState(() => _isScrollingDown = false);
+        if (controller.isScrollingDown.value) {
+          controller.updateScrollDirection(false);
         }
       }
     });

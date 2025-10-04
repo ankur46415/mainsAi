@@ -19,12 +19,17 @@ class MainTestScreenController extends GetxController {
     isWorkBook.value = value;
   }
 
+  void toggleExpanded(String answerId) {
+    expandedStates[answerId] = !(expandedStates[answerId] ?? false);
+  }
+
   final RxList<Annotation> annotations = <Annotation>[].obs;
   RxList<Answers> testAnswersList = RxList<Answers>();
   RxList<BookWorkbookInfo> workBookInfo = RxList<BookWorkbookInfo>();
   RxList<Workbook> workBookList = RxList<Workbook>();
   RxList<TestAnswerImages> allImagesList = RxList<TestAnswerImages>();
   RxMap<String, List<String>> annotatedImagesMap = <String, List<String>>{}.obs;
+  RxMap<String, bool> expandedStates = <String, bool>{}.obs;
 
   String formatTime(String? dateTimeStr) {
     if (dateTimeStr == null) return "Unknown";

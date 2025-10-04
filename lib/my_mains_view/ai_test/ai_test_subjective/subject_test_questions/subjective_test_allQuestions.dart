@@ -78,7 +78,7 @@ class _SubjectiveTestAllquestionsState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        formatDuration(controller.totalEstimatedTime.value),
+                        formatDuration(controller.remainingTime.value),
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 28,
@@ -104,9 +104,9 @@ class _SubjectiveTestAllquestionsState
                               ),
                               radius: 10,
                               confirm: ElevatedButton.icon(
-                                onPressed: () {
+                                onPressed: () async {
                                   Get.back();
-
+                                  await controller.endTest();
                                   final questionsData =
                                       controller.questions
                                           .map(

@@ -66,7 +66,7 @@ class Answers {
   int? attemptNumber;
   BookWorkbookInfo? bookWorkbookInfo;
   String? submissionStatus;
-  TestInfo? testInfo; // Add this
+  TestInfo? testInfo;
   String? submissionType;
   String? reviewStatus;
   String? requestID;

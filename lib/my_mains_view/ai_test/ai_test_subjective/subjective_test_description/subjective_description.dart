@@ -12,11 +12,20 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
   late SubjectiveTestDescriptionController controller;
   final GlobalKey<SlideActionState> key = GlobalKey();
   late Test testData;
+
   @override
   void initState() {
     controller = Get.put(SubjectiveTestDescriptionController());
     super.initState();
     testData = Get.arguments as Test;
+    controller.initializeWithTestData(testData);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Check test status when returning to this screen
+    controller.checkTestStatus();
   }
 
   @override
@@ -54,30 +63,36 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      testData.name.toString(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Obx(
+                      () => Text(
+                        controller.testName.value,
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildMetaTile(
-                          "Time",
-                          "${testData.estimatedTime ?? ''} Min",
+                        Obx(
+                          () =>
+                              _buildMetaTile("Time", controller.duration.value),
                         ),
 
-                        _buildMetaTile(
-                          "Questions",
-                          "${testData.userTestStatus?.totalQuestions ?? 0}",
+                        Obx(
+                          () => _buildMetaTile(
+                            "Questions",
+                            controller.questionCount.value,
+                          ),
                         ),
-                        _buildMetaTile(
-                          "Marks",
-                          testData.testMaximumMarks.toString(),
+                        Obx(
+                          () => _buildMetaTile(
+                            "Marks",
+                            controller.maxMarks.value,
+                          ),
                         ),
                       ],
                     ),
@@ -110,12 +125,14 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
                     ),
                   ],
                 ),
-                child: Text(
-                  testData.instructions.toString(),
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.5,
-                    height: 1.5,
-                    color: Colors.grey[800],
+                child: Obx(
+                  () => Text(
+                    controller.description.value,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.5,
+                      height: 1.5,
+                      color: Colors.grey[800],
+                    ),
                   ),
                 ),
               ),
@@ -128,43 +145,47 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: GestureDetector(
-          onTap:
-              (testData.userTestStatus?.totalQuestions ?? 0) > 0
-                  ? () => Get.toNamed(
-                    AppRoutes.subjectiveTestAllquestions,
-                    arguments: testData.testId,
-                  )
-                  : null,
-          child: Container(
-            width: double.infinity,
-            height: 60,
-            decoration: BoxDecoration(
-              color:
-                  (testData.userTestStatus?.totalQuestions ?? 0) > 0
-                      ? CustomColors.dayStart
-                      : Colors.grey.shade400,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: ((testData.userTestStatus?.totalQuestions ?? 0) > 0
-                          ? CustomColors.dayStart
-                          : Colors.grey.shade400)
-                      .withOpacity(0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              "Start Test Now",
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.white,
+          onTap: () {
+            if (controller.questionCount.value.isNotEmpty &&
+                int.tryParse(controller.questionCount.value) != null &&
+                int.parse(controller.questionCount.value) > 0) {
+              Get.toNamed(
+                AppRoutes.subjectiveTestAllquestions,
+                arguments: controller.testId.value,
+              );
+            }
+          },
+          child: Obx(() {
+            final hasQuestions = controller.questionCount.value.isNotEmpty && 
+                int.tryParse(controller.questionCount.value) != null &&
+                int.parse(controller.questionCount.value) > 0;
+            final buttonColor = hasQuestions ? CustomColors.dayStart : Colors.grey.shade400;
+            
+            return Container(
+              width: double.infinity,
+              height: 60,
+              decoration: BoxDecoration(
+                color: buttonColor,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: buttonColor.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-          ),
+              alignment: Alignment.center,
+              child: Text(
+                controller.getButtonText(),
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );

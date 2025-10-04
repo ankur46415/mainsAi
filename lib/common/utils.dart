@@ -36,7 +36,7 @@ class Utils {
       Get.generalDialog(
         barrierDismissible: false,
         pageBuilder: (context, animation1, animation2) {
-          return const SizedBox(); // required but unused here
+          return const SizedBox();
         },
         transitionBuilder: (context, a1, a2, widget) {
           return StatefulBuilder(

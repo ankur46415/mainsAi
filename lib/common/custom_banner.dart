@@ -1,11 +1,14 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'carousel_controller.dart';
 
 class AdsCarousel extends StatefulWidget {
-  final List<String> imageUrls; // ads ke URLs
+  final List<String> imageUrls;
   final double height;
   final double borderRadius;
   final EdgeInsets padding;
+  final AdsCarouselController? controller;
+  final bool autoPlay;
+  final Duration autoPlayDuration;
 
   const AdsCarousel({
     super.key,
@@ -13,6 +16,9 @@ class AdsCarousel extends StatefulWidget {
     this.height = 150,
     this.borderRadius = 12,
     this.padding = const EdgeInsets.symmetric(horizontal: 12),
+    this.controller,
+    this.autoPlay = true,
+    this.autoPlayDuration = const Duration(seconds: 3),
   });
 
   @override
@@ -20,34 +26,24 @@ class AdsCarousel extends StatefulWidget {
 }
 
 class _AdsCarouselState extends State<AdsCarousel> {
-  late PageController _pageController;
-  int _currentPage = 0;
-  Timer? _timer;
+  AdsCarouselController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-
-    if (widget.imageUrls.length > 1) {
-      _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-        if (_pageController.hasClients) {
-          _currentPage =
-              (_currentPage + 1) % widget.imageUrls.length; // next index
-          _pageController.animateToPage(
-            _currentPage,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
-        }
-      });
-    }
+    _controller = widget.controller ?? AdsCarouselController();
+    _controller?.initialize(
+      imageUrls: widget.imageUrls,
+      autoPlay: widget.autoPlay,
+      autoPlayDuration: widget.autoPlayDuration,
+    );
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _pageController.dispose();
+    if (widget.controller == null) {
+      _controller?.dispose();
+    }
     super.dispose();
   }
 
@@ -71,46 +67,53 @@ class _AdsCarouselState extends State<AdsCarousel> {
       );
     }
 
-    return Column(
-      children: [
-        SizedBox(
-          height: widget.height,
-          width: double.infinity,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() => _currentPage = index);
-            },
-            itemCount: widget.imageUrls.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: widget.padding,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                  child: _adImage(widget.imageUrls[index]),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(widget.imageUrls.length, (index) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              height: 8,
-              width: _currentPage == index ? 20 : 8,
-              decoration: BoxDecoration(
-                color:
-                    _currentPage == index ? Colors.blue : Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(6),
+    return AnimatedBuilder(
+      animation: _controller!,
+      builder: (context, child) {
+        return Column(
+          children: [
+            SizedBox(
+              height: widget.height,
+              width: double.infinity,
+              child: PageView.builder(
+                controller: _controller?.pageController,
+                onPageChanged: (index) {
+                  _controller?.onPageChanged(index);
+                },
+                itemCount: widget.imageUrls.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: widget.padding,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      child: _adImage(widget.imageUrls[index]),
+                    ),
+                  );
+                },
               ),
-            );
-          }),
-        ),
-      ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.imageUrls.length, (index) {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  height: 8,
+                  width: _controller?.currentPage == index ? 20 : 8,
+                  decoration: BoxDecoration(
+                    color:
+                        _controller?.currentPage == index
+                            ? Colors.blue
+                            : Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                );
+              }),
+            ),
+          ],
+        );
+      },
     );
   }
 

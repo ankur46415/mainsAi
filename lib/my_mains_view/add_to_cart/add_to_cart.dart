@@ -391,7 +391,6 @@ class _AddToCartState extends State<AddToCart> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // Selection Indicator
                                       Container(
                                         width: 24,
                                         height: 24,
@@ -421,8 +420,6 @@ class _AddToCartState extends State<AddToCart> {
                                                 )
                                                 : null,
                                       ),
-
-                                      // Product Image
                                       Container(
                                         width: 70,
                                         height: 70,
@@ -529,8 +526,6 @@ class _AddToCartState extends State<AddToCart> {
                   ),
                 ),
               ),
-
-              // Bottom Checkout Section
               Obx(
                 () => AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -614,7 +609,6 @@ class _AddToCartState extends State<AddToCart> {
                                       } else if (cartController
                                           .showSummary
                                           .value) {
-                                        // Call API through controller
                                         await cartController.proceedToPayment();
                                       }
                                     },

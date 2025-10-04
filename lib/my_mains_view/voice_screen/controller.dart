@@ -44,6 +44,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
   String? servamSourceName;
   String? apiKey;
   RxBool showFaqOptions = true.obs;
+  final RxBool showWelcome = true.obs;
   final bool? isRagChatAvailable;
   String? currentChatId;
   bool _isControllerDisposed = false;
@@ -52,7 +53,12 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     isManuallyStopped.value = false; // Reset flag when sending message
     addMessage({'message': text, 'sender': 'user'});
     showFaqOptions.value = false;
+    showWelcome.value = false; // Hide welcome when user sends message
     getHybridAIResponse(text);
+  }
+
+  void hideWelcome() {
+    showWelcome.value = false;
   }
 
   final languageMapping = <String, String>{
@@ -413,8 +419,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken');
 
-    isManuallyStopped.value =
-        false; 
+    isManuallyStopped.value = false;
 
     final url = Uri.parse(ApiUrls.appConfig);
 
@@ -964,6 +969,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     isManuallyStopped.value = false; // Reset flag when sending chat message
     chatTextController.clear();
     addMessage({'message': text, 'sender': 'user'});
+    showWelcome.value = false; // Hide welcome when user sends chat message
     await getHybridAIResponse(text);
   }
 
@@ -1275,12 +1281,12 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
 
   void resetMode(bool chatMode) {
     isChatMode.value = chatMode;
-    isManuallyStopped.value = false; // Reset flag when resetting mode
+    isManuallyStopped.value = false;
   }
 
   void resetChatSession() {
     currentChatId = null;
-    isManuallyStopped.value = false; // Reset flag when resetting chat session
+    isManuallyStopped.value = false;
     debugPrint("🔄 [Chat] Chat session reset");
   }
 
@@ -1294,7 +1300,7 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
       return;
     }
 
-    isManuallyStopped.value = false; 
+    isManuallyStopped.value = false;
 
     isLoadingBookDetails.value = true;
     debugPrint("⏳ isLoadingBookDetails set to true");
@@ -1359,6 +1365,100 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     }
   }
 
+  Future<void> getRAGResponse(String input) async {
+    if (input.trim().isEmpty) return;
+
+    debugPrint(
+      "📡 [getRAGResponse] Starting RAG API call with fixed book ID...",
+    );
+
+    try {
+      const String fixedBookId = '68dfcdc685681d1ce3124e8f';
+
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken');
+      final userId = prefs.getString('userId');
+
+      debugPrint(
+        "🔑 [getRAGResponse] Auth token: ${authToken != null ? 'Present' : 'Missing'}",
+      );
+      debugPrint(
+        "👤 [getRAGResponse] User ID: ${userId != null ? 'Present' : 'Missing'}",
+      );
+      debugPrint("📚 [getRAGResponse] Using fixed book ID: $fixedBookId");
+
+      final String url =
+          'https://test.ailisher.com/api/mobile/public-chat/ask/$fixedBookId';
+      debugPrint("🌐 [getRAGResponse] URL: $url");
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      };
+
+      // Prepare request body with chat_id if available
+      Map<String, dynamic> requestBody = {
+        'question': input,
+        'history': [],
+        'client_id': 'CLI147189HIGB',
+        'user_id': userId,
+      };
+
+      if (currentChatId != null) {
+        requestBody['chat_id'] = currentChatId;
+        debugPrint(
+          "💬 [getRAGResponse] Using existing chat session: $currentChatId",
+        );
+      } else {
+        debugPrint("🆕 [getRAGResponse] Starting new chat session");
+      }
+
+      final body = jsonEncode(requestBody);
+      debugPrint("✉️ [getRAGResponse] Request body: $body");
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: body,
+      );
+
+      debugPrint("📬 [getRAGResponse] Response Status: ${response.statusCode}");
+      debugPrint("📄 [getRAGResponse] Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        debugPrint("✅ [getRAGResponse] Successfully parsed response.");
+
+        // Store the chat_id for future messages
+        if (json['chat_id'] != null) {
+          currentChatId = json['chat_id'];
+          debugPrint("💾 [getRAGResponse] Stored chat_id: $currentChatId");
+        }
+
+        // Extract llm_response and add to messages
+        final data = json['data'];
+        if (data != null && data['llm_response'] != null) {
+          final aiText = data['llm_response'];
+          debugPrint("🤖 [getRAGResponse] AI Response: $aiText");
+
+          aiReply = aiText;
+          addMessage({"sender": "ai", "message": aiText});
+          showThinkingBubble.value = false;
+        } else {
+          throw Exception('No llm_response found in response data');
+        }
+      } else {
+        debugPrint(
+          "❌ [getRAGResponse] Failed with status code: ${response.statusCode}",
+        );
+        throw Exception('RAG API failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('💥 [getRAGResponse] Exception occurred: $e');
+      rethrow; // Re-throw to trigger fallback to Gemini
+    }
+  }
+
   Future<void> getHybridAIResponse(String input) async {
     if (input.trim().isEmpty) {
       return;
@@ -1369,13 +1469,27 @@ class VoiceController extends GetxController with WidgetsBindingObserver {
     showThinkingBubble.value = true;
 
     try {
-      // Always use Gemini (getAIResponse) and skip RAG logic
-      await getAIResponse(input);
+      // First try RAG API with fixed book ID
+      debugPrint("🔄 [getHybridAIResponse] Trying RAG API first...");
+      await getRAGResponse(input);
       showThinkingBubble.value = false;
     } catch (e) {
-      // Fallback still uses Gemini
-      await getAIResponse(input);
-      showThinkingBubble.value = false;
+      debugPrint("❌ [getHybridAIResponse] RAG API failed: $e");
+      debugPrint("🔄 [getHybridAIResponse] Falling back to Gemini...");
+      try {
+        // Fallback to Gemini if RAG fails
+        await getAIResponse(input);
+        showThinkingBubble.value = false;
+      } catch (geminiError) {
+        debugPrint("❌ [getHybridAIResponse] Gemini also failed: $geminiError");
+        // If both fail, show error message
+        addMessage({
+          "sender": "ai",
+          "message":
+              "Sorry, I'm having trouble connecting right now. Please try again later.",
+        });
+        showThinkingBubble.value = false;
+      }
     } finally {
       isLoading.value = false;
       textController.clear();

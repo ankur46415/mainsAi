@@ -24,6 +24,9 @@ class MyLibraryController extends GetxController {
   String? authToken;
   // Track which descriptions are expanded (keys: workbookId/myWorkbookId/title-index)
   final expandedDescKeys = <String>{}.obs;
+  
+  // Scroll state management
+  final isScrollingDown = false.obs;
 
   @override
   void onInit() async {
@@ -235,6 +238,11 @@ class MyLibraryController extends GetxController {
       expandedDescKeys.add(key);
     }
     expandedDescKeys.refresh();
+  }
+
+  // Scroll state management methods
+  void updateScrollDirection(bool scrollingDown) {
+    isScrollingDown.value = scrollingDown;
   }
 
   @override

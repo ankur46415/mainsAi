@@ -1,4 +1,5 @@
 import '../../app_imports.dart';
+import 'see_more_books_controller.dart';
 
 class WorkBookCategoryPage extends StatefulWidget {
   final String mainCategory;
@@ -17,7 +18,19 @@ class WorkBookCategoryPage extends StatefulWidget {
 }
 
 class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
-  bool isGrid = true;
+  late WorkBookCategoryController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(WorkBookCategoryController());
+  }
+
+  @override
+  void dispose() {
+    Get.delete<WorkBookCategoryController>();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,46 +62,43 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
         ),
 
         actions: [
-          IconButton(
-            tooltip: isGrid ? 'List view' : 'Grid view',
+          Obx(() => IconButton(
+            tooltip: controller.isGrid.value ? 'List view' : 'Grid view',
             onPressed: () {
-              setState(() {
-                isGrid = !isGrid;
-              });
+              controller.toggleView();
             },
             icon: Icon(
-              isGrid ? Icons.view_list_rounded : Icons.grid_view_rounded,
+              controller.isGrid.value ? Icons.view_list_rounded : Icons.grid_view_rounded,
             ),
             color: Colors.white,
-          ),
+          )),
         ],
       ),
 
-      body:
-          isGrid
-              ? GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.68,
-                ),
-                itemCount: widget.books.length,
-                itemBuilder: (context, index) {
-                  final book = widget.books[index];
-                  return _buildImageBox(book, height: Get.width * 0.55);
-                },
-              )
-              : ListView.separated(
-                padding: const EdgeInsets.all(12),
-                itemCount: widget.books.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final book = widget.books[index];
-                  return _buildListItem(book);
-                },
-              ),
+      body: Obx(() => controller.isGrid.value
+          ? GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.68,
+            ),
+            itemCount: widget.books.length,
+            itemBuilder: (context, index) {
+              final book = widget.books[index];
+              return _buildImageBox(book, height: Get.width * 0.55);
+            },
+          )
+          : ListView.separated(
+            padding: const EdgeInsets.all(12),
+            itemCount: widget.books.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final book = widget.books[index];
+              return _buildListItem(book);
+            },
+          )),
     );
   }
 

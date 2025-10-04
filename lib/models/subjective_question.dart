@@ -1,12 +1,19 @@
 class SubjectiveOfQuestions {
   bool? success;
   String? message;
+  String? totalTime;
   List<Data>? data;
 
-  SubjectiveOfQuestions({this.success, this.message, this.data});
+  SubjectiveOfQuestions({
+    this.success,
+    this.message,
+    this.data,
+    this.totalTime,
+  });
 
   SubjectiveOfQuestions.fromJson(Map<String, dynamic> json) {
     success = json['success'];
+    totalTime = json['total_time'];
     message = json['message'];
     if (json['questions'] != null) {
       data = <Data>[];

@@ -22,7 +22,6 @@ class _MainTestScreenState extends State<MainTestScreen>
     with SingleTickerProviderStateMixin {
   late MainTestScreenController controller;
   late TabController _tabController;
-  final Map<String, bool> _expandedStates = {};
 
   @override
   void initState() {
@@ -356,38 +355,48 @@ class _MainTestScreenState extends State<MainTestScreen>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Question  : ${answer.question?.text ?? 'No question text'}',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            color: Colors.grey[800],
+                        Obx(
+                          () => Text(
+                            'Question  : ${answer.question?.text ?? 'No question text'}',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: Colors.grey[800],
+                            ),
+                            maxLines:
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? null
+                                    : 3,
+                            overflow:
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
                           ),
-                          maxLines:
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? null
-                                  : 3,
-                          overflow:
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? TextOverflow.visible
-                                  : TextOverflow.ellipsis,
                         ),
                         if ((answer.question?.text ?? '').length > 100)
-                          TextButton(
-                            onPressed: () => _toggleExpanded(answer.sId ?? ''),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size(50, 30),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? 'See Less'
-                                  : 'See More',
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.blue,
+                          Obx(
+                            () => TextButton(
+                              onPressed:
+                                  () => controller.toggleExpanded(
+                                    answer.sId ?? '',
+                                  ),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(50, 30),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? 'See Less'
+                                    : 'See More',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           ),
@@ -567,18 +576,22 @@ class _MainTestScreenState extends State<MainTestScreen>
                                 color: Colors.grey[800],
                               ),
                               maxLines:
-                                  _expandedStates[answer.sId ?? ''] == true
+                                  controller.expandedStates[answer.sId ?? ''] ==
+                                          true
                                       ? null
                                       : 3,
                               overflow:
-                                  _expandedStates[answer.sId ?? ''] == true
+                                  controller.expandedStates[answer.sId ?? ''] ==
+                                          true
                                       ? TextOverflow.visible
                                       : TextOverflow.ellipsis,
                             ),
                             if ((answer.question?.text ?? '').length > 100)
                               TextButton(
                                 onPressed:
-                                    () => _toggleExpanded(answer.sId ?? ''),
+                                    () => controller.toggleExpanded(
+                                      answer.sId ?? '',
+                                    ),
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size(50, 30),
@@ -586,7 +599,8 @@ class _MainTestScreenState extends State<MainTestScreen>
                                       MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
-                                  _expandedStates[answer.sId ?? ''] == true
+                                  controller.expandedStates[answer.sId ?? ''] ==
+                                          true
                                       ? 'See Less'
                                       : 'See More',
                                   style: GoogleFonts.poppins(
@@ -735,38 +749,48 @@ class _MainTestScreenState extends State<MainTestScreen>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Question  : ${answer.question?.text ?? 'No question text'}',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            color: Colors.grey[800],
+                        Obx(
+                          () => Text(
+                            'Question  : ${answer.question?.text ?? 'No question text'}',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: Colors.grey[800],
+                            ),
+                            maxLines:
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? null
+                                    : 3,
+                            overflow:
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
                           ),
-                          maxLines:
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? null
-                                  : 3,
-                          overflow:
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? TextOverflow.visible
-                                  : TextOverflow.ellipsis,
                         ),
                         if ((answer.question?.text ?? '').length > 100)
-                          TextButton(
-                            onPressed: () => _toggleExpanded(answer.sId ?? ''),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size(50, 30),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              _expandedStates[answer.sId ?? ''] == true
-                                  ? 'See Less'
-                                  : 'See More',
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.blue,
+                          Obx(
+                            () => TextButton(
+                              onPressed:
+                                  () => controller.toggleExpanded(
+                                    answer.sId ?? '',
+                                  ),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size(50, 30),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                controller.expandedStates[answer.sId ?? ''] ==
+                                        true
+                                    ? 'See Less'
+                                    : 'See More',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           ),
@@ -1249,11 +1273,5 @@ class _MainTestScreenState extends State<MainTestScreen>
         ],
       ),
     );
-  }
-
-  void _toggleExpanded(String answerId) {
-    setState(() {
-      _expandedStates[answerId] = !(_expandedStates[answerId] ?? false);
-    });
   }
 }

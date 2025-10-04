@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mains/app_imports.dart';
 
 class QuestionAnswerPage extends StatefulWidget {

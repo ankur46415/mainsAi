@@ -19,6 +19,7 @@ class PaymentController extends GetxController {
   var isLoading = false.obs;
   var plans = <model.AddAmount>[].obs;
   var currentAmount = 0.0.obs;
+  var selectedIndex = Rxn<int>();
   @override
   void onInit() async {
     super.onInit();
@@ -45,7 +46,7 @@ class PaymentController extends GetxController {
         onResponse: (response) {
           final jsonData = json.decode(response.body);
           final parsed = model.AddAmountResponse.fromJson(jsonData);
-          plans.value = parsed.data ?? [];
+          plans.value = parsed.data;
         },
         onError: () {},
       );
@@ -53,6 +54,14 @@ class PaymentController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void selectPlan(int index) {
+    selectedIndex.value = index;
+  }
+
+  void clearSelection() {
+    selectedIndex.value = null;
   }
 
   final String backendUrl = ApiUrls.paytmInitiate;
