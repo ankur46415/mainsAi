@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../app_imports.dart';
 
 class MyProgressScreen extends StatefulWidget {
   const MyProgressScreen({super.key});
@@ -54,39 +55,37 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
       Color(0xFFFFC107),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text("UPSC Progress"), centerTitle: true),
+      appBar: CustomAppBar(title: "My Progress"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
         child: Column(
           children: [
-            // Top hero progress card (blue gradient)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFFFF6B6B),
-                    Color(0xFFFF8E53),
-                    Color(0xFFFFC107),
+                    Color(0xFF2196F3),
+                    Color(0xFF1976D2),
+                    Color(0xFF0D47A1),
                   ],
+
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  // Deep drop shadow for 3D lift
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
-                    blurRadius: 24,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 12),
+                    color: const Color(0xFF344955).withOpacity(0.1),
+                    spreadRadius: 0,
+                    offset: const Offset(0, 6),
                   ),
-                  // Subtle top highlight for beveled feel
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.15),
-                    blurRadius: 6,
-                    offset: const Offset(0, -2),
+                    color: Colors.grey.withOpacity(0.06),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -231,37 +230,10 @@ class _MyProgressScreenState extends State<MyProgressScreen> {
                 ),
               ],
             ),
-
+            SizedBox(height: Get.width * 0.05),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Expanded(
-                //   child: _CardShell(
-                //     title: 'Overall',
-                //     child: _PieChartCard(
-                //       slices: [
-                //         _ChartData(
-                //           'Done',
-                //           (overallCompletion['BPSC']! +
-                //                   overallCompletion['UPPCS']! +
-                //                   overallCompletion['MPPCS']!) /
-                //               3,
-                //           gradientColors[0],
-                //         ),
-                //         _ChartData(
-                //           'Remaining',
-                //           100 -
-                //               ((overallCompletion['BPSC']! +
-                //                       overallCompletion['UPPCS']! +
-                //                       overallCompletion['MPPCS']!) /
-                //                   3),
-                //           remainingColor,
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                const SizedBox(width: 12),
                 Expanded(
                   child: _CardShell(
                     title: 'BPSC',
@@ -425,8 +397,21 @@ class _ExamToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF344955).withOpacity(0.1),
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.06),
+            blurRadius: 8,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -448,7 +433,7 @@ class _ExamToggle extends StatelessWidget {
                   child: Text(
                     e,
                     style: TextStyle(
-                      color: isSel ? Colors.blue[700] : Colors.white,
+                      color: isSel ? Colors.blue[700] : Colors.grey,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -473,28 +458,21 @@ class _CardShell extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [scheme.surface, scheme.surfaceVariant.withOpacity(0.7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          // Primary drop shadow for depth
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 18,
-            spreadRadius: 1,
-            offset: const Offset(0, 10),
+            color: const Color(0xFF344955).withOpacity(0.1),
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
           ),
-          // Soft top-left highlight for 3D bevel
           BoxShadow(
-            color: Colors.white.withOpacity(0.70),
-            blurRadius: 6,
-            offset: const Offset(-2, -2),
+            color: Colors.grey.withOpacity(0.06),
+            blurRadius: 8,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: scheme.outlineVariant.withOpacity(0.6)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -514,5 +492,3 @@ class _CardShell extends StatelessWidget {
     );
   }
 }
-
-// Removed old _chip helper

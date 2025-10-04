@@ -255,14 +255,60 @@ class _WorkBookCategoryPageState extends State<WorkBookCategoryPage> {
 
   Widget _buildPriceBadge(Workbooks book) {
     final dynamic offer = book.offerPrice;
-    String label;
+    final dynamic mrp = book.MRP;
+
     if (offer == null) {
-      label = 'PAID';
-    } else if (offer is num) {
-      label = offer > 0 ? '₹ ${offer.toStringAsFixed(0)}' : 'PAID';
-    } else {
-      label = '₹ $offer';
+      return _buildBadge('PAID', Colors.red);
     }
-    return _buildBadge(label, Colors.red);
+
+    if (offer is num && offer > 0) {
+      // Show both MRP (crossed out) and offer price
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (mrp != null && mrp is num && mrp > offer)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '₹ ${mrp.toStringAsFixed(0)}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white60,
+                      decoration: TextDecoration.lineThrough,
+                      decorationColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+              ),
+            Text(
+              '₹ ${offer.toStringAsFixed(0)}',
+              style: GoogleFonts.poppins(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return _buildBadge('PAID', Colors.red);
+    }
   }
 }

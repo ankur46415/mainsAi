@@ -69,16 +69,21 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                   const SizedBox(height: 6),
                   CreditCard(),
                   const SizedBox(height: 24),
+
                   _buildSettingsOption(
                     icon: Icons.history,
                     title: "Payment History",
                     onTap: () => Get.toNamed(AppRoutes.payHistory),
                   ),
-
                   _buildSettingsOption(
                     icon: Icons.feedback,
                     title: "Feedback",
                     onTap: () => Get.toNamed(AppRoutes.feedback),
+                  ),
+                  _buildSettingsOption(
+                    icon: Icons.history,
+                    title: "My Progress",
+                    onTap: () => Get.toNamed(AppRoutes.myProgressScreen),
                   ),
                   _buildSettingsOption(
                     icon: Icons.description,

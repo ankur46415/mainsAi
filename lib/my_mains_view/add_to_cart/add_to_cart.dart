@@ -394,7 +394,6 @@ class _AddToCartState extends State<AddToCart> {
                             if (itemId != null && itemId.isNotEmpty) {
                               await controller.deleteCartItem(itemId);
                               setState(() {
-                                // Re-sync selectedIndexes with new cart items
                                 final newItems =
                                     controller.cartList.value?.data?.items ??
                                     [];
@@ -554,7 +553,17 @@ class _AddToCartState extends State<AddToCart> {
                                             Text(
                                               item.title ?? 'Untitled Item',
                                               style: GoogleFonts.poppins(
-                                                fontSize: 15,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade800,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              item.title ?? 'Untitled Item',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.w600,
                                                 color: Colors.grey.shade800,
                                               ),
