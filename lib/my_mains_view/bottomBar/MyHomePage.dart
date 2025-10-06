@@ -5,7 +5,7 @@ import 'package:mains/my_mains_view/my_library/controller.dart';
 
 class MyHomePage extends StatefulWidget {
   final int initialLibraryTabIndex;
-  const MyHomePage({super.key, this.initialLibraryTabIndex = 0});
+  MyHomePage({super.key, this.initialLibraryTabIndex = 0});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -67,31 +67,31 @@ class _MyHomePageState extends State<MyHomePage> {
           Get.put(HomeScreenController(), permanent: true);
         }
         return HomeScreenPage();
-
+        
       case 1:
         if (!Get.isRegistered<MyLibraryController>()) {
           Get.put(MyLibraryController(), permanent: true);
         }
         return MyLibraryView(initialTabIndex: widget.initialLibraryTabIndex);
-
+        
       case 2:
         if (!Get.isRegistered<VoiceController>()) {
           Get.put(VoiceController(), permanent: true);
         }
         return VoiceScreen(key: UniqueKey(), isFromBottomNav: true);
-
+        
       case 3:
         if (!Get.isRegistered<MainTestScreenController>()) {
           Get.put(MainTestScreenController(), permanent: true);
         }
         return WorkBookPagesForTest();
-
+        
       case 4:
         if (!Get.isRegistered<ProfileController>()) {
           Get.put(ProfileController(), permanent: true);
         }
         return ProfileScreen();
-
+        
       default:
         return HomeScreenPage();
     }
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onWillPop: () => _onWillPop(context),
       child: Obx(() {
         int currentIndex = controller.currentIndex.value;
-
+        
         return Scaffold(
           backgroundColor: Colors.white,
           body: Stack(

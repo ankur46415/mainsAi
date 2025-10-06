@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/my_mains_view/ai_test/start_test/countdown_controller.dart';
+
 import '../../../app_imports.dart';
 
 class TestCountdownChip extends StatefulWidget {
@@ -29,9 +33,7 @@ class _TestCountdownChipState extends State<TestCountdownChip> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final isNeutral =
-          controller.label.value == 'Available' ||
-          controller.label.value == 'Closed';
+      final isNeutral = controller.label.value == 'Available' || controller.label.value == 'Closed';
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
@@ -85,8 +87,7 @@ class _TestCountdownDisplayState extends State<TestCountdownDisplay> {
       final minutes = controller.remaining.value.inMinutes % 60;
       final seconds = controller.remaining.value.inSeconds % 60;
 
-      if (controller.label.value == 'Available' ||
-          controller.label.value == 'Closed') {
+      if (controller.label.value == 'Available' || controller.label.value == 'Closed') {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           decoration: BoxDecoration(

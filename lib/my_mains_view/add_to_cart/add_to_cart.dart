@@ -503,13 +503,41 @@ class _AddToCartState extends State<AddToCart> {
                                             ),
 
                                             const SizedBox(height: 8),
-                                            Text(
-                                              "₹${(item.price ?? 0).toStringAsFixed(2)}",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.orange.shade700,
-                                              ),
+                                            Row(
+                                              children: [
+                                                if (((item.workbookId?.mrp ??
+                                                            0) >
+                                                        0) &&
+                                                    ((item
+                                                                .workbookId
+                                                                ?.offerPrice ??
+                                                            0) >
+                                                        0)) ...[
+                                                  Text(
+                                                    "₹${((item.workbookId?.mrp ?? 0).toDouble()).toStringAsFixed(2)}",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          Colors.grey.shade500,
+                                                      decoration:
+                                                          TextDecoration
+                                                              .lineThrough,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                ],
+                                                Text(
+                                                  "₹${(((item.workbookId?.offerPrice ?? item.price) ?? 0).toDouble()).toStringAsFixed(2)}",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700,
+                                                    color:
+                                                        Colors.orange.shade700,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),

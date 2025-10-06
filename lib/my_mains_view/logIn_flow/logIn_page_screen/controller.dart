@@ -28,8 +28,7 @@ class UserLogInOption extends GetxController {
         Utils.hideLoader();
         if (response.statusCode == 200) {
           Get.to(() => OtpVerification(mobile: phone));
-        } else {
-        }
+        } else {}
       },
       onError: (errorResponse) {
         Utils.hideLoader();
