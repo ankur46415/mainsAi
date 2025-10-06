@@ -630,7 +630,6 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                         } catch (_) {}
                                         if (startsAt != null &&
                                             DateTime.now().isBefore(startsAt)) {
-                                          // Countdown handled by CountdownDisplay now
                                           Get.dialog(
                                             Dialog(
                                               shape: RoundedRectangleBorder(
@@ -860,39 +859,8 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                         const SizedBox(
                                                           height: 4,
                                                         ),
-                                                        Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons.access_time,
-                                                              size: 16,
-                                                              color:
-                                                                  Colors
-                                                                      .green[700],
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 4,
-                                                            ),
-                                                            Flexible(
-                                                              child: Text(
-                                                                set.startsAt !=
-                                                                        null
-                                                                    ? _formatDateTime(
-                                                                      set.startsAt,
-                                                                    )
-                                                                    : '-',
-                                                                style: GoogleFonts.poppins(
-                                                                  fontSize: 11,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey[600],
-                                                                ),
-                                                                overflow: TextOverflow.ellipsis,
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 12,
-                                                            ),
-                                                          ],
+                                                        const SizedBox(
+                                                          height: 4,
                                                         ),
                                                       ],
                                                     ),
@@ -902,38 +870,64 @@ class _WorkBookDetailesPageState extends State<WorkBookDetailesPage> {
                                                 SizedBox(
                                                   height: Get.width * 0.04,
                                                 ),
-                                                Container(
-                                                  margin: const EdgeInsets.only(
-                                                    right: 12,
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 6,
+                                                Column(
+                                                  children: [
+                                                    CountdownDisplay(
+                                                      startsAt:
+                                                          set.startsAt != null
+                                                              ? DateTime.tryParse(
+                                                                set.startsAt
+                                                                    .toString(),
+                                                              )
+                                                              : null,
+                                                      endsAt:
+                                                          set.endsAt != null
+                                                              ? DateTime.tryParse(
+                                                                set.endsAt
+                                                                    .toString(),
+                                                              )
+                                                              : null,
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Container(
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                            right: 12,
+                                                          ),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.access_time,
+                                                            size: 12,
+                                                            color:
+                                                                Colors
+                                                                    .grey[600],
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 4,
+                                                          ),
+                                                          Text(
+                                                            set.startsAt != null
+                                                                ? _formatDateTime(
+                                                                  set.startsAt,
+                                                                )
+                                                                : '-',
+                                                            style: GoogleFonts.poppins(
+                                                              fontSize: 9,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue[50],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  child: CountdownDisplay(
-                                                    startsAt:
-                                                        set.startsAt != null
-                                                            ? DateTime.tryParse(
-                                                              set.startsAt
-                                                                  .toString(),
-                                                            )
-                                                            : null,
-                                                    endsAt:
-                                                        set.endsAt != null
-                                                            ? DateTime.tryParse(
-                                                              set.endsAt
-                                                                  .toString(),
-                                                            )
-                                                            : null,
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             ),

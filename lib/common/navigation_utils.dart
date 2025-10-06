@@ -8,8 +8,7 @@ class NavigationUtils {
     bool preventDuplicates = true,
   }) async {
     try {
-      if (arguments == null) {
-      }
+      if (arguments == null) {}
 
       return await Get.toNamed<T>(
         route,
