@@ -149,20 +149,20 @@ class _CountdownDisplayState extends State<CountdownDisplay> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
           label,
           style: GoogleFonts.poppins(
             fontSize: 7,
             fontWeight: FontWeight.w500,
             color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
       ],

@@ -127,10 +127,7 @@ class ProfileSetupController extends GetxController {
       "age": selectedAge.value ?? '',
       "gender": selectedGender.value ?? '',
       "exams":
-          selectedCategories
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList(),
+          selectedCategories.map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
       "native_language": selectedLanguage.value ?? '',
       "city": cityController.text.trim(),
       "pincode": pincodeController.text.trim(),
@@ -143,17 +140,18 @@ class ProfileSetupController extends GetxController {
         null,
         url,
         data,
-        onResponse: (response) {
+        onResponse: (response) async {
           if (response.statusCode == 200 || response.statusCode == 201) {
+            // Mark profile complete and add transient flag to avoid immediate redirect
+            await prefs.setBool('is_profile_complete', true);
+            await prefs.setBool('profile_just_completed', true);
             Get.offAll(() => const Decider());
-        
           } else if (response.statusCode == 401 || response.statusCode == 403) {
             SharedPreferences.getInstance().then((prefs) async {
               await prefs.clear();
               Get.offAll(() => User_Login_option());
             });
           } else {
-         
           }
         },
         onError: () {

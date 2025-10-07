@@ -3,7 +3,8 @@ import 'Otp_verfication_Controller.dart';
 
 class OtpVerification extends StatefulWidget {
   final String? mobile;
-  const OtpVerification({super.key, this.mobile});
+  final bool isWhatsAppOtp;
+  const OtpVerification({super.key, this.mobile, this.isWhatsAppOtp = false});
 
   @override
   State<OtpVerification> createState() => _OtpVerificationState();
@@ -64,10 +65,10 @@ class _OtpVerificationState extends State<OtpVerification>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: Get.width * 0.15),
-                Icon(
-                  Icons.verified_user_outlined,
-                  size: 100,
-                  color: primaryColor,
+                Image.asset(
+                  "assets/images/whatsapp.png",
+                  height: Get.width * 0.3,
+                  width: Get.width * 0.2,
                 ),
                 SizedBox(height: 24),
                 Text(
@@ -89,7 +90,12 @@ class _OtpVerificationState extends State<OtpVerification>
                       fontSize: 14,
                     ),
                     children: [
-                      TextSpan(text: "We've sent a 6-digit code to "),
+                      TextSpan(
+                        text:
+                            widget.isWhatsAppOtp
+                                ? "We've sent a 6-digit code via WhatsApp to "
+                                : "We've sent a 6-digit code to ",
+                      ),
                       TextSpan(
                         text: widget.mobile,
                         style: TextStyle(
@@ -217,6 +223,7 @@ class _OtpVerificationState extends State<OtpVerification>
                                 otp: controller.otpCode.value,
                                 deviceId: "your-device-id",
                                 model: "your-device-model",
+                                isWhatsAppOtp: widget.isWhatsAppOtp,
                               );
                             }
                             : null,

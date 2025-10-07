@@ -208,62 +208,152 @@ class _User_Login_optionState extends State<User_Login_option>
                           ),
                         ),
                         SizedBox(height: 30),
-                        // Get OTP button
+
+                        // Get OTP button (temporarily hidden - UI only)
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                        //   child: Obx(
+                        //     () => Container(
+                        //       width: double.infinity,
+                        //       height: 50,
+                        //       child: ElevatedButton(
+                        //         onPressed:
+                        //             controller.isPhoneValid.value &&
+                        //                     !controller.isLoading.value
+                        //                 ? () {
+                        //                   if (!controller
+                        //                       .isTermsAccepted
+                        //                       .value) {
+                        //                     controller.isTermsAccepted.value =
+                        //                         true;
+                        //                   }
+                        //                   controller.getOtp(
+                        //                     this,
+                        //                     controller.phoneController.text,
+                        //                   );
+                        //                 }
+                        //                 : null,
+                        //         style: ElevatedButton.styleFrom(
+                        //           backgroundColor:
+                        //               controller.isPhoneValid.value
+                        //                   ? primaryColor
+                        //                   : Color(0xFFF0F0F0),
+                        //
+                        //           padding: const EdgeInsets.symmetric(
+                        //             vertical: 16,
+                        //           ),
+                        //           shape: RoundedRectangleBorder(
+                        //             borderRadius: BorderRadius.circular(12),
+                        //           ),
+                        //           elevation: 2,
+                        //         ),
+                        //         child:
+                        //             controller.isLoading.value
+                        //                 ? SizedBox(
+                        //                   height: 24,
+                        //                   width: 24,
+                        //                   child: CircularProgressIndicator(
+                        //                     color: secondaryColor,
+                        //                     strokeWidth: 2,
+                        //                   ),
+                        //                 )
+                        //                 : Text(
+                        //                   "Get OTP",
+                        //                   style: GoogleFonts.poppins(
+                        //                     color: secondaryColor,
+                        //                     fontSize: 16,
+                        //                     fontWeight: FontWeight.w500,
+                        //                   ),
+                        //                 ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        SizedBox(height: 20),
+
+                        // // Divider with "OR"
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                        //   child: Row(
+                        //     children: [
+                        //       Expanded(
+                        //         child: Container(
+                        //           height: 1,
+                        //           color: Colors.white.withOpacity(0.3),
+                        //         ),
+                        //       ),
+                        //       Padding(
+                        //         padding: const EdgeInsets.symmetric(horizontal: 16),
+                        //         child: Text(
+                        //           "OR",
+                        //           style: GoogleFonts.poppins(
+                        //             color: Colors.white,
+                        //             fontSize: 14,
+                        //             fontWeight: FontWeight.w500,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       Expanded(
+                        //         child: Container(
+                        //           height: 1,
+                        //           color: Colors.white.withOpacity(0.3),
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        SizedBox(height: 20),
+                        // WhatsApp Login button
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                          child: Obx(
-                            () => Container(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed:
-                                    controller.isPhoneValid.value &&
-                                            !controller.isLoading.value
-                                        ? () {
-                                          if (!controller
-                                              .isTermsAccepted
-                                              .value) {
-                                            controller.isTermsAccepted.value =
-                                                true;
-                                          }
-                                          controller.getOtp(
-                                            this,
-                                            controller.phoneController.text,
-                                          );
-                                        }
-                                        : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      controller.isPhoneValid.value
-                                          ? primaryColor
-                                          : Color(0xFFF0F0F0),
-
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 2,
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed:
+                                  controller.isPhoneValid.value
+                                      ? () {
+                                        controller.loginWithWhatsApp();
+                                      }
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    controller.isPhoneValid.value
+                                        ? Color(0xFF25D366) // WhatsApp green
+                                        : Color(0xFFF0F0F0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
                                 ),
-                                child:
-                                    controller.isLoading.value
-                                        ? SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            color: secondaryColor,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                        : Text(
-                                          "Get OTP",
-                                          style: GoogleFonts.poppins(
-                                            color: secondaryColor,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset("assets/images/whatsapp.png",height:  24,width: 24,),
+                                  // Icon(
+                                  //   Icons.chat,
+                                  //   color:
+                                  //       controller.isPhoneValid.value
+                                  //           ? Colors.white
+                                  //           : Colors.grey,
+                                  //   size: 24,
+                                  // ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Login with WhatsApp",
+                                    style: GoogleFonts.poppins(
+                                      color:
+                                          controller.isPhoneValid.value
+                                              ? Colors.white
+                                              : Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
