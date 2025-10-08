@@ -16,7 +16,7 @@ class AllPlanScreen extends StatefulWidget {
 
 class _AllPlanScreenState extends State<AllPlanScreen> {
   late AllPlanController controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -281,10 +281,7 @@ class _AllPlanScreenState extends State<AllPlanScreen> {
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF90CAF9), // light blue
-                    Color(0xFF42A5F5), // medium blue
-                  ],
+                  colors: [Color(0xFF90CAF9), Color(0xFF42A5F5)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

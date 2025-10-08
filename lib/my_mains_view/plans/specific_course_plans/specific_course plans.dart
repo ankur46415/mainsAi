@@ -125,10 +125,7 @@ class _SpecificCourseState extends State<SpecificCourse> {
                               top: Radius.circular(12),
                             ),
                             gradient: LinearGradient(
-                              colors: [
-                                Color(0xFFFFC107),
-                                Color.fromARGB(255, 236, 87, 87),
-                              ],
+                              colors: [Color(0xFF90CAF9), Color(0xFF42A5F5)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),

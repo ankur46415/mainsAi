@@ -366,7 +366,7 @@ class _MakePaymentState extends State<MakePayment> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: ElevatedButton(
                 onPressed: () {

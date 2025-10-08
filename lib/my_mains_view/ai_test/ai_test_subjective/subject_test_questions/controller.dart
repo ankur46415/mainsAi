@@ -14,12 +14,13 @@ class SubjectiveQuestionsController extends GetxController {
   var isLoading = false.obs;
   String? authToken;
   late SharedPreferences prefs;
-  late Timer _timer;
+  Timer? _timer;
   var totalTime = 0.obs;
   var remainingTime = 0.obs;
   var hasExtendedTime = false.obs;
   var _dialogShown = false;
   String? testId;
+  bool _endApiTriggered = false;
   @override
   void onInit() async {
     super.onInit();
@@ -28,6 +29,7 @@ class SubjectiveQuestionsController extends GetxController {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingTime.value > 0) {
         remainingTime.value--;
@@ -37,14 +39,13 @@ class SubjectiveQuestionsController extends GetxController {
           timer.cancel();
         } else {
           timer.cancel();
+          _endSubjectiveTestOnTimeOver();
           _clearTestStartTime();
-          //Get.offAllNamed(AppRoutes.subTestAnswrUpload);
         }
       }
     });
   }
 
-  // Save test start time when test begins
   Future<void> _saveTestStartTime() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
@@ -53,7 +54,6 @@ class SubjectiveQuestionsController extends GetxController {
     );
   }
 
-  // Get remaining time based on elapsed time
   Future<int> _getRemainingTime() async {
     final prefs = await SharedPreferences.getInstance();
     final startTime = prefs.getInt('${Constants.testStartTime}_$testId');
@@ -62,13 +62,10 @@ class SubjectiveQuestionsController extends GetxController {
     );
 
     if (startTime == null) {
-      // Test not started yet, return full time
       return totalTime.value;
     }
 
-    // Check if time was extended
     if (extensionTime != null) {
-      // Calculate remaining extension time
       final extensionStartTime = prefs.getInt(
         '${Constants.testTimeExtension}_${testId}_start',
       );
@@ -79,7 +76,6 @@ class SubjectiveQuestionsController extends GetxController {
         final remainingSeconds =
             remainingMillis > 0 ? (remainingMillis / 1000).round() : 0;
 
-        // Debug logging
         print('Extension Debug:');
         print('Extension Time: $extensionTime seconds');
         print('Extension Start Time: $extensionStartTime');
@@ -89,7 +85,6 @@ class SubjectiveQuestionsController extends GetxController {
 
         return remainingSeconds;
       } else {
-        // Extension just started, return full extension time
         return extensionTime;
       }
     }
@@ -98,13 +93,12 @@ class SubjectiveQuestionsController extends GetxController {
     final remainingMillis = (totalTime.value * 1000) - elapsed;
 
     if (remainingMillis <= 0) {
-      return 0; // Test time over
+      return 0;
     } else {
-      return (remainingMillis / 1000).round(); // Convert back to seconds
+      return (remainingMillis / 1000).round();
     }
   }
 
-  // Clear test start time when test ends
   Future<void> _clearTestStartTime() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('${Constants.testStartTime}_$testId');
@@ -112,9 +106,7 @@ class SubjectiveQuestionsController extends GetxController {
     await prefs.remove('${Constants.testTimeExtension}_${testId}_start');
   }
 
-  // Check and show extension dialog only if not already given
   Future<void> _checkAndShowExtensionDialog() async {
-    // Check if dialog was already shown in this session
     if (_dialogShown) {
       print('Dialog already shown in this session, skipping');
       return;
@@ -126,33 +118,26 @@ class SubjectiveQuestionsController extends GetxController {
     );
 
     if (extensionTime == null) {
-      // Extension not given yet, show dialog
-      _dialogShown = true; // Mark dialog as shown
+      _dialogShown = true;
       _showTimeExtensionDialog();
     } else {
-      // Extension already given, don't show dialog
       print('Extension already given, skipping dialog');
     }
   }
 
-  // Show time extension dialog
   void _showTimeExtensionDialog() async {
-    // Double check if extension was already given
     final prefs = await SharedPreferences.getInstance();
     final extensionTime = prefs.getInt(
       '${Constants.testTimeExtension}_$testId',
     );
 
     if (extensionTime != null) {
-      // Extension already given, don't show dialog
       print('Extension already given, skipping dialog');
       return;
     }
 
-    // Auto-extend time immediately without waiting for user
     await _extendTestTime();
 
-    // Show popup to inform user (but time is already extended)
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -188,14 +173,12 @@ class SubjectiveQuestionsController extends GetxController {
     );
   }
 
-  // Extend test time by 1 minute
   Future<void> _extendTestTime() async {
     final prefs = await SharedPreferences.getInstance();
     final extensionKey = '${Constants.testTimeExtension}_$testId';
     final extensionStartKey = '${Constants.testTimeExtension}_${testId}_start';
 
-    // Save extension time (1 minute = 60 seconds)
-    await prefs.setInt(extensionKey, 60);
+    await prefs.setInt(extensionKey, 3600);
 
     final currentTime = DateTime.now().millisecondsSinceEpoch;
     await prefs.setInt(extensionStartKey, currentTime);
@@ -203,18 +186,17 @@ class SubjectiveQuestionsController extends GetxController {
     print('Extension Saved:');
     print('Extension Key: $extensionKey');
     print('Extension Start Key: $extensionStartKey');
-    print('Extension Time: 60 seconds');
+    print('Extension Time: 3600 seconds');
     print('Extension Start Time: $currentTime');
 
-    remainingTime.value = 60;
+    remainingTime.value = 3600;
     hasExtendedTime.value = true;
 
-    // Restart timer for extension
     _startTimer();
 
     Get.snackbar(
       "Time Extended",
-      "You have been given 1 additional minute",
+      "You have been given 1 additional hour",
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green.shade100,
       colorText: Colors.green.shade800,
@@ -233,10 +215,11 @@ class SubjectiveQuestionsController extends GetxController {
 
   // Method to actually clear timer when test is submitted
   Future<void> clearTimerOnSubmission() async {
-    _timer.cancel();
+    _timer?.cancel();
     await _clearTestStartTime();
     await _clearTimeExtension();
     remainingTime.value = 0;
+    _endApiTriggered = true; // prevent any further end calls
   }
 
   // Public method to check and show time extension dialog (for other pages)
@@ -249,7 +232,7 @@ class SubjectiveQuestionsController extends GetxController {
   // Method to reset timer to full time
   Future<void> resetTimer() async {
     // Cancel current timer
-    _timer.cancel();
+    _timer?.cancel();
 
     // Clear all timer data
     await _clearTestStartTime();
@@ -312,6 +295,7 @@ class SubjectiveQuestionsController extends GetxController {
 
     this.testId = testId; // Store testId for persistent timer
     _dialogShown = false; // Reset dialog flag for new test
+    _endApiTriggered = false; // allow end API for this new test
 
     if (showLoader) isLoading.value = true;
 
@@ -379,7 +363,54 @@ class SubjectiveQuestionsController extends GetxController {
 
   @override
   void onClose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.onClose();
+  }
+
+  Future<void> _endSubjectiveTestOnTimeOver() async {
+    try {
+      if (_endApiTriggered) {
+        debugPrint('EndTest: already triggered, skipping');
+        return;
+      }
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('authToken') ?? '';
+      final currentTestId = testId ?? '';
+
+      if (currentTestId.isEmpty || authToken.isEmpty) {
+        print('EndTest: Missing testId or auth token. testId=' + currentTestId);
+        return;
+      }
+
+      final url =
+          'https://test.ailisher.com/api/subjectivetest/clients/CLI147189HIGB/tests/' +
+          currentTestId +
+          '/end';
+
+      debugPrint('EndTest: POST ' + url);
+      print('EndTest URL: ' + url);
+
+      await callWebApi(
+        null,
+        url,
+        {},
+        token: authToken,
+        showLoader: false,
+        onResponse: (response) {
+          try {
+            debugPrint('EndTest: status=' + response.statusCode.toString());
+            debugPrint('EndTest: body=' + response.body.toString());
+            json.decode(response.body);
+          } catch (e) {
+            debugPrint('EndTest: parse error');
+          }
+        },
+        onError: () {
+          debugPrint('EndTest: request error');
+        },
+      );
+    } catch (e) {
+      debugPrint('EndTest: exception ' + e.toString());
+    }
   }
 }

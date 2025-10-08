@@ -38,8 +38,7 @@ class _TestAnalyticsCardState extends State<TestAnalyticsCard> {
       final notAttempted = submission?.notAttemptedQuestions ?? 0;
 
       if (submission?.attemptedQuestionsDetails != null) {
-        for (var q in submission!.attemptedQuestionsDetails!) {
-}
+        for (var q in submission!.attemptedQuestionsDetails!) {}
       }
 
       return Card(
