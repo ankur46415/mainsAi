@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mains/app_routes.dart';
+import '../../subject_test_questions/controller.dart';
 
 class SyncUploadAnswerController extends GetxController {
   String? authToken;
@@ -396,6 +397,14 @@ class SyncUploadAnswerController extends GetxController {
       } else {}
 
       if (!anyFailures) {
+        // Clear timer when test is successfully submitted
+        try {
+          final questionsController = Get.find<SubjectiveQuestionsController>();
+          await questionsController.clearTimerOnSubmission();
+        } catch (e) {
+          // Controller might not exist, ignore
+        }
+
         Get.snackbar(
           'Upload Successful',
           'All questions uploaded and test submitted.',

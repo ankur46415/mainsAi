@@ -5,12 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mains/my_mains_view/logIn_flow/logIn_page_screen/terms&conditions.dart';
 import 'controller.dart';
 
-class User_Login_option extends StatefulWidget {
+class UseerLogInScreen extends StatefulWidget {
+  const UseerLogInScreen({super.key});
+
   @override
-  State<StatefulWidget> createState() => _User_Login_optionState();
+  State<StatefulWidget> createState() => _UseerLogInScreenState();
 }
 
-class _User_Login_optionState extends State<User_Login_option>
+class _UseerLogInScreenState extends State<UseerLogInScreen>
     with SingleTickerProviderStateMixin {
   late UserLogInOption controller;
   final Color primaryColor = Color(0xFF6C63FF);
@@ -171,7 +173,6 @@ class _User_Login_optionState extends State<User_Login_option>
                                           value.length == 10;
                                       controller.update();
                                       if (value.length == 10) {
-                                        // Auto-check Terms & Conditions when 10 digits entered
                                         if (!controller.isTermsAccepted.value) {
                                           controller.isTermsAccepted.value =
                                               true;
@@ -319,7 +320,7 @@ class _User_Login_optionState extends State<User_Login_option>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     controller.isPhoneValid.value
-                                        ? Color(0xFF25D366) // WhatsApp green
+                                        ? Color(0xFF25D366)
                                         : Color(0xFFF0F0F0),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -332,15 +333,11 @@ class _User_Login_optionState extends State<User_Login_option>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset("assets/images/whatsapp.png",height:  24,width: 24,),
-                                  // Icon(
-                                  //   Icons.chat,
-                                  //   color:
-                                  //       controller.isPhoneValid.value
-                                  //           ? Colors.white
-                                  //           : Colors.grey,
-                                  //   size: 24,
-                                  // ),
+                                  Image.asset(
+                                    "assets/images/whatsapp.png",
+                                    height: 24,
+                                    width: 24,
+                                  ),
                                   SizedBox(width: 12),
                                   Text(
                                     "Login with WhatsApp",

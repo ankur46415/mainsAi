@@ -1,12 +1,47 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:mains/app_imports.dart';
 import 'controller.dart';
+import '../../subject_test_questions/controller.dart';
 
-class SyncSubAnswer extends StatelessWidget {
-  SyncSubAnswer({super.key});
+class SyncSubAnswer extends StatefulWidget {
+  const SyncSubAnswer({super.key});
 
+  @override
+  State<SyncSubAnswer> createState() => _SyncSubAnswerState();
+}
+
+class _SyncSubAnswerState extends State<SyncSubAnswer> {
   final controller = Get.put(SyncUploadAnswerController());
   final uploadController = Get.find<SubTestAnswerUploadController>();
+  late SubjectiveQuestionsController questionsController;
+  // Remove page-level timer to prevent double ticking
+
+  @override
+  void initState() {
+    super.initState();
+    // Get the existing questions controller to access timer
+    questionsController = Get.find<SubjectiveQuestionsController>();
+    
+    // Check for time extension when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionsController.checkAndShowTimeExtension();
+    });
+  }
+
+  @override
+  void dispose() {
+    // No page-level timer to cancel
+    super.dispose();
+  }
+
+  String formatDuration(int seconds) {
+    final duration = Duration(seconds: seconds);
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final secs = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return "$hours:$minutes:$secs";
+  }
 
   void _showImagePreview(String imagePath) {
     final file = File(imagePath);
@@ -376,50 +411,18 @@ class SyncSubAnswer extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              Get.until((route) => route.settings.name == AppRoutes.home);
-            }
-          },
-        ),
-        title: Text(
-          "Summary",
+      appBar: CustomAppBar(
+        title: 'Summary', 
+        showBackButton: true,
+        showTimer: true,
+        timerWidget: Obx(() => Text(
+          formatDuration(questionsController.remainingTime.value),
           style: GoogleFonts.poppins(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
             color: Colors.white,
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_sweep, color: Colors.white),
-            onPressed: () => _clearAllData(),
-            tooltip: "Clear All Data",
-          ),
-        ],
-
-        // ✅ Gradient background
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFFC107), Color.fromARGB(255, 236, 87, 87)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-          ),
-        ),
+        )),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {

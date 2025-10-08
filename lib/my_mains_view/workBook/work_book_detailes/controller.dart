@@ -77,7 +77,7 @@ class WorkBookBOOKDetailes extends GetxController {
     final authToken = prefs.getString('authToken');
 
     if (authToken == null || authToken.isEmpty) {
-      Get.offAll(() => User_Login_option());
+      Get.offAll(() => UseerLogInScreen());
       return;
     }
 
@@ -102,7 +102,7 @@ class WorkBookBOOKDetailes extends GetxController {
             Get.find<MyLibraryController>().loadBooks();
           } else if (response.statusCode == 401 || response.statusCode == 403) {
             await prefs.clear();
-            Get.offAll(() => User_Login_option());
+            Get.offAll(() => UseerLogInScreen());
           } else {}
         },
         onError: () {},

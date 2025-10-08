@@ -34,7 +34,43 @@ class _SubjectiveTestAllquestionsState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "All Questions"),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFFC107), // Yellow
+                Color.fromARGB(255, 236, 87, 87), // Soft Red
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+        ),
+        title: Text(
+          "All Questions",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          InkWell(
+            onTap: () {
+              controller.resetTimer();
+            },
+            child: Icon(Icons.reset_tv, color: Colors.white),
+          ),
+        ],
+      ),
 
       body: SafeArea(
         child: Column(

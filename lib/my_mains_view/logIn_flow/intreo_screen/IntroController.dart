@@ -23,7 +23,7 @@ class IntroController extends GetxController {
         curve: Curves.easeInOut,
       );
     } else {
-      Get.off(() => User_Login_option());
+      Get.off(() => UseerLogInScreen());
     }
   }
 

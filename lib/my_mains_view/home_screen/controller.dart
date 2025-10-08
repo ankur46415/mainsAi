@@ -168,7 +168,7 @@ class HomeScreenController extends GetxController {
             await prefs.clear();
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.offAll(() => User_Login_option());
+              Get.offAll(() => UseerLogInScreen());
             });
 
             return;

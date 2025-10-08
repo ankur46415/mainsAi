@@ -5,11 +5,15 @@ import 'package:get/get.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBackButton;
+  final bool showTimer;
+  final Widget? timerWidget;
 
   const CustomAppBar({
     Key? key,
     required this.title,
     this.showBackButton = false,
+    this.showTimer = false,
+    this.timerWidget,
   }) : super(key: key);
 
   @override
@@ -44,14 +48,39 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
 
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w600,
-          fontSize: 20,
-          color: Colors.white,
-        ),
-      ),
+      title: showTimer && timerWidget != null
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  ),
+                  child: timerWidget!,
+                ),
+              ],
+            )
+          : Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
     );
   }
 

@@ -149,19 +149,23 @@ class SubjectiveQuestionsController extends GetxController {
       return;
     }
 
+    // Auto-extend time immediately without waiting for user
+    await _extendTestTime();
+
+    // Show popup to inform user (but time is already extended)
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Time Extension",
+          "Time Extended",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-            color: Colors.red.shade700,
+            color: Colors.green.shade700,
           ),
         ),
         content: Text(
-          "Your test time is going to end, so now we will extend your time 1 more minute.",
+          "Your test time has been automatically extended by 1 minute.",
           style: GoogleFonts.poppins(fontSize: 14, height: 1.4),
           textAlign: TextAlign.center,
         ),
@@ -169,7 +173,6 @@ class SubjectiveQuestionsController extends GetxController {
           TextButton(
             onPressed: () {
               Get.back();
-              _extendTestTime();
             },
             child: Text(
               "OK",
@@ -219,12 +222,51 @@ class SubjectiveQuestionsController extends GetxController {
     );
   }
 
-  // Public method to end test and clear data
+  // Public method to end test but preserve timer state
   Future<void> endTest() async {
+    // Don't cancel timer or clear data - let it continue on next page
+    // _timer.cancel();
+    // await _clearTestStartTime();
+    // await _clearTimeExtension();
+    // remainingTime.value = 0;
+  }
+
+  // Method to actually clear timer when test is submitted
+  Future<void> clearTimerOnSubmission() async {
     _timer.cancel();
     await _clearTestStartTime();
     await _clearTimeExtension();
     remainingTime.value = 0;
+  }
+
+  // Public method to check and show time extension dialog (for other pages)
+  Future<void> checkAndShowTimeExtension() async {
+    if (remainingTime.value <= 0 && !hasExtendedTime.value) {
+      await _checkAndShowExtensionDialog();
+    }
+  }
+
+  // Method to reset timer to full time
+  Future<void> resetTimer() async {
+    // Cancel current timer
+    _timer.cancel();
+
+    // Clear all timer data
+    await _clearTestStartTime();
+    await _clearTimeExtension();
+
+    // Reset extension flags
+    hasExtendedTime.value = false;
+    _dialogShown = false;
+
+    // Set timer to full time
+    remainingTime.value = totalTime.value;
+
+    // Save new start time
+    await _saveTestStartTime();
+
+    // Restart timer
+    _startTimer();
   }
 
   // Clear time extension data

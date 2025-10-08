@@ -1,11 +1,46 @@
+import 'dart:async';
 import 'package:mains/app_imports.dart';
 import 'sync_upload_answer/controller.dart';
+import '../subject_test_questions/controller.dart';
 import 'dart:io';
 
-class SubjectiveTestAnswerUpload extends StatelessWidget {
-  SubjectiveTestAnswerUpload({super.key});
+class SubjectiveTestAnswerUpload extends StatefulWidget {
+  const SubjectiveTestAnswerUpload({super.key});
 
+  @override
+  State<SubjectiveTestAnswerUpload> createState() =>
+      _SubjectiveTestAnswerUploadState();
+}
+
+class _SubjectiveTestAnswerUploadState
+    extends State<SubjectiveTestAnswerUpload> {
   final controller = Get.put(SubTestAnswerUploadController());
+  late SubjectiveQuestionsController questionsController;
+  // Remove page-level timer to prevent double ticking
+
+  @override
+  void initState() {
+    super.initState();
+    questionsController = Get.find<SubjectiveQuestionsController>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionsController.checkAndShowTimeExtension();
+    });
+  }
+
+  @override
+  void dispose() {
+    // No page-level timer to cancel
+    super.dispose();
+  }
+
+  String formatDuration(int seconds) {
+    final duration = Duration(seconds: seconds);
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final secs = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return "$hours:$minutes:$secs";
+  }
 
   void _showImagePreview(String questionId, int index, File file) {
     Get.dialog(
@@ -204,8 +239,6 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
           Obx(() {
             final imageList = controller.answerImages[questionId]!;
 
-            final hasAtLeastOne = imageList.any((img) => img.value != null);
-
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -219,15 +252,6 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                if (!hasAtLeastOne)
-                  Text(
-                    'Minimum 1 image required',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.red,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
               ],
             );
           }),
@@ -240,7 +264,21 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: CustomAppBar(title: 'Upload Answer', showBackButton: true),
+      appBar: CustomAppBar(
+        title: 'Upload Answer',
+        showBackButton: true,
+        showTimer: true,
+        timerWidget: Obx(
+          () => Text(
+            formatDuration(questionsController.remainingTime.value),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
       body: Obx(
         () => ListView(
           padding: const EdgeInsets.all(16),
@@ -254,23 +292,7 @@ class SubjectiveTestAnswerUpload extends StatelessWidget {
                   ? null
                   : () async {
                     try {
-                      // Validate: at least 1 image per question
-                      for (final q in controller.questions) {
-                        final qid = q['id'];
-                        final list =
-                            controller.answerImages[qid] ?? <Rx<File?>>[].obs;
-                        final hasImage = list.any((rx) => rx.value != null);
-                        if (!hasImage) {
-                          Get.snackbar(
-                            'Add Image',
-                            'Please add at least 1 image for each question before continuing.',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                          return;
-                        }
-                      }
+                      // No validation required - user can proceed without images
 
                       controller.isSaving.value = true;
                       final syncController = Get.put(
