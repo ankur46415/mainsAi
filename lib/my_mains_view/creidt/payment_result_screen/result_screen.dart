@@ -59,10 +59,7 @@ class PaymentResultScreen extends StatelessWidget {
                   "Order ID: $orderId",
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
-
                 const SizedBox(height: 40),
-
-                // ✅ Continue Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

@@ -26,7 +26,7 @@ class SupportCard extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.08),
       child: ClipPath(
-        clipper: _SupportBannerZigZagClipper(),
+        clipper: SupportBannerDoubleWaveClipper(),
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -41,144 +41,144 @@ class SupportCard extends StatelessWidget {
             borderRadius: BorderRadius.zero,
           ),
           child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title with icon
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      Icons.help_outline,
-                      color: Colors.blue.shade600,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "Not Sure What Plan To Choose?",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.blue.shade100, width: 1),
-                ),
-                child: Column(
+            padding: const EdgeInsets.all(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title with icon
+                Row(
                   children: [
-                    Text(
-                      "Contact Us..",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blue.shade700,
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Icon(
+                        Icons.help_outline,
+                        color: Colors.blue.shade600,
+                        size: 18,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            _launchEmail("vijay.wiz@gmail.com");
-                          },
-                          child: _buildContactItem(
-                            icon: Icons.mail_rounded,
-                            text: "contact@mainsapp.com",
-                          ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Not Sure What Plan To Choose?",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                          height: 1.2,
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.call,
-                        size: 18,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        "Request Call",
+                const SizedBox(height: 16),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.blue.shade100, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Contact Us..",
                         style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.white,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Colors.blue.shade700,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 12,
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              _launchEmail("vijay.wiz@gmail.com");
+                            },
+                            child: _buildContactItem(
+                              icon: Icons.mail_rounded,
+                              text: "contact@mainsapp.com",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.call,
+                          size: 18,
+                          color: Colors.white,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        label: Text(
+                          "Request Call",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Image.asset(
-                        "assets/images/whatsapp.png",
-                        width: 16,
-                        height: 16,
-                      ),
-                      label: Text(
-                        "WhatsApp",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Image.asset(
+                          "assets/images/whatsapp.png",
+                          width: 16,
+                          height: 16,
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 12,
+                        label: Text(
+                          "WhatsApp",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -216,50 +216,46 @@ class SupportCard extends StatelessWidget {
   }
 }
 
-class _SupportBannerZigZagClipper extends CustomClipper<Path> {
+class SupportBannerDoubleWaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final Path path = Path();
     final double width = size.width;
     final double height = size.height;
 
-    // Tune these for density and depth of triangles
-    const double toothWidth = 28; // px per triangle base
-    const double topDepth = 14; // px depth of top cut
-    const double bottomDepth = 12; // px depth of bottom cut
+    const double segmentWidth = 28; // width of each wave segment
+    const double amplitude = 14; // height of each wave
 
-    // Start at top-left
-    path.moveTo(0, 0);
-
-    // Top zig-zag (inverted triangles cut into the banner)
+    // ===== Top wave =====
+    path.moveTo(0, amplitude);
     double x = 0;
-    while (x + toothWidth <= width) {
-      path.lineTo(x + toothWidth / 2, topDepth);
-      path.lineTo(x + toothWidth, 0);
-      x += toothWidth;
-    }
-    // Handle any remainder to reach full width cleanly
-    if (x < width) {
-      final double rem = width - x;
-      path.lineTo(x + rem / 2, topDepth * (rem / toothWidth));
-      path.lineTo(width, 0);
+    while (x < width) {
+      path.quadraticBezierTo(
+        x + segmentWidth / 2,
+        0, // control point at top
+        x + segmentWidth,
+        amplitude, // back to baseline
+      );
+      x += segmentWidth;
     }
 
-    // Right edge down
-    path.lineTo(width, height);
+    // ===== Right edge down =====
+    path.lineTo(width, height - amplitude);
 
-    // Bottom zig-zag (upright triangles cut into the banner)
+    // ===== Bottom wave ===== (mirror of top)
     x = width;
-    while (x - toothWidth >= 0) {
-      path.lineTo(x - toothWidth / 2, height - bottomDepth);
-      path.lineTo(x - toothWidth, height);
-      x -= toothWidth;
+    while (x > 0) {
+      path.quadraticBezierTo(
+        x - segmentWidth / 2,
+        height, // control point at bottom
+        x - segmentWidth,
+        height - amplitude, // back to baseline
+      );
+      x -= segmentWidth;
     }
-    if (x > 0) {
-      final double rem = x; // remaining width to left edge
-      path.lineTo(rem / 2, height - bottomDepth * (rem / toothWidth));
-      path.lineTo(0, height);
-    }
+
+    // ===== Left edge up =====
+    path.lineTo(0, amplitude);
 
     path.close();
     return path;
