@@ -62,14 +62,6 @@ class _SubjectiveTestAllquestionsState
             color: Colors.white,
           ),
         ),
-        actions: [
-          InkWell(
-            onTap: () {
-              controller.resetTimer();
-            },
-            child: Icon(Icons.reset_tv, color: Colors.white),
-          ),
-        ],
       ),
 
       body: SafeArea(

@@ -145,10 +145,110 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: GestureDetector(
-          onTap: () {
-            if (controller.questionCount.value.isNotEmpty &&
+          onTap: () async {
+            final hasQuestions =
+                controller.questionCount.value.isNotEmpty &&
                 int.tryParse(controller.questionCount.value) != null &&
-                int.parse(controller.questionCount.value) > 0) {
+                int.parse(controller.questionCount.value) > 0;
+
+            // Only show confirmation when starting a new test (not continue)
+            final buttonText = controller.getButtonText();
+            final isStartNow = buttonText.toLowerCase().contains('start');
+
+            if (hasQuestions) {
+              if (isStartNow) {
+                final bool? confirmed = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (dialogContext) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor: Colors.transparent,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFFFC107), // Amber
+                              Color.fromARGB(255, 236, 87, 87), // Red
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Before You Start',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Once you start the test, you must submit your answers within the given time. If the time ends, the test will automatically end and your progress will be submitted as is.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(
+                                      color: Colors.white.withOpacity(0.8),
+                                    ),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed:
+                                      () => Navigator.of(
+                                        dialogContext,
+                                      ).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor:
+                                        Theme.of(
+                                          dialogContext,
+                                        ).colorScheme.primary,
+                                  ),
+                                  onPressed:
+                                      () =>
+                                          Navigator.of(dialogContext).pop(true),
+                                  child: const Text('Start Test'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+
+                if (confirmed != true) return;
+              }
+
               Get.toNamed(
                 AppRoutes.subjectiveTestAllquestions,
                 arguments: controller.testId.value,
@@ -156,11 +256,13 @@ class _SubjTestDescriptionState extends State<SubjTestDescription> {
             }
           },
           child: Obx(() {
-            final hasQuestions = controller.questionCount.value.isNotEmpty && 
+            final hasQuestions =
+                controller.questionCount.value.isNotEmpty &&
                 int.tryParse(controller.questionCount.value) != null &&
                 int.parse(controller.questionCount.value) > 0;
-            final buttonColor = hasQuestions ? CustomColors.dayStart : Colors.grey.shade400;
-            
+            final buttonColor =
+                hasQuestions ? CustomColors.dayStart : Colors.grey.shade400;
+
             return Container(
               width: double.infinity,
               height: 60,
