@@ -75,9 +75,10 @@ class SubjectiveTestController extends GetxController {
   String formatDateTime(dynamic date) {
     if (date == null) return '-';
     try {
-      final dt = date is String
-          ? DateTime.parse(date).toLocal()
-          : (date as DateTime).toLocal();
+      final dt =
+          date is String
+              ? DateTime.parse(date).toLocal()
+              : (date as DateTime).toLocal();
 
       // Convert to 12-hour format
       final hour = dt.hour;
@@ -112,35 +113,32 @@ class SubjectiveTestController extends GetxController {
   }
 
   void startTest(BuildContext context) {
-    final DateTime? startsAt = testData.startsAt != null
-        ? DateTime.tryParse(testData.startsAt!)
-        : null;
+    final DateTime? startsAt =
+        testData.startsAt != null
+            ? DateTime.tryParse(testData.startsAt!)
+            : null;
     final now = DateTime.now();
-    
+
     if (startsAt != null && now.isBefore(startsAt)) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Test Not Started'),
-          content: Text(
-            'Test will start on: ${formatDateTime(startsAt)}',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Test Not Started'),
+              content: Text('Test will start on: ${formatDateTime(startsAt)}'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
-    
+
     try {
-      Get.toNamed(
-        AppRoutes.subjectiveDescription,
-        arguments: testData,
-      );
+      Get.toNamed(AppRoutes.subjectiveDescription, arguments: testData);
     } catch (e) {
       Get.snackbar(
         'Error',

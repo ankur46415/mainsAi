@@ -505,7 +505,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    "Score: ${attempt.totalMarksEarned}",
+                                                    "Score: ${attempt.totalMarksEarned.toStringAsFixed(2)}",
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 13,
                                                     ),
@@ -522,7 +522,7 @@ class _ObjectiveTestNameState extends State<ObjectiveTestName> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    "Correct: ${attempt.correctAnswers} / ${attempt.totalQuestions}",
+                                                    "Correct: ${attempt.correctAnswers}   Incorrect: ${attempt.totalQuestions - attempt.correctAnswers}",
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 13,
                                                     ),

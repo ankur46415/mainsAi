@@ -1,4 +1,5 @@
 import 'package:mains/app_imports.dart';
+import 'package:mains/models/ai_test_subjective.dart';
 import 'package:mains/my_mains_view/ai_test/ai_test_subjective/subjective_test_name/test_analytics.dart';
 import 'package:mains/my_mains_view/ai_test/ai_test_subjective/subjective_test_name/controller.dart';
 import 'package:mains/my_mains_view/workBook/work_book_detailes/count_down.dart';
@@ -13,6 +14,7 @@ class SubjectiveTestNamePage extends StatefulWidget {
 class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
   final GlobalKey<SlideActionState> key = GlobalKey();
   late SubjectiveTestController controller;
+  late AiTestItem testData;
 
   @override
   void initState() {
@@ -21,6 +23,11 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.checkIfLongDescription(context);
     });
+    final arguments = Get.arguments;
+
+    if (arguments != null && arguments is AiTestItem) {
+      testData = arguments;
+    } else {}
   }
 
   @override
@@ -134,7 +141,6 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                             color: Colors.white70,
                           ),
                         ),
-
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -172,7 +178,6 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                                   ),
                                 ],
                               ),
-
                               const SizedBox(height: 8),
                               Builder(
                                 builder: (context) {
@@ -276,32 +281,145 @@ class _SubjectiveTestNamePageState extends State<SubjectiveTestNamePage> {
                   ],
                   if (controller.testData.userTestStatus?.attempted !=
                       true) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          controller.startTest(context);
-                        },
-                        icon: const Icon(Icons.play_arrow, color: Colors.white),
-                        label: Text(
-                          "Let's Start",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                    if (controller.testData.isPaid == true &&
+                        controller.testData.isEnrolled != true) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final SubPlanDetails? activePlan = controller
+                                .testData
+                                .planDetails
+                                ?.firstWhereOrNull(
+                                  (p) =>
+                                      (p.id ?? '').isNotEmpty &&
+                                      (p.status == null ||
+                                          p.status == 'active'),
+                                );
+                            final String? planId =
+                                activePlan?.id ??
+                                controller.testData.planDetails
+                                    ?.firstWhereOrNull(
+                                      (p) => (p.id ?? '').isNotEmpty,
+                                    )
+                                    ?.id;
+                            if (planId == null || planId.isEmpty) {
+                              Get.snackbar(
+                                'Plan',
+                                'Plan not available right now',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+                            Get.toNamed(
+                              AppRoutes.specificCourse,
+                              arguments: {'planId': planId},
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.shopping_cart,
                             color: Colors.white,
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Color(0xFFFFC107),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          label: Text(
+                            "Buy Tests",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
-                          elevation: 4,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 14,
+                            ),
+                            backgroundColor: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 6,
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                    ] else ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFFC107), // Amber
+                                Color.fromARGB(255, 236, 87, 87), // Red
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              final DateTime? startsAt =
+                                  controller.testData.startsAt != null
+                                      ? DateTime.tryParse(
+                                        controller.testData.startsAt!,
+                                      )
+                                      : null;
+                              final now = DateTime.now();
+                              if (startsAt != null && now.isBefore(startsAt)) {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: const Text('Test Not Started'),
+                                        content: Text(
+                                          'Test will start on: ${controller.formatDateTime(controller.testData.startsAt)}',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(context).pop(),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                );
+                                return;
+                              }
+                              controller.startTest(context);
+                            },
+                            icon: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              "Let's Start",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 14,
+                              ),
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 6,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
+
+                  // If attempted == true, nothing will be shown
                 ],
               ),
             ),

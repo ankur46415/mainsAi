@@ -120,7 +120,9 @@ class Test {
   String? updatedAt;
   String? startsAt;
   String? endsAt;
+  final bool? isEnrolled;
   UserTestStatus? userTestStatus;
+  final List<SubPlanDetails> planDetails;
 
   Test({
     this.isEnabled,
@@ -142,7 +144,9 @@ class Test {
     this.updatedAt,
     this.startsAt,
     this.endsAt,
+    this.isEnrolled,
     this.userTestStatus,
+    this.planDetails = const [],
   });
 
   factory Test.fromJson(Map<String, dynamic> json) {
@@ -166,10 +170,16 @@ class Test {
       updatedAt: json['updated_at'],
       startsAt: json['startsAt'],
       endsAt: json['endsAt'],
+      isEnrolled: json['isEnrolled'] ?? false,
       userTestStatus:
           json['userTestStatus'] != null
               ? UserTestStatus.fromJson(json['userTestStatus'])
               : null,
+      planDetails:
+          (json['planDetails'] as List<dynamic>?)
+              ?.map((e) => SubPlanDetails.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -192,9 +202,57 @@ class Test {
     'created_at': createdAt,
     'updated_at': updatedAt,
     'startsAt': startsAt,
+    'isEnrolled': isEnrolled,
     'endsAt': endsAt,
     'userTestStatus': userTestStatus?.toJson(),
+    'planDetails': planDetails.map((e) => e.toJson()).toList(),
   };
+}
+
+class SubPlanDetails {
+  String? id;
+  String? name;
+  String? description;
+  int? mrp;
+  int? offerPrice;
+  String? category;
+  int? duration;
+  String? status;
+
+  SubPlanDetails({
+    this.id,
+    this.name,
+    this.description,
+    this.mrp,
+    this.offerPrice,
+    this.category,
+    this.duration,
+    this.status,
+  });
+
+  SubPlanDetails.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    description = json['description'];
+    mrp = json['mrp'];
+    offerPrice = json['offerPrice'];
+    category = json['category'];
+    duration = json['duration'];
+    status = json['status'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['description'] = description;
+    data['mrp'] = mrp;
+    data['offerPrice'] = offerPrice;
+    data['category'] = category;
+    data['duration'] = duration;
+    data['status'] = status;
+    return data;
+  }
 }
 
 class UserTestStatus {

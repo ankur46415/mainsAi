@@ -321,9 +321,9 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                                 final test = enabledTests[index];
                                 return GestureDetector(
                                   onTap: () {
-                                    NavigationUtils.navigateToTestDetails(
-                                      test,
+                                    Get.toNamed(
                                       AppRoutes.subjectiveTestNamePage,
+                                      arguments: test,
                                     );
                                   },
                                   child: _buildTestCard(
@@ -403,7 +403,6 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                   ),
                 ),
           ),
-          // Paid indicator - only show when isEnrolled or isPaid is true
           if (isEnrolled == true)
             Positioned(
               bottom: 8,
@@ -431,30 +430,27 @@ class _AiTestSubHomeState extends State<AiTestSubHome>
                 ),
               ),
             )
-          else if (isPaid == true)
+          else if (isPaid == true && isEnrolled != true)
             Positioned(
               bottom: 8,
               left: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.red,
+                  color: Colors.grey,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Text(
-                  'PAID',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: const Icon(
+                  Icons.lock,
+                  size: 12, // adjust size as needed
+                  color: Colors.white,
                 ),
               ),
             ),
